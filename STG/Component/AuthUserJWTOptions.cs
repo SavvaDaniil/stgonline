@@ -11,7 +11,7 @@ namespace STG.Component
     {
         public const string ISSUER = "STGONLINE"; // издатель токена
         public const string AUDIENCE = "User"; // потребитель токена
-        const string KEY = "fJHs92FGdop43y7nbedske*(js3GFl3mfvj4ly9";   // ключ для шифрации
+        const string KEY = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";   // ключ для шифрации
         //public const int LIFETIME = 1; // время жизни токена - 1 минута
         public static SymmetricSecurityKey GetSymmetricSecurityKey()
         {
