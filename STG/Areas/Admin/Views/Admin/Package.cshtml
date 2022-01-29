@@ -1,0 +1,1132 @@
+﻿@using STG.ViewModels.Package
+@using STG.Entities
+@model PackageEditViewModel
+
+
+@{
+    Layout = "_LayoutWithoutScripts";
+    ViewData["Title"] = "Редактирование пакета уроков";
+    @using Microsoft.AspNetCore.Antiforgery;
+    @inject IAntiforgery antiforgery
+    var tokenSet = antiforgery.GetAndStoreTokens(Context);
+}
+
+
+<div class="pageheader">
+    <div class="media">
+        <div class="pageicon pull-left">
+            <i class="fa fa-th-list"></i>
+        </div>
+        <div class="media-body">
+            <ul class="breadcrumb">
+                <li><a href=""><i class="glyphicon glyphicon-users"></i></a></li>
+                <li>Редактирование программы</li>
+            </ul>
+            <h4>Редактирование программы: id @Model.id </h4>
+        </div>
+    </div><!-- media -->
+</div><!-- pageheader -->
+<div class="panel panel-dark-head">
+
+
+    <div class="contentpanel">
+        <div class="row">
+
+            <div class="col-sm-12 col-md-12">
+
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs nav-line">
+                    <li class="active"><a href="#activities" data-toggle="tab"><strong>Данные</strong></a></li>
+                    <li><a href="#structure" data-toggle="tab" onclick="getAllPackagedays()"><strong>Структура программы</strong></a></li>
+
+                </ul>
+
+                <!-- Tab panes -->
+                <div class="tab-content nopadding noborder">
+                    <div class="tab-pane active" id="activities">
+                        <div class="activity-list">
+                            <div class="media">
+
+
+                                <form id="formProgram" class="form-package" enctype="multipart/form-data">
+                                    <input type="text" name="id" class="form-control input-hide" id="id" value="@Model.id" />
+
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4 col-xs-12" for="id">ID: @Model.id</label>
+                                    </div>
+
+
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4 col-xs-12" for="name">Наименование:</label>
+                                        <div class="col-md-8 col-xs-12">
+                                            <input type="text" class="form-control" name="name" id="name" value="@Model.name" />
+                                        </div>
+                                    </div>
+
+
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4 col-xs-12" for="active">Статус</label>
+                                        <div class="col-md-8 col-xs-12">
+                                            <select class="form-control" name="active" id="package_active">
+                                                <option value="0" @(Model.active == 0 ? "selected" : "")>Скрыт</option>
+                                                <option value="2" @(Model.active == 2 ? "selected" : "")>Приватный</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4 col-xs-12" for="statusOfChatNone0Homework1AndChat2">Доступ к чату</label>
+                                        <div class="col-md-8 col-xs-12">
+                                            <select class="form-control" name="statusOfChatNone0Homework1AndChat2">
+                                                <option value="0" @(Model.statusOfChatNone0Homework1AndChat2 == 0 ? "selected" : "")>Недоступен</option>
+                                                <option value="2" @(Model.statusOfChatNone0Homework1AndChat2 == 2 ? "selected" : "")>Доступен</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+
+                                    <hr />
+
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4 col-xs-12" for="id_of_tariff">Тариф (для приватных):</label>
+                                        <div class="col-md-8 col-xs-12">
+                                            <select class="form-control" name="id_of_tariff" onchange="controlPriceForPrivate()">
+                                                <option value="0">Не выбрано</option>
+                                                @foreach (var tariff in Model.tariffs)
+                                                {
+                                                    <option value="@tariff.id" @(Model.tariff == tariff ? "selected" : "")>
+                                                        @tariff.name
+                                                    </option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <script>
+
+                                        function enabledOfPriceForPrivate() {
+                                            var form = document.getElementById("formProgram");
+                                            var formData = new FormData(document.getElementById("formProgram"));
+                                            if (formData.get("active") == 2) {
+                                                form.getElementById("package_price").disabled = true;
+                                            } else {
+                                                form.getElementById("package_price").disabled = false;
+                                            }
+                                        }
+
+                                        function controlPriceForPrivate() {
+                                            var formData = new FormData(document.getElementById("formProgram"));
+                                            if (formData.get("active") == 2)save();
+                                        }
+                                    </script>
+
+                                    <!--
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4 col-xs-12" for="id_of_level">Уровень:</label>
+                                        <div class="col-md-8 col-xs-12">
+                                            <select class="form-control" name="id_of_level">
+                                                <option value="0">Не выбрано</option>
+                                                @foreach (var level in Model.levelList)
+                                                {
+                                                    <option value="@level.Id" @(Model.level == level ? "selected" : "")>
+                                                        @level.Name
+                                                    </option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4 col-xs-12" for="id_of_style">Стиль:</label>
+                                        <div class="col-md-8 col-xs-12">
+                                            <select class="form-control" name="id_of_style">
+                                                <option value="0">Не выбрано</option>
+                                                @foreach (var style in Model.styleList)
+                                                {
+                                                    <option value="@style.id" @(Model.style == style ? "selected" : "")>
+                                                        @style.name
+                                                    </option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                        -->
+
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4 col-xs-12" for="id_of_teacher">Наставник:</label>
+                                        <div class="col-md-8 col-xs-12">
+                                            <select class="form-control" name="id_of_teacher" onchange="controlPriceForPrivate()">
+                                                <option value="0">Не выбрано</option>
+                                                @foreach (var teacher in Model.teacherList)
+                                                {
+                                                    <option value="@teacher.id" @(Model.teacher == teacher ? "selected" : "")>
+                                                        @teacher.name
+                                                    </option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4 col-xs-12" for="price">Цена:</label>
+                                        <div class="col-md-8 col-xs-12">
+                                            <input type="number" class="form-control" name="price" id="package_price" value="@Model.price" @(Model.active == 2 ? "disabled" : "") />
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4 col-xs-12" for="days">Срок дней на прохождение:</label>
+                                        <div class="col-md-8 col-xs-12">
+                                            <input type="number" class="form-control" name="days" id="days" value="@Model.days" />
+                                        </div>
+                                    </div>
+
+                                    <hr />
+
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4 col-xs-12">Постер</label>
+                                        <div class="col-md-8 col-xs-12">
+                                            @if (Model.posterSrc != null)
+                                            {
+                                                <img src="@Model.posterSrc" class="img-responsive" />
+                                                <button class="btn btn-danger" type="button" onclick="isPosterDelete = 1;save()">
+                                                    Удалить
+                                                </button>
+                                            }
+                                            <input type="file" class="form-control" name="posterFile" accept="image/*" />
+                                        </div>
+                                    </div>
+
+                                </form>
+
+                            </div><!-- media -->
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">Описание</h4>
+                                </div>
+                                <div class="panel-body">
+                                    <textarea id="ckeditor" placeholder="Enter text here..." class="form-control" rows="100">
+                                        @Model.description
+                                    </textarea>
+                                </div>
+                            </div>
+
+
+                            <p class="btn-save-right">
+                                <button class="btn btn-success" onclick="save();">Сохранить</button>
+                            </p>
+
+
+                            <script>
+                                var isPosterDelete = 0;
+                                function save() {
+                                    var form = new FormData(document.getElementById("formProgram"));
+
+                                    /*
+                                    form.append("id", formBasic.get("id"));
+                                    form.append("name", formBasic.get("name"));
+                                    form.append("active", formBasic.get("active"));
+                                    form.append("price", formBasic.get("price"));
+                                    form.append("days", formBasic.get("days"));
+
+                                    form.append("id_of_level", formBasic.get("id_of_level"));
+                                    form.append("id_of_style", formBasic.get("id_of_style"));
+                                    form.append("id_of_teacher", formBasic.get("id_of_teacher"));
+                                    */
+
+                                    form.append("description", CKEDITOR.instances.ckeditor.getData());
+                                    form.append("isPosterDelete", isPosterDelete);
+
+                                    //
+
+                                    $.ajax({
+                                        method: 'POST',
+                                        type: "POST",
+                                        url:  "/api/package/update",
+                                        data: form,
+                                        cashe: false,
+                                        processData: false,
+                                        contentType: false,
+                                        beforeSend: function (xhr) {
+                                            xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+                                        },
+                                        error:function(){
+                                            alert("Ошибка соединения с сервером");
+                                        },
+                                        success: function(html)
+                                        {
+                                            if (html["status"] == "success") {
+                                                window.location.reload();
+                                            } else {
+                                                alert("Неизвестная ошибка на сервере");
+                                            }
+                                        }
+                                    });
+                                }
+                                window.onload = function(){
+                                    $( "#posterFile" ).change(function() {
+                                        readChatFileVideo()
+                                    });
+                                }
+                                function readChatFileVideo(){
+                                    document.getElementById('posterFileContent').innerHTML = "";
+                                    var fullPath = document.getElementById('posterFile').value;
+                                    if (fullPath) {
+                                        var startIndex = (fullPath.indexOf('\\') >= 0 ? fullPath.lastIndexOf('\\') : fullPath.lastIndexOf('/'));
+                                        var filename = fullPath.substring(startIndex);
+                                        if (filename.indexOf('\\') === 0 || filename.indexOf('/') === 0) {
+                                            filename = filename.substring(1);
+                                        }
+                                        document.getElementById('posterFileContent').innerHTML = filename + " - <a href='#' onclick='"+"clearChatFileVideo()"+"'>Удалить</a>"
+                                    }
+
+                                }
+                                function clearChatFileVideo(){
+                                    document.getElementById('posterFileContent').innerHTML = "";
+                                    document.getElementById('posterFile').value = "";
+                                }
+
+                                function btnEnabled(btn, v) {
+                                    v ? btn.disabled = true : btn.disabled = false;
+                                }
+                            </script>
+
+                        </div><!-- activity-list -->
+
+
+                    </div><!-- tab-pane -->
+
+                    <div class="tab-pane structure" id="structure">
+                        <div class="activity-list">
+                            <div class="media">
+                                <p><i>Значения в ячейках сохраняются после убирания фокуса или нажатия кнопки Enter</i></p>
+
+                                <div class="row" id="structureBlock">
+                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 row">
+
+                                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                                            <div class="form-group">
+                                                <label class="control-label">1. День</label>
+                                                <input type="text" name="section" class="form-control">
+                                                <button type="button" class="btn btn-sm btn-danger" onclick="idOfPackageday = 1';" data-toggle="modal" data-target="#modal_delete_programday">
+                                                    Удалить день
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8 row">
+
+                                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 row">
+                                                <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                                                    <div class="form-group">
+                                                        <label class="control-label">1. Урок</label>
+
+                                                        <select class="form-control">
+                                                            <option value="0">Не выбрано</option>
+                                                            <!--
+                                                            <?php
+                                                            foreach($programViewModel -> teacherList as $teacher)
+                                                            {
+                                                            ?>
+                                                            <option value="<?= $teacher -> id" <?= ($teacher -> id == $programViewModel -> id_of_teacher ? "selected" : "")?>>
+                                                                <?= $teacher -> id - <?= $teacher -> name
+                                                                </option>
+                                                            <?php
+                                                            }
+                                                            ?>
+                                                            -->
+                                                        </select>
+
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label" for="homework_status">Домашнее задание</label>
+                                                        <select class="form-control" name="homework_status">
+                                                            <option value="0">Отсутствует</option>
+                                                            <option value="1">Видео-файл</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                    <div class="form-group">
+                                                        <label class="control-label" for="homework_description">Текст домашнего задания</label>
+                                                        <textarea class="form-control" name="homework_description" rows="4"></textarea>
+                                                    </div>
+                                                    <button type="button" class="btn btn-sm btn-danger" onclick="idOfpackagelesson = -1';" data-toggle="modal" data-target="#modal_delete_packagelesson">
+                                                        Удалить урок
+                                                    </button>
+                                                </div>
+
+                                            </div>
+
+                                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                <p class="btn-save-right">
+                                                    <button class="btn btn-warning btn-sm" type="button" data-toggle="modal" data-target="#modal_add_packagelesson" onclick="idOfPackageday='1'">
+                                                        Добавить новый урок
+                                                    </button>
+                                                </p>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <hr />
+
+                                <p class="btn-save-right">
+                                    <button class="btn btn-info " type="button" data-toggle="modal" data-target="#modal_add_programday">
+                                        Добавить новый день
+                                    </button>
+                                </p>
+
+                                <div class="modal fade" id="modal_add_programday" tabindex="-1" role="dialog">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button aria-hidden="true" data-dismiss="modal" class="close" type="button">&times;</button>
+                                                <h4 class="modal-title">Добавить новый день</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="panel panel-default">
+                                                    <form id="formNewProgramDay">
+                                                        <div class="panel-body">
+                                                            <div class="row">
+                                                                <div class="form-group">
+                                                                    <label class="col-sm-3 control-label" for="name">Наименование <span class="asterisk">*</span></label>
+                                                                    <div class="col-sm-9">
+                                                                        <input type="text" maxlength="256" name="name" class="form-control" placeholder="Наименование нового дня" required onkeypress="clearWarningAddSection();" />
+                                                                        <span style="color:red;" id="warningAddSection"></span>
+                                                                    </div>
+                                                                </div>
+                                                                <input type="hidden" name="id_of_package" value="@Model.id" />
+
+                                                            </div><!-- row -->
+                                                        </div><!-- panel-body -->
+                                                        <div class="panel-footer">
+                                                            <div class="row">
+                                                                <div class="col-sm-9 col-sm-offset-3">
+                                                                    <button type="button" class="btn btn-primary mr5" onclick="createProgramday(this);">Создать</button>
+                                                                    <button type="button" class="btn btn-danger mr5" id="btn_for_close_in_modal_of_create_new_programday" data-dismiss="modal">Закрыть</button>
+                                                                </div>
+                                                            </div>
+                                                        </div><!-- panel-footer -->
+                                                    </form>
+                                                </div><!-- panel -->
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+
+                                <div class="divHide">
+
+                                </div>
+
+                            </div><!-- media -->
+
+
+
+
+                            <script>
+                                function minuteHandle(el){
+                                    if(el.value < 0){
+                                        el.value = 0;
+                                    } else if(el.value > 999){
+                                        el.value = 999;
+                                    }
+                                }
+                                function secondsHandle(el){
+                                    if(el.value < 0){
+                                        el.value = 0;
+                                    } else if(el.value > 60){
+                                        el.value = 60;
+                                    }
+                                }
+                                function clearWarningAddSection(){
+                                    $("#warningAddSection").html("");
+                                }
+                                function createProgramday(btn){
+                                    var form = new FormData(document.getElementById("formNewProgramDay"));
+                                    if(form.get("name") == ""){
+                                        $("#warningAddSection").html("Поле наименования обязательно");
+                                        return;
+                                    }
+
+                                    btnEnabled(btn, true);
+                                    $.ajax({
+                                        method: 'POST',
+                                        type: "POST",
+                                        url:  "/api/packageday/add",
+                                        data: form,
+                                        cashe: false,
+                                        processData: false,
+                                        contentType: false,
+                                        beforeSend: function (xhr) {
+                                            xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+                                        },
+                                        error:function(){
+                                            alert("Ошибка соединения с сервером");
+                                            btnEnabled(btn, false);
+                                        },
+                                        success: function(html)
+                                        {
+                                            btnEnabled(btn, false);
+                                            if (html["status"] == "success") {
+                                                $("#btn_for_close_in_modal_of_create_new_programday").click();
+                                                getAllPackagedays();
+                                            } else {
+                                                alert("Неизвестная ошибка на сервере");
+                                            }
+                                        }
+                                    });
+                                }
+
+                                var lessonList;
+                                function getAllPackagedays(){
+                                    var form = new FormData();
+                                    form.append("id_of_package", "@Model.id");
+
+                                    $("#structureBlock").html("Идёт загрузка..");
+
+                                    $.ajax({
+                                        method: 'POST',
+                                        type: "POST",
+                                        url:  "/api/packageday/all",
+                                        data: form,
+                                        cashe: false,
+                                        processData: false,
+                                        contentType: false,
+                                        error:function(){
+                                            $("#structureBlock").html("Ошибка соединения с сервером");
+                                        },
+                                        success: function(html)
+                                        {
+                                            if (html["status"] == "success") {
+                                                lessonList = html["lessonList"]
+                                                buildTable(html);
+                                            } else {
+                                                $("#structureBlock").html("Ошибка на сервере");
+                                            }
+                                        }
+                                    });
+                                }
+
+                                function saveStructure(btn) {
+                                    var form = new FormData(document.getElementById("formVideo"));
+
+                                    btnEnabled(btn, true);
+                                    $.ajax({
+                                        method: 'POST',
+                                        type: "POST",
+                                        url:  "/api/videosection/add",
+                                        data: form,
+                                        cashe: false,
+                                        processData: false,
+                                        contentType: false,
+                                        beforeSend: function (xhr) {
+                                            xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+                                        },
+                                        error:function(){
+                                            alert("Ошибка соединения с сервером");
+                                            btnEnabled(btn, false);
+                                        },
+                                        success: function(html)
+                                        {
+                                            btnEnabled(btn, false);
+                                            if (html["status"] == "success") {
+                                                //window.location.reload();
+                                            }
+                                        }
+                                    });
+                                }
+                            </script>
+
+                        </div><!-- activity-list -->
+
+
+                    </div>
+
+
+                </div><!-- tab-content -->
+
+            </div><!-- col-sm-9 -->
+        </div><!-- row -->
+
+
+    </div>
+</div>
+
+
+
+
+<script>
+function buildTable(json){
+    $("#structureBlock").html("");
+    if(json["package_day_list"] !== null && typeof(json["package_day_list"]) !== "undefined"){
+        for(var i = 0; i < json["package_day_list"].length; i++){
+
+            var divprogramday = document.createElement("div");
+            divprogramday.className = "col-lg-12 col-md-12 col-sm-12 col-xs-12 row";
+
+            divprogramday.appendChild(buildDivProgramday(i, json["package_day_list"][i]));
+
+
+            if(json["package_day_list"][i]["package_lesson_list"] !== null && typeof(json["package_day_list"][i]["package_lesson_list"]) !== "undefined"){
+                divprogramday.appendChild(buildDivpackagelesson(
+                    json["package_day_list"][i]["id"],
+                    json["package_day_list"][i]["package_lesson_list"]
+                    )
+                );
+                divprogramday.appendChild(buildHr());
+            } else {
+                console.log("no subsection");
+            }
+
+            $("#structureBlock").append(divprogramday);
+
+        }
+    }
+}
+/*
+
+<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 row">
+    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+        <div class="form-group">
+            <label class="control-label">1. День</label>
+            <input type="text" name="section" class="form-control">
+            <button type="button" class="btn btn-sm btn-danger" onclick="idOfPackageday = 1';" data-toggle="modal" data-target="#modal_delete_programday">
+                Удалить день
+            </button>
+        </div>
+    </div>
+
+
+</div>
+
+*/
+
+
+function buildHr(){
+    var div = document.createElement("div");
+    div.className = "col-lg-12 col-md-12 col-sm-12 col-xs-12";
+
+    var hr = document.createElement("hr");
+    div.appendChild(hr);
+
+    return div;
+}
+
+function buildDivProgramday(i, programday){
+    var elDiv = document.createElement("div");
+    elDiv.className = "col-lg-4 col-md-4 col-sm-4 col-xs-4";
+
+    var divFormGroup = document.createElement("div");
+    divFormGroup.className = "form-group";
+
+    var label = document.createElement("label");
+    label.className = "control-label";
+    label.innerHTML = (i + 1) + ". День";
+
+    var elInput = document.createElement("input");
+    elInput.className = "form-control";
+    elInput.type = "text";
+    elInput.name = "section";
+    elInput.value = programday["name"];
+    elInput.onchange = function(){
+        programdaySave(programday["id"], this.value);
+    }
+
+    var btnDelete = document.createElement("button");
+    btnDelete.className = "btn btn-sm btn-danger";
+    btnDelete.type = "button";
+    btnDelete.innerHTML = "Удалить день";
+    btnDelete.onclick = function(){
+        idOfPackageday = programday["id"];
+    }
+    btnDelete.setAttribute('data-toggle', 'modal');
+    btnDelete.setAttribute('data-target', '#modal_delete_programday');
+
+    divFormGroup.appendChild(label);
+    divFormGroup.appendChild(elInput);
+    divFormGroup.appendChild(btnDelete);
+    elDiv.appendChild(divFormGroup);
+
+    return elDiv;
+}
+
+function programdaySave(id_of_packageday, name){
+    var form = new FormData();
+    form.append("id", id_of_packageday);
+    form.append("id_of_package", "@Model.id");
+    form.append("name", name);
+
+
+    $.ajax({
+        method: 'POST',
+        type: "POST",
+        url:  "/api/packageday/update",
+        data: form,
+        cashe: false,
+        processData: false,
+        contentType: false,
+        error:function(){
+            alert("Ошибка соединения с сервером");
+        },
+        success: function(html)
+        {
+            if (html["status"] == "success") {
+                showAlertSuccess();
+                getAllPackagedays();
+            } else {
+                alert("Извините, на сервере произошла неизвестная ошибка");
+            }
+        }
+    });
+}
+
+</script>
+
+
+<div class="modal fade" style="padding-top:20%;" id="modal_delete_programday" tabindex="-1" role="dialog">
+    <div class="modal-dialog" style="width: 50%;">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #ffffff">
+                <button class="close" type="button" data-dismiss="modal">&times;</button>
+                <h4 align="left" class="modal-title" style="padding-left: 1em"> Вы уверены, что хотите удалить день и все его уроки?</h4>
+            </div>
+            <div class="modal-body">
+
+                <center>
+                    <button type="button" class="btn btn-success" data-dismiss="modal" data-target="" onclick="deleteProgramday();">Да</button>
+
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" data-target="">Нет</button>
+                </center>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    var idOfPackageday = 0;
+    function deleteProgramday() {
+        var form = new FormData();
+        form.append("id", idOfPackageday);
+
+
+        $.ajax({
+            method: 'POST',
+            type: "POST",
+            url: "/api/packageday/delete",
+            data: form,
+            cashe: false,
+            processData: false,
+            contentType: false,
+            error: function () {
+                alert("Ошибка соединения с сервером");
+            },
+            success: function (html) {
+                if (html["status"] == "success") {
+                    getAllPackagedays();
+                } else {
+                    alert("Извините, на сервере произошла неизвестная ошибка");
+                }
+            }
+        });
+    }
+
+</script>
+
+
+
+
+<script>
+
+var idOfpackagelesson = 0;
+function buildDivpackagelesson(id_of_packageday, package_lesson_list){
+
+    var divpackage_lesson_list = document.createElement("div");
+    divpackage_lesson_list.className = "col-lg-8 col-md-8 col-sm-8 col-xs-8 row";
+
+    var id_of_package_lesson;
+    for(var i = 0; i < package_lesson_list.length; i++){
+        var formpackagelesson = document.createElement("form");
+        formpackagelesson.className = "col-lg-12 col-md-12 col-sm-12 col-xs-12";
+        formpackagelesson.action = "#";
+        id_of_package_lesson = package_lesson_list[i]["id"];
+
+        formpackagelesson.onchange = function(){
+            packagelessonSave(
+                id_of_package_lesson,
+                id_of_packageday,
+                this
+            );
+        }
+
+        formpackagelesson.appendChild(buildDivLesson(i, package_lesson_list[i]));
+        formpackagelesson.appendChild(buildDivHomeworkStatus(package_lesson_list[i]));
+        formpackagelesson.appendChild(buildDivHomeworkText(package_lesson_list[i]));
+
+        divpackage_lesson_list.appendChild(formpackagelesson);
+
+        //добавление textarea
+    }
+    divpackage_lesson_list.appendChild(buildBtnprogamlessonAddNew(id_of_packageday));
+
+    return divpackage_lesson_list;
+}
+
+
+function buildDivLesson(i, packagelesson){
+
+    var divLesson = document.createElement("div");
+    divLesson.className = "col-lg-8 col-md-8 col-sm-8 col-xs-8";
+
+    var divFormGroup = document.createElement("div");
+    divFormGroup.className = "form-group";
+
+    var label = document.createElement("label");
+    label.className = "control-label";
+    label.innerHTML = (i + 1) + ". Урок";
+
+    var elSelect = document.createElement("select");
+    elSelect.className = "form-control";
+    elSelect.name = "id_of_lesson";
+
+    var elOption = document.createElement("option");
+    elOption.value = 0;
+    elOption.text = "Не выбрано";
+    elSelect.appendChild(elOption);
+    for(var l = 0; l < lessonList.length; l++){
+        elOption = document.createElement("option");
+        elOption.value = lessonList[l]["id"];
+        elOption.text = lessonList[l]["id"] + " - " + lessonList[l]["name"];
+        elSelect.appendChild(elOption);
+    }
+    if(packagelesson["id_of_lesson"] !== null && typeof(packagelesson["id_of_lesson"]) !== "undefined"){
+        elSelect.value = packagelesson["id_of_lesson"];
+    }
+
+
+    divFormGroup.appendChild(label);
+    divFormGroup.appendChild(elSelect);
+    divLesson.appendChild(divFormGroup);
+
+    return divLesson;
+}
+
+function packagelessonSave(id, id_of_package_day, elForm){
+    var form = new FormData(elForm);
+    form.append("id_of_package", "@Model.id");
+    form.append("id_of_package_day", id_of_package_day);
+    form.append("id", id);
+
+
+    $.ajax({
+        method: 'POST',
+        type: "POST",
+        url:  "/api/packagelesson/update",
+        data: form,
+        cashe: false,
+        processData: false,
+        contentType: false,
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+        },
+        error:function(){
+            alert("Ошибка соединения с сервером");
+        },
+        success: function(html)
+        {
+            if (html["status"] == "success") {
+                showAlertSuccess();
+                getAllPackagedays();
+            } else {
+                alert("Извините, на сервере произошла неизвестная ошибка");
+            }
+        }
+    });
+}
+
+function buildDivHomeworkStatus(packagelesson){
+    var divHomework = document.createElement("div");
+    divHomework.className = "col-lg-4 col-md-4 col-sm-4 col-xs-4";
+
+    var divFormGroup = document.createElement("div");
+    divFormGroup.className = "form-group";
+
+    var label = document.createElement("label");
+    label.className = "control-label";
+    label.innerHTML = "Домашнее задание";
+    label.for = "homework_status";
+
+    var elSelect = document.createElement("select");
+    elSelect.className = "form-control";
+    elSelect.name = "homework_status";
+
+    var elOption = document.createElement("option");
+    elOption.value = 0;
+    elOption.text = "Не выбрано";
+    elSelect.appendChild(elOption);
+
+    elOption = document.createElement("option");
+    elOption.value = 1;
+    elOption.text = "Видео-файл";
+    elSelect.appendChild(elOption);
+
+    if(packagelesson["homework_status"] !== null && typeof(packagelesson["homework_status"]) !== "undefined"){
+        elSelect.value = packagelesson["homework_status"];
+    }
+    divFormGroup.appendChild(label);
+    divFormGroup.appendChild(elSelect);
+    divHomework.appendChild(divFormGroup);
+
+    return divHomework;
+}
+
+function buildDivHomeworkText(packagelesson){
+    var divHomeworkText = document.createElement("div");
+    divHomeworkText.className = "col-lg-12 col-md-12 col-sm-12 col-xs-12";
+
+    var divFormGroup = document.createElement("div");
+    divFormGroup.className = "form-group";
+
+    var label = document.createElement("label");
+    label.className = "control-label";
+    label.innerHTML = "Текст домашнего задания";
+    label.for = "homework_text";
+
+    var elTextarea = document.createElement("textarea");
+    elTextarea.className = "form-control";
+    elTextarea.name = "homework_text";
+    elTextarea.rows = 4;
+
+    if(packagelesson["homework_text"] !== null && typeof(packagelesson["homework_text"]) !== "undefined"){
+        elTextarea.innerHTML = packagelesson["homework_text"];
+    }
+
+    divFormGroup.appendChild(label);
+    divFormGroup.appendChild(elTextarea);
+
+    var btnDeleteLesson = document.createElement("button");
+    btnDeleteLesson.className = "btn btn-sm btn-danger";
+    btnDeleteLesson.type = "button";
+    btnDeleteLesson.innerHTML = "Удалить урок";
+    btnDeleteLesson.setAttribute('data-toggle', 'modal');
+    btnDeleteLesson.setAttribute('data-target', '#modal_delete_packagelesson');
+    btnDeleteLesson.onclick = function(){
+        idOfpackagelesson = packagelesson["id"];
+    }
+
+    divFormGroup.appendChild(btnDeleteLesson);
+    divHomeworkText.appendChild(divFormGroup);
+
+    return divHomeworkText;
+}
+</script>
+
+
+
+
+<div class="modal fade" style="padding-top:20%;" id="modal_delete_packagelesson" tabindex="-1" role="dialog">
+    <div class="modal-dialog" style="width: 50%;">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #ffffff">
+                <button class="close" type="button" data-dismiss="modal">&times;</button>
+                <h4 align="left" class="modal-title" style="padding-left: 1em"> Вы уверены, что хотите удалить урок?</h4>
+            </div>
+            <div class="modal-body">
+
+                <center>
+                    <button type="button" class="btn btn-success" onclick="deletepackagelesson();">Да</button>
+
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" data-target="">Нет</button>
+                </center>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+function deletepackagelesson() {
+    var form = new FormData();
+    console.log(idOfpackagelesson);
+    form.append("id", idOfpackagelesson);
+
+
+    $.ajax({
+        method: 'POST',
+        type: "POST",
+        url:  "/api/packagelesson/delete",
+        data: form,
+        cashe: false,
+        processData: false,
+        contentType: false,
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+        },
+        error:function(){
+            alert("Ошибка соединения с сервером");
+        },
+        success: function(html)
+        {
+            if (html["status"] == "success") {
+                $('#modal_delete_packagelesson').modal('hide');
+                getAllPackagedays();
+            } else {
+                alert("Извините, на сервере произошла неизвестная ошибка");
+            }
+        }
+    });
+}
+
+</script>
+
+
+
+
+
+<script>
+
+
+    function buildBtnprogamlessonAddNew(id_of_packageday) {
+        var div = document.createElement("div");
+        div.className = "col-lg-12 col-md-12 col-sm-12 col-xs-12";
+        var p = document.createElement("p");
+        p.className = "btn-save-right";
+        var btn = document.createElement("button");
+        btn.className = "btn btn-warning btn-sm";
+        btn.type = "button";
+        btn.innerHTML = "Добавить новый урок";
+        btn.setAttribute('data-toggle', 'modal');
+        btn.setAttribute('data-target', '#modal_add_packagelesson');
+        btn.onclick = function () {
+            idOfPackageday = id_of_packageday;
+        }
+
+        p.appendChild(btn);
+        div.appendChild(p);
+        return div;
+    }
+
+</script>
+
+
+
+<div class="modal fade" id="modal_add_packagelesson" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button aria-hidden="true" data-dismiss="modal" class="close" type="button">&times;</button>
+                <h4 class="modal-title">Добавить новый урок</h4>
+            </div>
+            <div class="modal-body">
+                <div class="panel panel-default">
+                    <form id="formNewpackagelesson">
+                        <div class="panel-body">
+                            <p>Вы уверены, что хотите добавить новый урок?</p>
+                        </div><!-- panel-body -->
+                        <div class="panel-footer">
+                            <div class="row">
+                                <div class="col-sm-9 col-sm-offset-3">
+                                    <button type="button" class="btn btn-primary mr5" onclick="createpackagelesson(this);">Создать</button>
+                                    <button type="button" class="btn btn-danger mr5" id="btn_for_close_in_modal_of_create_new_packagelesson" data-dismiss="modal">Закрыть</button>
+                                </div>
+                            </div>
+                        </div><!-- panel-footer -->
+                    </form>
+                </div><!-- panel -->
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function clearWarningAddSubsection(){
+    $("#warningAddSubsection").html("");
+}
+
+function createpackagelesson(btn){
+    var form = new FormData(document.getElementById("formNewpackagelesson"));
+    if(form.get("name") == ""){
+        $("#warningAddSubsection").html("Поле наименования обязательно");
+        return;
+    }
+    form.append("id_of_packageday", idOfPackageday);
+    form.append("id_of_package", "@Model.id");
+
+    btnEnabled(btn, true);
+    $.ajax({
+        method: 'POST',
+        type: "POST",
+        url:  "/api/packagelesson/add",
+        data: form,
+        cashe: false,
+        processData: false,
+        contentType: false,
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+        },
+        error:function(){
+            alert("Ошибка соединения с сервером");
+            btnEnabled(btn, false);
+        },
+        success: function(html)
+        {
+            btnEnabled(btn, false);
+            if (html["status"] == "success") {
+                $("#modal_add_packagelesson").modal("hide");
+                getAllPackagedays();
+            } else {
+                alert("Неизвестная ошибка на сервере");
+            }
+        }
+    });
+}
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script src="/admin_style/js/jquery-1.11.1.min.js"></script>
+<script src="/admin_style/js/jquery-migrate-1.2.1.min.js"></script>
+<script src="/admin_style/js/jquery-ui-1.10.3.min.js"></script>
+<script src="/admin_style/js/bootstrap.min.js"></script>
+<script src="/admin_style/js/modernizr.min.js"></script>
+<script src="/admin_style/js/pace.min.js"></script>
+<script src="/admin_style/js/retina.min.js"></script>
+<script src="/admin_style/js/jquery.cookies.js"></script>
+<script src="/admin_style/js/wysihtml5-0.3.0.min.js"></script>
+<script src="/admin_style/js/bootstrap-wysihtml5.js"></script>
+<script src="/admin_style/js/ckeditor/ckeditor.js"></script>
+<script src="/admin_style/js/ckeditor/adapters/jquery.js"></script>
+
+<script src="/admin_style/js/custom.js"></script>
+<script>
+    jQuery(document).ready(function () {
+
+        // CKEditor
+        jQuery('#ckeditor').ckeditor();
+
+    });
+</script>

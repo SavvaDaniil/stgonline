@@ -1,0 +1,713 @@
+﻿@using STG.ViewModels.Package;
+@model PackageInfoViewModel;
+
+@{
+    ViewData["Title"] = Model.name + " | STG";
+    @using Microsoft.AspNetCore.Antiforgery;
+    @inject IAntiforgery antiforgery
+    var tokenSet = antiforgery.GetAndStoreTokens(Context);
+}
+
+
+@if (Model.active == 1 && Model.statusOfChatNone0Homework1AndChat2 == 2)
+{
+    {await Html.RenderPartialAsync("_widgetChat"); }
+}
+
+
+
+
+
+
+
+
+<div class="row package">
+
+    <div class="col-1 d-none d-md-block"></div>
+    <div class="col-12 col-lg-5 col-md-5 col-sm-12">
+
+        <div class="package-info" id="package-info">
+
+            <div class="poster">
+                <img src="@Model.posterSrc" class="img-fluid" />
+            </div>
+            <div class="description">
+                <h4 class="title">@Model.name</h4>
+
+                <p class="short-info-stats">
+                    <i class="fa fa-calendar" aria-hidden="true"></i> <span>@Model.days дней</span>
+                    <i class="fa fa-clock-o" aria-hidden="true"></i> @Model.countOfAllLessons уроков
+                </p>
+
+
+                <p class="short-info-tariff">@Model.tariff.name</p>
+
+
+                <div class="btn-start">
+
+                    @if (Model.active == 1)
+                    {
+                        if (@Model.packageLessonLiteViewModelLastViewed != null)
+                        {
+                            if (@Model.packageLessonLiteViewModelLastViewed.lessonViewModel != null)
+                            {
+                                <a href="/lesson/@(Model.packageLessonLiteViewModelLastViewed.lessonViewModel.id)?package=@Model.id">
+                                    <button class="btn">
+                                        Продолжить
+                                    </button>
+                                </a>
+
+                                @if (Model.active_of_package == 2 && Model.statusOfChatNone0Homework1AndChat2 > 0)
+                                {
+                                    <!--
+                                    <a href="/package/chat/@Model.id">
+                                        <button class="btn">
+                                            Домашние задания и чат
+                                        </button>
+                                    </a>
+                                    -->
+                                }
+                            }
+                        }
+                    }
+                    else if (Model.active == 0)
+                    {
+                        <a href="/package/buy/@Model.id">
+                            <button class="btn">
+                                <i class="fa fa-lock" aria-hidden="true"></i> Приобрести
+                            </button>
+                        </a>
+
+                    }
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    @if (Model.teacherLiteViewModel != null)
+    {
+        <div class="col-12 col-lg-5 col-md-5 col-sm-12">
+
+            <div class="package-mentor div-basic-opacity hide-opacity row" id="package-mentor">
+
+                <div class="col-12">
+                    <div class="poster">
+                        <div class="bgd-light"></div>
+                        <img src="@Model.teacherLiteViewModel.posterRectSrc" class="img-fluid" />
+                        <h4>@Model.teacherLiteViewModel.name</h4>
+                    </div>
+
+
+                    <h4>Ваш наставник</h4>
+                    <div class="description">
+                        @Html.Raw(Model.teacherLiteViewModel.mentorBio)
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="description">
+                        <h4>
+                            Сольные призовые места на чемпионатах:
+                        </h4>
+                        @Html.Raw(Model.teacherLiteViewModel.mentorAwards)
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+        <script>
+            function resizeRightBlock() {
+                var heightBasic = document.getElementById("package-info").offsetHeight;
+                document.getElementById("package-mentor").style.height = heightBasic + "px";
+                document.getElementById("package-mentor").classList.remove("hide-opacity");
+            }
+            window.onload = function () {
+                resizeRightBlock();
+            }
+            window.onresize = function () {
+                resizeRightBlock();
+            }
+        </script>
+    }
+
+
+
+
+
+
+
+
+    <div class="col-12"></div>
+    <div class="col-1 d-none d-md-block"></div>
+    <div class="col-12 col-lg-10 col-md-10 col-sm-12 lessons">
+        <h3>Уроки</h3>
+
+        <p class="statistic">
+            <i class="fa fa-calendar" aria-hidden="true"></i> <span>@Model.countOfAllPackageDaysFinished из @Model.packageDays.Count() дней пройдено</span><br class="d-md-none" />
+            <i class="fa fa-eye" aria-hidden="true"></i> <span>@Model.countOfAllLessonsFinished из @Model.countOfAllLessons уроков просмотрено</span><br class="d-lg-none" />
+            <span class="procent-finished">Завершено на @Model.procentFinished %</span>
+        </p>
+
+
+        <div class="row preview">
+
+            @if (Model.packageDays != null)
+            {
+                @foreach (PackageDayViewModel packageDayViewModel in Model.packageDays)
+                {
+                    <div class="pre-package-day @(packageDayViewModel.package_lesson_list != null ? packageDayViewModel.package_lesson_list.Count > 1 ? "col-12" : "col-12 col-lg-6 col-md-12 col-sm-12" :"")" style="padding:0;">
+                        <div class="package-day div-basic-opacity @(Model.packageDays.IndexOf(packageDayViewModel) % 2 == 0 ? "left" : "right")">
+                            <p class="package-day-number">День @packageDayViewModel.number</p>
+
+                            @if (packageDayViewModel.package_lesson_list != null)
+                            {
+                                <div class="row">
+                                    @foreach (PackageLessonLiteViewModel packageLessonLiteViewModel in packageDayViewModel.package_lesson_list)
+                                    {
+                                        @if (packageLessonLiteViewModel.lessonViewModel == null) { continue; }
+
+                                        <div class="col-12 row @(packageDayViewModel.package_lesson_list.Count > 1 ? "col-lg-6 col-md-12 col-sm-12" : "")" style="padding:0">
+                                            <div class="col-12 col-lg-4 col-md-4 col-sm-12">
+                                                <p class="lesson-stats first">
+                                                    <i class="fa fa-clock-o" aria-hidden="true"></i> Просмотрено: @packageLessonLiteViewModel.procentsViewed%
+                                                </p>
+                                                <p class="lesson-stats">
+                                                    <i class="fa fa-home" aria-hidden="true"></i>
+                                                    Домашнее задание: <br />@if (packageLessonLiteViewModel.homework_status == 0)
+                                                    {
+                                                        <span>не предусмотрено</span>
+                                                    }
+                                                    else if (packageLessonLiteViewModel.homework_status == 1 && packageLessonLiteViewModel.isHomeworkSend
+                                                        && packageLessonLiteViewModel.homework_lite.status == 1
+                                                        && packageLessonLiteViewModel.homework_lite.statusOfUpload == 1)
+                                                    {
+                                                        if (Model.active == 1 && packageLessonLiteViewModel.isAvailable)
+                                                        {
+                                                            <button class="btn btn-noeffect" onclick="get_homework(@packageLessonLiteViewModel.id)">
+                                                                <!--<span class="active" onclick="get_homework(@packageLessonLiteViewModel.id)">сдано</span>-->
+                                                                Сдано
+                                                            </button>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>Сдано</span>
+                                                        }
+                                                    }
+                                                    else if (packageLessonLiteViewModel.homework_status == 1 && packageLessonLiteViewModel.isHomeworkSend
+                                                      && packageLessonLiteViewModel.homework_lite.status == 0
+                                                      && packageLessonLiteViewModel.homework_lite.statusOfUpload == 1)
+                                                    {
+
+                                                        if (Model.active == 1 && packageLessonLiteViewModel.isAvailable)
+                                                        {
+                                                            <button class="btn btn-alert-custom" onclick="get_homework(@packageLessonLiteViewModel.id)">
+                                                                Отклонено
+                                                            </button>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>Отколнено</span>
+                                                        }
+                                                    }
+                                                    else if (packageLessonLiteViewModel.homework_status == 1 && packageLessonLiteViewModel.isHomeworkSend
+                                                      && packageLessonLiteViewModel.homework_lite.statusOfUpload == 0)
+                                                    {
+                                                        if (Model.active == 1 && packageLessonLiteViewModel.isAvailable)
+                                                        {
+                                                            <button class="btn btn-alert-custom" onclick="get_homework(@packageLessonLiteViewModel.id)">
+                                                                Ошибка загрузки
+                                                            </button>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>Ошибка загрузки</span>
+                                                        }
+                                                    }
+                                                    else if (packageLessonLiteViewModel.homework_status == 1 && !packageLessonLiteViewModel.isHomeworkSend)
+                                                    {
+                                                        @if (Model.active == 1 && packageLessonLiteViewModel.isAvailable)
+                                                        {
+                                                            <button class="btn" onclick="get_homework(@packageLessonLiteViewModel.id)">
+                                                                <!--<span class="active" onclick="get_homework(@packageLessonLiteViewModel.id)">предусмотрено</span>>-->
+                                                                Посмотреть
+                                                            </button>
+
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>предусмотрено</span>
+                                                        }
+                                                    }
+                                                </p>
+                                            </div>
+                                            <div class="col-12 col-lg-8 col-md-8 col-sm-12" style="padding:0;">
+                                                <a href="@(packageLessonLiteViewModel.isAvailable && Model.active == 1 ? "/lesson/"+packageLessonLiteViewModel.lessonViewModel.id + "?package=" + Model.id : Model.active == 1 ? "#day" + packageDayViewModel.id : "/package/buy/" + Model.id)"
+                                                   class="@(!packageLessonLiteViewModel.isAvailable || Model.active == 0 ? "not-clickable" : "")">
+
+                                                    <div class="preview_video_1">
+                                                        <div class="video-container">
+                                                            <div class="left mouse_out" id="@("mouse_out" + packageLessonLiteViewModel.lessonViewModel.id)">
+
+                                                                @if (!packageLessonLiteViewModel.isAvailable || Model.active == 0)
+                                                                {
+                                                                    <div class="lock single">
+                                                                        <i class="fa fa-lock" aria-hidden="true"></i>
+                                                                    </div>
+                                                                }
+
+                                                                <div class="description">
+
+                                                                    <p class="preview-video-lesson-type">
+                                                                        @packageLessonLiteViewModel.lessonViewModel.lessonType.name
+                                                                    </p>
+
+                                                                    <p class="preview-video-title @(packageLessonLiteViewModel.lessonViewModel.shortName == null ? ""
+                                        : packageLessonLiteViewModel.lessonViewModel.shortName.Length > 20 ? "shorter"
+                                        : packageLessonLiteViewModel.lessonViewModel.shortName.Length > 15 ? "short" : "")">
+                                                                        @packageLessonLiteViewModel.lessonViewModel.shortName
+                                                                    </p>
+                                                                </div>
+
+                                                                <p class="preview-video-teacher">
+                                                                    @packageLessonLiteViewModel.lessonViewModel.teacher.name
+                                                                </p>
+
+
+
+
+                                                                <!--
+                                        <div class="description">
+                                            <div class="name">@packageLessonLiteViewModel.lessonViewModel.name</div>
+
+                                            @if (packageLessonLiteViewModel.lessonViewModel.style != null)
+                                            {
+                                                <p>Стиль: <span>@packageLessonLiteViewModel.lessonViewModel.style.name</span></p>
+                                            }
+                                            @if (packageLessonLiteViewModel.lessonViewModel.teacher != null)
+                                            {
+                                                <p>Преподаватель: <span>@packageLessonLiteViewModel.lessonViewModel.teacher.name</span></p>
+                                            }
+                                            @if (packageLessonLiteViewModel.lessonViewModel.lessonType != null)
+                                            {
+                                                <p>Вид занятия: <span>@packageLessonLiteViewModel.lessonViewModel.lessonType.name</span></p>
+                                            }
+                                        </div>
+                                            -->
+                                                            </div>
+                                                            <div class="left mouse_over" id="@("mouse_over" + packageLessonLiteViewModel.lessonViewModel.id)">
+                                                                <div class="play">
+                                                                    <i aria-hidden="true" class="fa fa-lock"></i> Play
+                                                                </div>
+                                                                <div class="icon-control first">
+                                                                    <a href="#" title="В избранное"><i aria-hidden="true" class="fa fa-heart-o"></i></a>
+                                                                </div>
+                                                                <div class="icon-control">
+                                                                    <a href="#" title="Включить звук" id="@("volumeOff_" + packageLessonLiteViewModel.lessonViewModel.id)"><i aria-hidden="true" class="fa fa-volume-off"></i></a>
+                                                                    <a href="#" title="Выключить звук" id="@("volumeOn_" + packageLessonLiteViewModel.lessonViewModel.id)" class="hide"><i aria-hidden="true" class="fa fa-volume-up"></i></a>
+                                                                </div>
+                                                            </div>
+                                                            <img class="img-fluid" src="@packageLessonLiteViewModel.lessonViewModel.posterSrc">
+                                                        </div>
+                                                    </div>
+                                                </a>
+
+                                            </div>
+                                        </div>
+                                    }
+                                    </div>
+                                    }
+
+                                </div>
+                            </div>
+
+
+
+
+
+
+                }
+            }
+
+        </div>
+    </div>
+
+
+</div>
+
+<script>
+    function get_homework(id) {
+        var form = new FormData();
+        form.append("id", id);
+
+        $.ajax({
+            method: 'POST',
+            type: "POST",
+            url:  "/api/homework/get",
+            data: form,
+            cashe: false,
+            processData: false,
+            contentType: false,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+            },
+            error:function(){
+                alert("Ошибка соединения с сервером");
+                btnEnabled(btn, false);
+            },
+            success: function(html)
+            {
+                if (html["status"] == "success") {
+                    removeHomeworkFile();
+                    $("#success").html("");
+                    id_of_package_lesson = id;
+                    fillModalPackageLessonHomework(html["lessonHomework"]);
+                }  else {
+                    alert("Извините, на сервере произошла неизвестная ошибка");
+                }
+            }
+        });
+    }
+    function fillModalPackageLessonHomework(lessonHomework) {
+        document.getElementById("formHomework").reset();
+        $("#modalPackageLessonHomeworkLabel").html(lessonHomework["name_of_lesson"]);
+        var modal = document.getElementById("modalPackageLessonHomework");
+        modal.getElementsByTagName("p")[0].getElementsByTagName("span")[0].innerHTML = lessonHomework["homeworkText"];
+
+        if (lessonHomework["homework"] == null || typeof (lessonHomework["homework"]) == "undefined") {
+            modal.getElementsByTagName("p")[1].getElementsByTagName("span")[0].innerHTML = "не отправлено";
+        } else if (lessonHomework["homework"]["status"] == 0) {
+            modal.getElementsByTagName("p")[1].getElementsByTagName("span")[0].innerHTML = "Отклонено";
+        } else if (lessonHomework["homework"]["statusOfUpload"] == 0) {
+            modal.getElementsByTagName("p")[1].getElementsByTagName("span")[0].innerHTML = "Ошибка загрузки";
+        } else {
+            modal.getElementsByTagName("p")[1].getElementsByTagName("span")[0].innerHTML = "отправлено";
+        }
+
+        if (lessonHomework["homework"] != null && typeof (lessonHomework["homework"]) != "undefined") {
+            modal.getElementsByTagName("textarea")[0].innerHTML = lessonHomework["homework"]["comment"];
+
+            if (lessonHomework["homework"]["filenameSrc"] != null && typeof (lessonHomework["homework"]["filenameSrc"]) != "undefined") {
+                modal.getElementsByClassName("homework-file")[0].href = lessonHomework["homework"]["filenameSrc"];
+                modal.getElementsByClassName("homework-file")[0].classList.remove("divHide");
+            } else {
+                modal.getElementsByClassName("homework-file")[0].classList.add("divHide");
+            }
+
+            if (lessonHomework["homework"]["answer_from_teacher"] != null && typeof (lessonHomework["homework"]["answer_from_teacher"]) != "undefined") {
+                modal.getElementsByClassName("teacher-answer")[0].getElementsByTagName("p")[0].innerHTML = lessonHomework["homework"]["answer_from_teacher"];
+                modal.getElementsByClassName("teacher-answer")[0].getElementsByTagName("p")[1].innerHTML = lessonHomework["homework"]["date_of_update_of_teacher"];
+                modal.getElementsByClassName("teacher-answer")[0].classList.remove("divHide");
+            } else {
+                modal.getElementsByClassName("teacher-answer")[0].classList.add("divHide");
+            }
+        } else {
+            modal.getElementsByClassName("homework-file")[0].className = "homework-file divHide";
+            modal.getElementsByClassName("teacher-answer")[0].className = "teacher-answer divHide";
+        }
+
+
+
+        $("#modalPackageLessonHomework").modal();
+    }
+
+    var id_of_package_lesson = 0;
+    function sendHomework(btn) {
+        clearWarning();
+        var form = new FormData(document.getElementById("formHomework"));
+        form.append("id_of_package_lesson", id_of_package_lesson);
+        btnDisabled(btn, true);
+        if (form.get("videofile").size == 0) {
+            $("#warning").html("Загрузите файл");
+            btnDisabled(btn, false);
+            return;
+        }
+
+        $.ajax({
+            method: 'POST',
+            type: "POST",
+            url:  "/api/homework/add",
+            data: form,
+            cashe: false,
+            processData: false,
+            contentType: false,
+            timeout: 60000,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+            },
+            error:function(){
+                alert("Ошибка соединения с сервером");
+                btnDisabled(btn, false);
+            },
+            success: function(html)
+            {
+                if (html["status"] == "success") {
+                    //window.location.reload();
+                    $("#success").html("Домашнее задание успешно отправлено");
+                    document.getElementById("homework-file").value = "";
+                } else if (html["status"] == "error" && html["errors"] == "file_error") {
+                    $("#warning").html("Ошибка файла");
+                } else {
+                    $("#warning").html("Неизвестная ошибка на сервере");
+                }
+                btnDisabled(btn, false);
+            }
+        });
+    }
+    function btnDisabled(btn, v) {
+        v ? btn.disabled = true : btn.disabled = false;
+    }
+    function clearWarning() {
+        $("#warning").html("");
+        $("#success").html("");
+    }
+
+
+
+    var homeworkIsUploading = false;
+    const chunkSize = 1024 * 1024;
+    var CHUNK;
+    var COUNTER = 0;
+    var endOfTheChunk = chunkSize;
+    var CHUNK_COUNT = 0;
+    var FILE_TO_BE_UPLOAD;
+    var beginingOfTheChunk = 0;
+    var btnForSendHomework;
+
+    function sendHomeworkByChunks(btn) {
+        COUNTER = 0;
+        endOfTheChunk = chunkSize;
+        beginingOfTheChunk = 0;
+        homeworkIsUploading = true;
+        btnForSendHomework = btn;
+
+        clearWarning();
+        var form = new FormData(document.getElementById("formHomework"));
+        form.append("id_of_package_lesson", id_of_package_lesson);
+        btnDisabled(btn, true);
+        if (form.get("videofile").size == 0) {
+            $("#warning").html("Загрузите файл");
+            btnDisabled(btn, false);
+            return;
+        }
+        var _file = form.get("videofile");
+        FILE_TO_BE_UPLOAD = _file;
+
+        const _totalCount = _file.size % chunkSize == 0
+            ? _file.size / chunkSize
+            : Math.floor(_file.size / chunkSize) + 1;
+        CHUNK_COUNT = _totalCount;
+
+
+        //отсюда цикл должен начинаться
+        uploadChunkNextStep();
+    }
+
+    var uploadChunkTrying = 0;
+    function uploadChunkNextStep() {
+        COUNTER++;
+        uploadChunkTrying = 0;
+        if (COUNTER <= CHUNK_COUNT) {
+            //var chunk = FILE_TO_BE_UPLOAD.slice(beginingOfTheChunk, endOfTheChunk);
+            var file = FILE_TO_BE_UPLOAD;
+            var slice = file.mozSlice ? file.mozSlice : file.webkitSlice ? file.webkitSlice : file.slice ? file.slice : null;
+            var chunk = slice.bind(file)(beginingOfTheChunk, endOfTheChunk);
+            uploadChunk(chunk);
+        } else {
+            newHomeworkOnlyComment();
+        }
+    }
+
+
+    function uploadChunk(chunk) {
+        var form = new FormData();
+        form.append("id_of_package_lesson", id_of_package_lesson);
+
+        var xmlhttp = new XMLHttpRequest();
+
+        form.append('videofile', chunk);
+        form.append('index_of_chunk', COUNTER);
+
+
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == XMLHttpRequest.DONE) {
+                if (xmlhttp.status == 200) {
+                    var html = JSON.parse(xmlhttp.response);
+
+                    if (html["status"] == "success") {
+                        beginingOfTheChunk = endOfTheChunk;
+                        endOfTheChunk = endOfTheChunk + chunkSize;
+                        var percentage = (COUNTER / CHUNK_COUNT) * 100;
+                        //console.log("загружено: " + percentage + "%");
+                        document.getElementById("success").innerHTML = "";
+                        if (percentage < 100) {
+                            document.getElementById("success").innerHTML = "Пожалуйста подождите, идет загрузка... " + parseInt(percentage, 10) + "%";
+                        }
+                        uploadChunkNextStep();
+                    } else {
+                        homeworkIsUploading = false;
+                        btnDisabled(btnForSendHomework, false);
+                        document.getElementById("success").innerHTML = "Неизвестная ошибка на сервере";
+                        alert("Извините, на сервере произошла неизвестная ошибка");
+                    }
+                } else {
+
+                    if (uploadChunkTrying >= 10) {
+                        homeworkIsUploading = false;
+                        btnDisabled(btnForSendHomework, false);
+                        document.getElementById("success").innerHTML = "Разрыв соединения с сервером или ошибка на сервере";
+                    } else {
+                        uploadChunkTrying++;
+                        document.getElementById("success").innerHTML = "Попытка восстановить соединение...";
+                        setTimeout(function () {
+                            uploadChunk(chunk);
+                        }, 1500);
+                    }
+                }
+            }
+        };
+
+        xmlhttp.open("POST", "/api/homework/add_by_chunk", true);
+        xmlhttp.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+        //xmlhttp.setRequestHeader("Content-Type", "application/json");
+        //xmlhttp.overrideMimeType('application/json')
+        xmlhttp.send(form);
+
+    }
+
+    function closeHomework() {
+        if (homeworkIsUploading) return;
+        $("#modalPackageLessonHomework").modal("hide");
+    }
+
+
+    function newHomeworkOnlyComment() {
+        var form = new FormData(document.getElementById("formHomework"));
+        form.append("id_of_package_lesson", id_of_package_lesson);
+
+        var xmlhttp = new XMLHttpRequest();
+        form.delete("videofile");
+        document.getElementById("success").innerHTML = "Пожалуйста подождите, идет завершение отправки... ";
+
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == XMLHttpRequest.DONE) {
+                document.getElementById("success").innerHTML = "";
+                if (xmlhttp.status == 200) {
+                    var html = JSON.parse(xmlhttp.response);
+                    if (html["status"] == "success") {
+                        $("#success").html("Домашнее задание успешно отправлено");
+                        document.getElementById("homework-file").value = "";
+                        homeworkIsUploading = false;
+                        btnDisabled(btnForSendHomework, false);
+
+                        var brBeforeBtnReload = document.createElement("br");
+                        document.getElementById("success").appendChild(brBeforeBtnReload);
+                        var btnReload = document.createElement("button");
+                        btnReload.className = "btn";
+                        btnReload.innerHTML = "Обновить страницу";
+                        btnReload.type = "button";
+                        btnReload.onclick = function () {
+                            window.location.reload();
+                        }
+                        document.getElementById("success").appendChild(btnReload);
+                    } else {
+                        homeworkIsUploading = false;
+                        btnDisabled(btnForSendHomework, false);
+                        alert("Извините, на сервере произошла неизвестная ошибка");
+                    }
+                } else {
+                    homeworkIsUploading = false;
+                    btnDisabled(btnForSendHomework, false);
+                    alert("Извините, на сервере произошла неизвестная ошибка");
+                }
+            }
+        };
+
+        xmlhttp.open("POST", "/api/homework/add_only_comment", true);
+        xmlhttp.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+        xmlhttp.send(form);
+    }
+
+    function homeworkFileCHange() {
+        clearWarning();
+        var inputFile = document.getElementById("homework-file").files[0];
+        var div = document.getElementById("div_for_name_of_file_for_uploading");
+
+        var pFileName = document.createElement("p");
+        var aDelete = document.createElement("span");
+        aDelete.onclick = function () {
+            removeHomeworkFile();
+        }
+        aDelete.innerHTML = "Удалить";
+        var fileSize = inputFile.size;
+        pFileName.innerHTML = "Файл размером " + parseFloat(fileSize / 1000000).toFixed(2) + "Мб";
+        pFileName.appendChild(aDelete);
+        div.appendChild(pFileName);
+    }
+    function removeHomeworkFile() {
+        document.getElementById("div_for_name_of_file_for_uploading").innerHTML = "";
+        document.getElementById("homework-file").value = "";
+    }
+
+</script>
+
+
+<div class="modal fade" id="modalPackageLessonHomework" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="modalPackageLessonHomework" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content modal-default modalPackageLessonHomework">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="closeHomework()" id="modalPackageLessonHomeworkBtnClose">
+                    <img src="~/images/close.png" class="img-fluid" />
+                </button>
+                <h5 class="modal-title" id="modalPackageLessonHomeworkLabel">
+                </h5>
+            </div>
+            <div class="modal-body">
+                <p>Задание: <span></span></p>
+
+                <p>Статус: <span class="homework-status"></span></p>
+
+                <form action="#" id="formHomework">
+
+
+                    <div class="form-group">
+
+                        <input type="file" name="videofile" class="form-control divHide" id="homework-file" accept="video/mp4, video/mov" onchange="homeworkFileCHange();" />
+                        <button type="button" class="btn btn-choose-file" onclick="document.getElementById('homework-file').click();">
+                            Выберите файл
+                        </button>
+                    </div>
+
+                    <div class="form-group">
+                        <div id="div_for_name_of_file_for_uploading" class="homework-files-for-uploads">
+
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="button" class="btn btn-chat" onclick="sendHomeworkByChunks(this)">
+                            <img src="~/images/chat-send.svg" class="img-fluid" />
+                        </button>
+                        <textarea class="form-control" rows="5" maxlength="5000" name="comment" placeholder="Комментарий" onkeyup="clearWarning();"></textarea>
+                        <a href="#" target="_blank" class="homework-file">Отправленный вами файл</a>
+                    </div>
+
+                    <div class="form-group">
+                        <p id="warning"></p>
+                        <p id="success" class="success"></p>
+                    </div>
+
+                    <div class="form-group teacher-answer">
+                        <p>
+
+                        </p>
+                        <p class="homework-answer-date"></p>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

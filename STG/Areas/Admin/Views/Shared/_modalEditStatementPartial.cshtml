@@ -1,0 +1,237 @@
+﻿@{
+    @using Microsoft.AspNetCore.Antiforgery;
+    @inject IAntiforgery antiforgery
+    var tokenSet = antiforgery.GetAndStoreTokens(Context);
+}
+
+
+
+<div class="modal fade bs-example-modal-lg in" id="modalEditStatement" tabindex="-1" role="dialog" aria-hidden="false">
+
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button aria-hidden="true" id="button_for_close_modal_info_about_statement" data-dismiss="modal" class="close" type="button">×</button>
+                <h4 class="modal-title">
+                    Данные заявки
+                </h4>
+            </div>
+            <div class="modal-body" id="div_for_info_of_statement">
+
+                <!--<div class="contentpanel">-->
+
+
+
+                <div class="row">
+
+                    <div class="col-sm-12 col-md-12">
+
+
+                        <form class="media" action="#" id="formEditStatement">
+
+                            <input type="hidden" class="form-control" name="id" id="id" value="" />
+
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-xs-12" for="disabled_input_for_id">ID:</label>
+                                <div class="col-md-8 col-xs-12">
+                                    <input type="text" class="form-control" id="disabled_input_for_id" value="" disabled="" />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-xs-12" for="id_of_user">id пользователя:</label>
+                                <div class="col-md-8 col-xs-12">
+                                    <input type="text" class="form-control" name="id_of_user" id="id_of_user" value="" disabled />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-xs-12" for="username">Электронная почта пользователя:</label>
+                                <div class="col-md-8 col-xs-12">
+                                    <input type="text" class="form-control" name="username" id="username" value="" disabled />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-xs-12" for="fio_of_user">Имя и фамилия пользователя:</label>
+                                <div class="col-md-8 col-xs-12">
+                                    <input type="text" class="form-control" name="fio_of_user" id="fio_of_user" value="" disabled />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-xs-12" for="region_name">Регион пользователя:</label>
+                                <div class="col-md-8 col-xs-12">
+                                    <input type="text" class="form-control" name="region_name" id="region_name" value="" disabled />
+                                </div>
+                            </div>
+
+                            <hr />
+
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-xs-12" for="is_need_curator">Тариф</label>
+                                <div class="col-md-8 col-xs-12">
+                                    <input type="text" class="form-control" name="is_need_curator" id="is_need_curator" value="" disabled />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-xs-12" for="experience">Ваш танцевальный стаж?</label>
+                                <div class="col-md-8 col-xs-12">
+                                    <input type="text" class="form-control" name="experience" id="experience" value="" disabled />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-xs-12" for="expectations">Что вы ожидаете или хотите получить от занятий на данной платформе?</label>
+                                <div class="col-md-8 col-xs-12">
+                                    <input type="text" class="form-control" name="expectations" id="expectations" value="" disabled />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-xs-12" for="expected_time_for_lessons">Сколько вы сможете уделять времени на занятия в день?</label>
+                                <div class="col-md-8 col-xs-12">
+                                    <input type="text" class="form-control" name="expected_time_for_lessons" id="expected_time_for_lessons" value="" disabled />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-xs-12" for="idols">Кто ваши кумиры в танцевальном мире?</label>
+                                <div class="col-md-8 col-xs-12" name="idols" id="idols">
+
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-xs-12" for="link1">Ссылка на видео 1</label>
+                                <label class="control-label col-md-8 col-xs-12">
+                                    <a href="#" target="_blank" name="link1" id="link1"></a>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-xs-12" for="link2">Ссылка на видео 2</label>
+                                <label class="control-label col-md-8 col-xs-12">
+                                    <a href="#" target="_blank" name="link2" id="link2"></a>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-xs-12" for="link3">Ссылка на видео 3</label>
+                                <label class="control-label col-md-8 col-xs-12">
+                                    <a href="#" target="_blank" name="link3" id="link3"></a>
+                                </label>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-xs-12" for="teachers_wanted">Желаемые наставники:</label>
+                                <div class="col-md-8 col-xs-12">
+                                    <input type="text" class="form-control" name="teachers_wanted" id="teachers_wanted" value="" disabled />
+                                </div>
+                            </div>
+
+                            <hr />
+
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-xs-12" for="id_of_curator">Выбранный наставник</label>
+                                <div class="col-md-8 col-xs-12">
+                                    <select class="form-control" name="id_of_curator" id="id_of_curator">
+                                        <option value="0">- Не выбрано</option>
+                                    </select>
+                                </div>
+                            </div>
+
+
+                            <!--
+        <div class="form-group">
+            <label class="control-label col-md-4 col-xs-12" for="XXXXXXXXXXXX">XXXXXXXXXXXXXXXX</label>
+            <div class="col-md-8 col-xs-12">
+                <input type="text" class="form-control" name="XXXXXXXXXXXX" id="XXXXXXXXXXXX" value="" disabled />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-md-4 col-xs-12" for="XXXXXXXXXXXX">XXXXXXXXXXXXXXXX</label>
+            <div class="col-md-8 col-xs-12">
+                <input type="text" class="form-control" name="XXXXXXXXXXXX" id="XXXXXXXXXXXX" value="" disabled />
+            </div>
+        </div>
+    -->
+
+
+
+
+                        </form><!-- media -->
+
+                        <p align="right">
+                            <span id="label_for_warning_about_changes_and_telling_save"></span>
+                            <button class="btn btn-success" onclick="saveModalEditStatement();" id="btnSave">Сохранить</button>
+                        </p>
+
+
+                        <script>
+                            function change_access(value) {
+                                document.getElementById("active").value = value;
+                                saveModalEditStatement();
+                            }
+
+
+                            function saveModalEditStatement() {
+                                var form = new FormData(document.getElementById("formEditStatement"));
+                                /*
+                                var formAccessesToPanels = new FormData(document.getElementById("formAccessToPanels"));
+                                for (var pair of formAccessesToPanels.entries()) {
+                                    form.append(pair[0], pair[1]);
+                                }
+                                */
+                                var btn = document.getElementById("btnSave")
+                                btnDisabled(btn, true);
+
+                                $.ajax({
+                                    method: 'POST',
+                                    type: "POST",
+                                    url: "/api/statement/edit",
+                                    data: form,
+                                    cashe: false,
+                                    processData: false,
+                                    contentType: false,
+                                    beforeSend: function (xhr) {
+                                        xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+                                    },
+                                    error: function () {
+                                        alert("Ошибка соединения с сервером");
+                                        btnDisabled(btn, false);
+                                    },
+                                    success: function (html) {
+                                        if (html["status"] == "success") {
+                                            showAlertSuccess();
+                                            search();
+                                            get(form.get("id"));
+                                        } else if (html["status"] == "error" && html["errors"] == "not_access_only_superuser") {
+                                            makeWarningModalEditStatement("Не разрешено менять куратора после установки, обратитесь пожалуйста к суперадмину");
+                                        } else {
+                                            makeWarningModalEditStatement("Извините, на сервере произошла неизвестная ошибка");
+                                        }
+                                        btnDisabled(btn, false);
+                                    }
+                                });
+					        }
+
+
+                            function makeWarningModalEditStatement(message) {
+                                document.getElementById("label_for_warning_about_changes_and_telling_save").innerHTML = message;
+                            }
+                            function clearWarningModalEditStatement() {
+                                document.getElementById("label_for_warning_about_changes_and_telling_save").innerHTML = "";
+                            }
+
+                        </script>
+
+
+
+
+                    </div><!-- col-sm-9 -->
+                </div><!-- row -->
+                <!--
+                <button class="btn btn-danger" onclick="prepare_delete_Statement()">Удалить</button>
+                    -->
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-dismiss="modal" data-target="">Закрыть</button>
+            </div>
+
+        </div>
+    </div>
+</div>

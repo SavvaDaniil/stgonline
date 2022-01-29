@@ -1,0 +1,261 @@
+﻿@using STG.ViewModels.TeacherViewModel;
+@model TeacherLiteViewModel
+
+@{
+    Layout = "_LayoutWithoutScripts";
+    ViewData["Title"] = "Редактирование преподавателя";
+    @using Microsoft.AspNetCore.Antiforgery;
+    @inject IAntiforgery antiforgery
+    var tokenSet = antiforgery.GetAndStoreTokens(Context);
+}
+
+
+
+<div class="pageheader">
+    <div class="media">
+        <div class="pageicon pull-left">
+            <i class="fa fa-th-list"></i>
+        </div>
+        <div class="media-body">
+            <ul class="breadcrumb">
+                <li><a href=""><i class="glyphicon glyphicon-users"></i></a></li>
+                <li>Редактирование преподавателя</li>
+            </ul>
+            <h4>Редактирование преподавателя: id @Model.id </h4>
+        </div>
+    </div><!-- media -->
+</div><!-- pageheader -->
+<div class="panel panel-dark-head">
+
+
+    <div class="contentpanel">
+        <div class="row">
+
+            <div class="col-sm-12 col-md-12">
+
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs nav-line">
+                    <li class="active"><a href="#activities" data-toggle="tab"><strong>Данные</strong></a></li>
+
+                </ul>
+
+                <!-- Tab panes -->
+                <div class="tab-content nopadding noborder">
+                    <div class="tab-pane active" id="activities">
+                        <div class="activity-list">
+                            <div class="media">
+                                <form id="formTeacher" class="form-teacher">
+                                    <input type="text" name="id" class="form-control input-hide" id="id" value="@Model.id" />
+
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4 col-xs-12" for="id">ID: @Model.id</label>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="col-md-8 col-xs-12">
+                                            @if (Model.posterSrc != null)
+                                            {
+                                                <img src="@Model.posterSrc" class="img-responsive" />
+                                                <button class="btn btn-danger" type="button" onclick="isPosterDelete = 1;save()">
+                                                    Удалить
+                                                </button>
+                                            }
+                                            <input type="file" class="form-control" name="avatarFile" accept="image/*" />
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4 col-xs-12" for="name">ФИО:</label>
+                                        <div class="col-md-8 col-xs-12">
+                                            <input type="text" class="form-control" name="name" id="name" value="@Model.name" onkeypress="schetchik_of_changes();">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4 col-xs-12" for="email">Почта для домашних заданий как наставника:</label>
+                                        <div class="col-md-8 col-xs-12">
+                                            <input type="text" class="form-control" name="email" id="email" value="@Model.email" onkeypress="schetchik_of_changes();">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4 col-xs-12" for="instagram">instagram:</label>
+                                        <div class="col-md-8 col-xs-12">
+                                            <input type="text" class="form-control" name="instagram" id="instagram" value="@Model.instagram" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4 col-xs-12" for="active">Отображать пользователям?</label>
+                                        <div class="col-md-8 col-xs-12">
+                                            <select class="form-control" name="active">
+                                                <option value="0" @(Model.active == 0 ? "selected" : "") ;>Нет</option>
+                                                <option value="1" @(Model.active == 1 ? "selected" : "") ;>Да</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <hr />
+
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4 col-xs-12" for="is_curator">Является куратором?</label>
+                                        <div class="col-md-8 col-xs-12">
+                                            <select class="form-control" name="is_curator">
+                                                <option value="0" @(Model.is_curator == 0 ? "selected" : "") ;>Нет</option>
+                                                <option value="1" @(Model.is_curator == 1 ? "selected" : "") ;>Да</option>
+                                            </select>
+                                            <span class="help-block">Показывать ли преподавателя при подаче заявки на кураторство</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4 col-xs-12" for="price_tariff_1">Цена за тариф "Базовый":</label>
+                                        <div class="col-md-8 col-xs-12">
+                                            <input type="number" class="form-control" name="price_tariff_1" id="price_tariff_1"
+                                                   value="@Model.priceTariff1" />
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4 col-xs-12" for="price_tariff_2">Цена за тариф "Продвинутый":</label>
+                                        <div class="col-md-8 col-xs-12">
+                                            <input type="number" class="form-control" name="price_tariff_2" id="price_tariff_2"
+                                                   value="@Model.priceTariff2" />
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4 col-xs-12" for="price_tariff_3">Цена за тариф "Углубленный":</label>
+                                        <div class="col-md-8 col-xs-12">
+                                            <input type="number" class="form-control" name="price_tariff_3" id="price_tariff_3"
+                                                   value="@Model.priceTariff3" />
+                                        </div>
+                                    </div>
+
+
+                                </form>
+
+                            </div><!-- media -->
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">Описание</h4>
+                                </div>
+                                <div class="panel-body">
+                                    <textarea id="ckeditor" placeholder="Enter text here..." class="form-control" rows="100">
+                                        @Model.description
+                                    </textarea>
+                                </div>
+                            </div>
+
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">Краткое описание как куратора</h4>
+                                </div>
+                                <div class="panel-body">
+                                    <textarea id="ckeditor2" placeholder="Enter text here..." class="form-control" rows="100">
+                                        @Model.shortDescription
+                                    </textarea>
+                                </div>
+                            </div>
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">Биография куратора на страницу программы</h4>
+                                </div>
+                                <div class="panel-body">
+                                    <textarea id="ckeditor3" placeholder="Enter text here..." class="form-control" rows="100">
+                                        @Model.mentorBio
+                                    </textarea>
+                                </div>
+                            </div>
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">Награды куратора на страницу программы</h4>
+                                </div>
+                                <div class="panel-body">
+                                    <textarea id="ckeditor4" placeholder="Enter text here..." class="form-control" rows="100">
+                                        @Model.mentorAwards
+                                    </textarea>
+                                </div>
+                            </div>
+
+
+                            <p class="btn-save-right">
+                                <button class="btn btn-success" onclick="save();">Сохранить</button>
+                            </p>
+
+
+                            <script>
+                                var isPosterDelete = 0;
+                                function save() {
+                                    var form = new FormData(document.getElementById("formTeacher"));
+                                    form.append("shortDescription", CKEDITOR.instances.ckeditor2.getData());
+                                    form.append("description", CKEDITOR.instances.ckeditor.getData());
+                                    form.append("mentorBio", CKEDITOR.instances.ckeditor3.getData());
+                                    form.append("mentorAwards", CKEDITOR.instances.ckeditor4.getData());
+                                    form.append("isPosterDelete", isPosterDelete);
+
+                                    $.ajax({
+                                        method: 'POST',
+                                        type: "POST",
+                                        url:  "/api/teacher/update",
+                                        data: form,
+                                        cashe: false,
+                                        processData: false,
+                                        contentType: false,
+                                        beforeSend: function (xhr) {
+                                            xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+                                        },
+                                        error:function(){
+                                            alert("Ошибка соединения с сервером");
+                                        },
+                                        success: function(html)
+                                        {
+                                            if (html["status"] == "success") {
+                                                window.location.reload();
+                                            }
+                                        }
+                                    });
+                                }
+                            </script>
+
+                        </div><!-- activity-list -->
+
+
+                    </div><!-- tab-pane -->
+
+
+                </div><!-- tab-content -->
+
+            </div><!-- col-sm-9 -->
+        </div><!-- row -->
+
+
+    </div>
+</div>
+
+
+<script src="~/admin/js/jquery-1.11.1.min.js"></script>
+<script src="~/admin/js/jquery-migrate-1.2.1.min.js"></script>
+<script src="~/admin/js/jquery-ui-1.10.3.min.js"></script>
+<script src="~/admin/js/bootstrap.min.js"></script>
+<script src="~/admin/js/modernizr.min.js"></script>
+<script src="~/admin/js/pace.min.js"></script>
+<script src="~/admin/js/retina.min.js"></script>
+<script src="~/admin/js/jquery.cookies.js"></script>
+<script src="~/admin/js/wysihtml5-0.3.0.min.js"></script>
+<script src="~/admin/js/bootstrap-wysihtml5.js"></script>
+<script src="~/admin/js/ckeditor/ckeditor.js"></script>
+<script src="~/admin/js/ckeditor/adapters/jquery.js"></script>
+
+<script src="~/admin/js/custom.js"></script>
+<script>
+    jQuery(document).ready(function () {
+
+        // CKEditor
+        jQuery('#ckeditor').ckeditor();
+        jQuery('#ckeditor2').ckeditor();
+        jQuery('#ckeditor3').ckeditor();
+        jQuery('#ckeditor4').ckeditor();
+
+    });
+</script>

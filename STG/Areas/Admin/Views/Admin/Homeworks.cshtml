@@ -1,0 +1,718 @@
+﻿
+@using STG.ViewModels.PackageChat
+@model ListPackageChatPreviewsViewModel;
+
+@{
+    ViewData["Title"] = "Мои ученики";
+    @using Microsoft.AspNetCore.Antiforgery;
+    @inject IAntiforgery antiforgery
+    var tokenSet = antiforgery.GetAndStoreTokens(Context);
+}
+
+
+<div class="pageheader">
+    <div class="media">
+        <div class="pageicon pull-left">
+            <i class="fa fa-envelope-o"></i>
+        </div>
+        <div class="media-body">
+            <ul class="breadcrumb">
+                <li><a href=""><i class="glyphicon glyphicon-home"></i></a></li>
+                <li>@(Model.teacher != null ? Model.teacher.name + " - " : "")Мои ученики</li>
+            </ul>
+            <h4>@(Model.teacher != null ? Model.teacher.name + " - " : "")Мои ученики</h4>
+        </div>
+    </div>
+</div>
+
+
+<div class="contentpanel">
+    <div class="row">
+        <div class="col-sm-3 col-md-3 col-lg-2">
+            <!--
+            <a href="" class="btn btn-success btn-block btn-create-msg">Create Message</a>
+            <br />
+            -->
+                <!--
+            <ul class="nav nav-pills nav-stacked nav-msg">
+                <li class="active">
+                    <a href="/admin/homeworks">
+                        <span class="badge pull-right"></span>
+                        <i class="glyphicon glyphicon-inbox"></i> Входящие
+                    </a>
+                </li>
+                
+
+                <li><a href="#"><i class="glyphicon glyphicon-star"></i> Starred</a></li>
+                <li><a href="#"><i class="glyphicon glyphicon-send"></i> Sent Mail</a></li>
+                <li>
+                    <a href="#">
+                        <span class="badge pull-right">3</span>
+                        <i class="glyphicon glyphicon-pencil"></i> Draft
+                    </a>
+                </li>
+                <li><a href="#"><i class="glyphicon glyphicon-trash"></i> Trash</a></li>
+            </ul>
+                    -->
+            <!--
+            <div class="from-group">
+                <label for="teacher">Фильтр по наставникам</label>
+                <select name="teacher" class="form-control">
+                    <option value="0">- Нет фильтра</option>
+                </select>
+            </div>
+                -->
+            <!--
+            <br />
+            <h5 class="sm-title">Tags</h5>
+            <ul class="nav nav-pills nav-stacked nav-msg">
+                <li>
+                    <a href="email.html">
+                        <span class="badge pull-right">2</span>
+                        <i class="fa fa-tag"></i> Promotions
+                    </a>
+                </li>
+                <li><a href="#"><i class="fa fa-tag"></i> Updates</a></li>
+                <li><a href="#"><i class="fa fa-tag"></i> Social</a></li>
+            </ul>
+            -->
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-12" id="homeworks-list-preview">
+
+            <!--
+            <div class="msg-header">
+                <div class="pull-right">
+                    Showing 1 - 10 of 100 messages
+                    <button class="btn btn-white btn-navi btn-navi-left ml5" type="button"><i class="fa fa-chevron-left"></i></button>
+                    <button class="btn btn-white btn-navi btn-navi-right" type="button"><i class="fa fa-chevron-right"></i></button>
+
+                </div>
+                <div class="pull-left">
+                    <button class="btn btn-white tooltips" type="button" data-toggle="tooltip" title="Archive"><i class="fa fa-hdd-o"></i></button>
+                    <button class="btn btn-white tooltips" type="button" data-toggle="tooltip" title="Report Spam"><i class="fa fa-exclamation-circle"></i></button>
+                    <button class="btn btn-white tooltips" type="button" data-toggle="tooltip" title="Delete"><i class="fa fa-trash-o"></i></button>
+
+                    <div class="btn-group">
+                        <button data-toggle="dropdown" class="btn btn-white dropdown-toggle tooltips" type="button" title="Move to Folder">
+                            <i class="fa fa-folder"></i>
+                        </button>
+                        <ul class="dropdown-menu pull-right">
+                            <li><a href="#"><i class="fa fa-folder mr5"></i> Conference</a></li>
+                            <li><a href="#"><i class="fa fa-folder mr5"></i> Newsletter</a></li>
+                            <li><a href="#"><i class="fa fa-folder mr5"></i> Invitations</a></li>
+                            <li><a href="#"><i class="fa fa-folder mr5"></i> Promotions</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="btn-group">
+                        <button data-toggle="dropdown" class="btn btn-white dropdown-toggle tooltips" type="button" title="Label">
+                            <i class="fa fa-tag"></i>
+                        </button>
+                        <ul class="dropdown-menu pull-right">
+                            <li><a href="#"><i class="fa fa-tag mr5"></i> Web</a></li>
+                            <li><a href="#"><i class="fa fa-tag mr5"></i> Photo</a></li>
+                            <li><a href="#"><i class="fa fa-tag mr5"></i> Video</a></li>
+                        </ul>
+                    </div>
+
+                </div>
+
+            </div>
+            -->
+            
+             @if(Model.packageChatPreviewsViewModel.Count() == 0)
+            {
+                <center>- Подключенных учеников не найдено -</center>
+            }
+
+            <ul class="media-list msg-list">
+
+
+                @foreach (PackageChatPreviewViewModel packageChatPreview in Model.packageChatPreviewsViewModel as List<PackageChatPreviewViewModel>)
+                {
+                    <li class="media homework-preview @(packageChatPreview.isAnyUnread ? "unread" : "")" 
+                        onclick="get_chat(
+                            @packageChatPreview.connectionUserToPrivatePackage.user.Id,
+                            @packageChatPreview.connectionUserToPrivatePackage.package.id,
+                            @packageChatPreview.connectionUserToPrivatePackage.id, this
+                        )">
+                        <!--
+                        <div class="ckbox ckbox-primary pull-left">
+                            <input type="checkbox" id="checkbox@(Model.packageChatPreviewsViewModel.IndexOf(packageChatPreview))">
+                            <label for="checkbox1"></label>
+                        </div>
+                        -->
+                        <a class="pull-left" href="#">
+                            <img class="media-object img-circle img-offline" src="/admin_style/images/photos/user1.png" alt="...">
+                        </a>
+                        <div class="media-body">
+                            <div class="pull-right media-option">
+                                <i class="fa fa-paperclip mr5"></i>
+                                @if (packageChatPreview.date_of_update != null)
+                                {
+                                <small>@packageChatPreview.date_of_update</small>
+                                }
+                                <!--
+                                <a href="#"><i class="fa fa-star"></i></a>
+                                <div class="btn-group">
+                                    <a class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                        <i class="fa fa-cog"></i>
+                                    </a>
+                                    <ul class="dropdown-menu pull-right" role="menu">
+                                        <li><a href="#">Mark as Unread</a></li>
+                                        <li><a href="#">Reply</a></li>
+                                        <li><a href="#">Forward</a></li>
+                                        <li><a href="#">Archive</a></li>
+                                        <li><a href="#">Move to Folder</a></li>
+                                        <li><a href="#">Delete</a></li>
+                                        <li class="divider"></li>
+                                        <li><a href="#">Report as Spam</a></li>
+                                    </ul>
+                                </div>
+                                -->
+                            </div>
+                            <h4 class="sender">
+                                @if (packageChatPreview.user != null)
+                                {
+                                    @(packageChatPreview.user.secondname + " " + packageChatPreview.user.firstname)
+                                }
+                                @if (packageChatPreview.package != null)
+                                {
+                                <strong class="subject">
+                                    id@(packageChatPreview.package.id + " - " + @packageChatPreview.package.name)
+                                </strong>
+                                }
+
+                            </h4>
+                            <p>
+                                <a href="#">
+                                    <br />
+                                </a>
+                            </p>
+                        </div>
+                    </li>
+                }
+
+
+
+            </ul>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-12 row divHide" id="package-passing-faketab">
+
+            <div class="col-sm-12 col-md-12 col-lg-12" >
+                <button class="btn btn-danger btn-sm" onclick="close_passing()">Назад</button>
+            </div>
+
+            <div class="col-sm-12 col-md-12 col-lg-6 package-passing-lessons" id="package-passing-lessons">
+
+            </div>
+
+            <div class="col-sm-12 col-md-12 col-lg-6 package-chat">
+                <div id="package-chat" class="row">
+
+                </div>
+                <hr />
+                <div class="answer-div">
+                    <form action="#" id="formChat">
+                        <div class="form-group">
+                            <label for="message">Написать сообщение:</label>
+                            <textarea class="form-control" rows="10" name="message"></textarea>
+                        </div>
+                        <button type="button" class="btn btn-info" onclick="send_message_from_admin()">
+                            Отправить
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+    jQuery(document).ready(function() {
+                
+        //highlight rows that are already checked
+        jQuery('.msg-list .ckbox input').each(function(){
+            if (jQuery(this).is(':checked')) {
+                jQuery(this).parents('li').addClass('highlighted');
+            }
+        });
+                
+        // highlight/unhighlight rows when checked/unchecked
+        jQuery('.ckbox input').click(function(){
+            if(jQuery(this).is(':checked')) {
+                jQuery(this).parents('li').addClass('highlighted'); 
+            } else {
+                jQuery(this).parents('li').removeClass('highlighted');
+            }
+        });
+    });
+</script>
+
+
+
+<script>
+    var isLoading = false;
+    var ID_OF_PACKAGE = 0;
+    var ID_OF_USER = 0;
+    function get_chat(id_of_user, id_of_package, id_of_connection_user_to_package_private, el) {
+        if (isLoading) return;
+        isLoading = true;
+
+        var form = new FormData();
+        form.set("id", id_of_connection_user_to_package_private);
+        ID_OF_PACKAGE = id_of_package;
+        ID_OF_USER = id_of_user;
+
+        $.ajax({
+            method: 'POST',
+            type: "POST",
+            url: "/api/package/user_passing_package",
+            data: form,
+            cashe: false,
+            processData: false,
+            contentType: false,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+            },
+            error: function () {
+                alert("Ошибка соединения с сервером");
+                isLoading = false;
+            },
+            success: function (html) {
+                if (html["status"] == "success") {
+                    //user_passing_package
+                    _buildLessonsPassing(html["user_passing_package"]["packageInfoViewModel"]);
+                    _buildChat(html["user_passing_package"]["packageChatMessages"]);
+
+                    open_passing();
+                    var chatContent = document.getElementById("package-chat");
+                    chatContent.scrollTop = chatContent.scrollHeight;
+                    el.classList.remove("unread");
+                } else {
+                    alert("Извините, на сервере произошла неизвестная ошибка");
+                }
+                isLoading = false;
+            }
+        });
+    }
+
+
+
+
+
+    function _buildLessonsPassing(packageInfoViewModel) {
+        var divMain = document.getElementById("package-passing-lessons");
+        divMain.innerHTML = "";
+        for (var i = 0; i < packageInfoViewModel["packageDays"].length; i++) {
+            divMain.appendChild(_buildDay(packageInfoViewModel["packageDays"][i]));
+        }
+    }
+
+
+    function _buildDay(packageDays) {
+        var divDay = document.createElement("div");
+        divDay.className = "package-day";
+
+        if (packageDays["number"] > 1) {
+            var hrDay = document.createElement("hr");
+            divDay.appendChild(hrDay);
+        }
+
+        var hDay = document.createElement("h4");
+        hDay.innerHTML = "День " + packageDays["number"] + ": " + packageDays["name"];
+        divDay.appendChild(hDay);
+        for (var i = 0; i < packageDays["package_lesson_list"].length; i++) {
+            divDay.appendChild(_buildLesson(packageDays["package_lesson_list"][i]));
+        }
+
+
+        return divDay;
+    }
+
+
+    function _buildLesson(package_lesson) {
+        var divLesson = document.createElement("div");
+        if (package_lesson["lessonViewModel"] == null || typeof (package_lesson["lessonViewModel"]) == "undefined") return divLesson;
+        divLesson.className = "package-lesson";
+
+        var poster = document.createElement("img");
+        poster.className = "img-fluid";
+        poster.src = package_lesson["lessonViewModel"]["posterSrc"];
+        poster.classList.add((package_lesson["isFinished"] ? "finished" : "notfinished"));
+        divLesson.appendChild(poster);
+
+        var nameOfLesson = document.createElement("h5");
+        nameOfLesson.className = "name";
+        nameOfLesson.innerHTML = "id" + package_lesson["lessonViewModel"]["id"] + " - " + package_lesson["lessonViewModel"]["name"];
+        divLesson.appendChild(nameOfLesson);
+
+        var pStats = document.createElement("p");
+        pStats.className = "stats";
+        var iStats = document.createElement("i");
+        iStats.className = "fa fa-clock-o";
+        pStats.appendChild(iStats);
+        pStats.innerHTML = "Просмотрено: " + package_lesson["procentsViewed"] + "%";
+        divLesson.appendChild(pStats);
+
+        var pStats = document.createElement("p");
+        pStats.className = "stats";
+        var iStats = document.createElement("i");
+        iStats.className = "fa fa-briefcase";
+        pStats.appendChild(iStats);
+        pStats.innerHTML = "Домашнее задание: ";
+        pStats.appendChild(_buildHomeworkStats(package_lesson));
+        divLesson.appendChild(pStats);
+
+        if (package_lesson["homework_status"] == 1) {
+            divLesson.appendChild(_buildHomeworkContent(package_lesson));
+        }
+
+        return divLesson;
+    }
+
+
+    function _buildHomeworkStats(package_lesson) {
+        var span = document.createElement("span");
+        if (package_lesson["homework_status"] == 0) {
+            span.innerHTML = "не предусмотрено";
+            return span;
+        } else if (package_lesson["homework_status"] == 1){
+            if (package_lesson["isHomeworkSend"] && package_lesson["homework_lite"]["statusOfUpload"] == 1) {
+                span.className = "success";
+                span.innerHTML = "сдано";
+                return span;
+            } else if (package_lesson["isHomeworkSend"] && package_lesson["homework_lite"]["statusOfUpload"] == 0) {
+                span.className = "danger bold";
+                span.innerHTML = "Ошибка загрузки";
+                return span;
+            } else {
+                span.className = "danger";
+                span.innerHTML = "не сдано";
+                return span;
+            }
+        }
+    }
+
+
+    function _buildHomeworkContent(package_lesson) {
+        var divPanelGroup = document.createElement("div");
+        divPanelGroup.className = "panel-group";
+
+        var divPanelDefault = document.createElement("div");
+        divPanelDefault.className = "panel panel-default";
+
+        var divPanelHeading = document.createElement("div");
+        divPanelHeading.className = "panel-heading";
+
+            var hPanelTitle = document.createElement("h4");
+            hPanelTitle.className = "panel-title";
+
+                var aAccordionTItle = document.createElement("a");
+                aAccordionTItle.innerHTML = "Контент домашнего задания";
+                aAccordionTItle.setAttribute("data-toggle", "collapse");
+                aAccordionTItle.href = "#collapseHomework" + package_lesson["id"]
+                hPanelTitle.appendChild(aAccordionTItle);
+                if (package_lesson["homework_lite"] != null) {
+                    if (package_lesson["homework_lite"]["statusOfSeen"] == 0) {
+                        aAccordionTItle.onclick = function () {
+                            setSeenByAdmin(package_lesson["homework_lite"]["id"]);
+                        }
+                    }
+                }
+
+        divPanelHeading.appendChild(hPanelTitle);
+        divPanelDefault.appendChild(divPanelHeading);
+
+
+        var divCollapse = document.createElement("div");
+        divCollapse.className = "panel-collapse collapse";
+        divCollapse.id = "collapseHomework" + package_lesson["id"];
+
+        var divPanelBody = document.createElement("div");
+        divPanelBody.className = "panel-body";
+        divPanelBody.innerHTML = package_lesson["homework_text"];
+        divPanelBody.appendChild(_buildHomeworkMessageFromUser(package_lesson["homework_lite"]));
+        divPanelBody.appendChild(_buildHomeworkAnswerFromTeacher(package_lesson["homework_lite"]));
+
+        divCollapse.appendChild(divPanelBody);
+
+        divPanelDefault.appendChild(divCollapse);
+        divPanelGroup.appendChild(divPanelDefault);
+        return divPanelGroup;
+    }
+
+
+    function _buildHomeworkMessageFromUser(homework_lite) {
+        if (homework_lite == null) return document.createElement("div");
+        var divMessage = document.createElement("div");
+        divMessage.className = "user-answer-block";
+
+        var pDateOfAdd = document.createElement("p");
+        pDateOfAdd.innerHTML = "Дата отправки: " + homework_lite["date_of_add"];
+        pDateOfAdd.className = "user-answer-date";
+        divMessage.appendChild(pDateOfAdd);
+
+        var pAnswer = document.createElement("p");
+        pAnswer.className = "user-answer-title";
+        pAnswer.innerHTML = "Ответ пользователя:";
+        divMessage.appendChild(pAnswer);
+
+
+        divMessage.innerHTML += homework_lite["comment"];
+        if (homework_lite["filenameSrc"] != null) {
+            var pAToFile = document.createElement("p");
+            if (homework_lite["statusOfUpload"] == 0) {
+                pAToFile.className = "danger bold";
+                pAToFile.innerHTML = "Ошибка загрузки";
+            } else {
+                var aToFile = document.createElement("a");
+                aToFile.innerHTML = "Ссылка на файл";
+                aToFile.href = homework_lite["filenameSrc"];
+                aToFile.target = "_blank";
+                pAToFile.appendChild(aToFile);
+            }
+            divMessage.appendChild(pAToFile);
+        }
+
+        return divMessage;
+    }
+
+
+    function _buildHomeworkAnswerFromTeacher(homework_lite) {
+        if (homework_lite == null) return document.createElement("div");
+        var divAnswer = document.createElement("form");
+        divAnswer.className = "admin-answer-block";
+        divAnswer.action = "#";
+        divAnswer.id = "formAdminAnswer" + homework_lite["id"];
+
+        if (homework_lite["date_of_add"] != null) {
+            var pDateOfAdd = document.createElement("p");
+            pDateOfAdd.innerHTML = "Дата отправки: " + homework_lite["date_of_add"];
+            pDateOfAdd.className = "admin-answer-date";
+            divAnswer.appendChild(pDateOfAdd);
+
+            var pDateOfSeenByUser = document.createElement("p");
+            pDateOfSeenByUser.innerHTML = "Дата просмотра пользователем: "
+                + (homework_lite["date_of_update_of_teacher"] != null ? homework_lite["date_of_update_of_teacher"] : "не просмотрено");
+            pDateOfSeenByUser.className = "admin-answer-date";
+            divAnswer.appendChild(pDateOfSeenByUser);
+        }
+
+        var pAnswer = document.createElement("p");
+        pAnswer.className = "admin-answer-title";
+        pAnswer.innerHTML = "Ответ наставника:";
+        divAnswer.appendChild(pAnswer);
+
+        var textareaAnswer = document.createElement("textarea");
+        textareaAnswer.className = "form-control";
+        textareaAnswer.rows = 5;
+        textareaAnswer.name = "answer";
+        textareaAnswer.innerText = homework_lite["answer_from_teacher"];
+        divAnswer.appendChild(textareaAnswer);
+
+        var btnAnswer = document.createElement("button");
+        btnAnswer.className = "btn btn-success";
+        btnAnswer.innerHTML = "Отправить";
+        btnAnswer.type = "button";
+        btnAnswer.onclick = function () {
+            answer_from_admin(homework_lite["id"]);
+        }
+        divAnswer.appendChild(btnAnswer);
+
+        return divAnswer;
+    }
+
+    var isAnswerFromAdminSending = false;
+    function answer_from_admin(id_of_homework) {
+
+        if (isAnswerFromAdminSending) return;
+        isAnswerFromAdminSending = true;
+
+        var form = new FormData(document.getElementById("formAdminAnswer" + id_of_homework));
+        form.set("id_of_homework", id_of_homework);
+
+        $.ajax({
+            method: 'POST',
+            type: "POST",
+            url: "/api/homework/answer",
+            data: form,
+            cashe: false,
+            processData: false,
+            contentType: false,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+            },
+            error: function () {
+                alert("Ошибка соединения с сервером");
+                isAnswerFromAdminSending = false;
+            },
+            success: function (html) {
+                if (html["status"] == "success") {
+                    showAlertRequestSuccess();
+                } else {
+                    alert("Извините, на сервере произошла неизвестная ошибка");
+                }
+                isAnswerFromAdminSending = false;
+            }
+        });
+    }
+
+
+    function setSeenByAdmin(id_of_homework) {
+        var form = new FormData();
+        form.set("id", id_of_homework);
+
+        $.ajax({
+            method: 'POST',
+            type: "POST",
+            url: "/api/homework/set_seen_by_admin",
+            data: form,
+            cashe: false,
+            processData: false,
+            contentType: false,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+            },
+            error: function () {
+                alert("Ошибка соединения с сервером");
+            },
+            success: function (html) {
+
+            }
+        });
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    function _buildChat(package_chat_messages) {
+        var divMain = document.getElementById("package-chat");
+        divMain.innerHTML = "";
+        for (var i = 0; i < package_chat_messages.length; i++) {
+            divMain.appendChild(_buildMessage(package_chat_messages[i]));
+        }
+        //document.getElementById("package-chat").appendChild(divMain);
+
+    }
+    function _buildMessage(package_chat_message) {
+        var divMain = document.createElement("div");
+        divMain.className = "col-sm-12 col-md-12 col-lg-12";
+
+        var divMessage = document.createElement("div");
+        divMessage.className = "message";
+
+
+        var h4 = document.createElement("h4");
+        if (package_chat_message["user0_teacher1"] == 0) {
+            h4.innerHTML =
+                ((package_chat_message["user"]["secondname"] != null) ? package_chat_message["user"]["secondname"] : "")
+                + " "
+                + ((package_chat_message["user"]["firstname"] != null) ? package_chat_message["user"]["firstname"] : "");
+            divMessage.classList.add("user");
+        }
+        if (package_chat_message["user0_teacher1"] == 1) {
+            h4.innerHTML = ((package_chat_message["teacher"]["name"] != null) ? package_chat_message["teacher"]["name"] : "");
+            divMessage.classList.add("admin");
+        }
+
+        var h6 = document.createElement("h6");
+        h6.innerHTML = package_chat_message["date_of_add"];
+
+
+        var message = document.createElement("p");
+        message.innerHTML = package_chat_message["message"];
+
+        divMessage.appendChild(h6);
+        divMessage.appendChild(h4);
+        divMessage.appendChild(message);
+        divMain.appendChild(divMessage);
+
+        /*
+        if (package_chat_message["homework_video_src"] != null && package_chat_message["homework"] != null) {
+            var hr = document.createElement("hr");
+            div.appendChild(hr);
+
+            var descLesson = document.createElement("p");
+            descLesson.className = "desc-lesson";
+            descLesson.innerHTML = "Домашнее задание к уроку:<br /> id" + package_chat_message["homework"]["packageLesson"]["lesson"]["id"] + ' "'
+                + package_chat_message["homework"]["packageLesson"]["lesson"]["name"] + '"';
+            div.appendChild(descLesson);
+
+            var a = document.createElement("a");
+            a.innerHTML = "Ссылка на видео";
+            a.target = "_blank";
+            a.href = package_chat_message["homework_video_src"];
+            div.appendChild(a);
+        }
+        */
+
+
+        return divMain;
+    }
+
+    function open_passing() {
+        document.getElementById("homeworks-list-preview").classList.add("divHide");
+        document.getElementById("package-passing-faketab").classList.remove("divHide");
+    }
+    function close_passing() {
+        document.getElementById("homeworks-list-preview").classList.remove("divHide");
+        document.getElementById("package-passing-faketab").classList.add("divHide");
+    }
+
+
+
+
+
+    var isMessageFromAdminSending = false;
+    function send_message_from_admin() {
+
+        if (isMessageFromAdminSending) return;
+        isMessageFromAdminSending = true;
+
+        var form = new FormData(document.getElementById("formChat"));
+        form.set("id_of_package", ID_OF_PACKAGE);
+        form.set("id_of_user", ID_OF_USER);
+
+        $.ajax({
+            method: 'POST',
+            type: "POST",
+            url: "/api/package_chat/message_from_admin",
+            data: form,
+            cashe: false,
+            processData: false,
+            contentType: false,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+            },
+            error: function () {
+                alert("Ошибка соединения с сервером");
+                isMessageFromAdminSending = false;
+            },
+            success: function (html) {
+                if (html["status"] == "success") {
+                    showAlertRequestSuccess();
+                    //get(ID_OF_USER, ID_OF_PACKAGE);
+                } else {
+                    alert("Извините, на сервере произошла неизвестная ошибка");
+                }
+                isMessageFromAdminSending = false;
+            }
+        });
+    }
+</script>

@@ -1,0 +1,174 @@
+﻿
+.preview_block {
+    background-color: #3b3b3b;
+    border-radius: 10px;
+    color: #fff;
+    cursor: pointer;
+    position:relative;
+}
+
+
+.preview_block .hide {
+    display: none;
+}
+
+.preview_block img {
+    width:100%;
+    border-radius: 10px;
+}
+.preview_block .lock.single {
+    background-color: #222222;
+    position: absolute;
+    top: 15px;
+    right: 30px;
+    padding: 1px 8px;
+    border-radius: 4px;
+}
+
+
+.preview_block .description {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-sizing: border-box;
+    backdrop-filter: blur(6px);
+    border-radius: 0px 0px 10px 10px;
+    padding:12px;
+    position:absolute;
+    bottom:0;
+    width:100%;
+}
+.preview_block a {
+    color:#fff;
+}
+.packages a:hover {
+    text-decoration: none;
+}
+.preview_block .name {
+    font-size:18px;
+    margin-bottom:2px;
+}
+.preview_block p {
+    font-size:14px;
+    color:#969696;
+    margin-bottom:4px;
+}
+.preview_block p span {
+    color:#fff;
+}
+
+
+
+/*
+.preview_block video {
+    border-radius: 12px;
+}
+
+.preview_block a {
+    color:#fff;
+    text-decoration:none;
+}
+.preview_block a:hover {
+    color: #fff;
+    text-decoration: none;
+}
+
+.preview_block .left {
+    position: absolute;
+    padding: 15px;
+    height: 100%;
+}
+
+.preview_block .left.mouse_out {
+    width: 100%;
+}
+
+.preview_block .left.mouse_out.hide {
+    display: none;
+}
+
+.preview_block .left.mouse_over {
+    width: 100%;
+    display: none;
+}
+
+.preview_block .left.mouse_over.show {
+    display: block;
+}
+
+.preview_block .left.mouse_over .play {
+    background-color: #004079;
+    color: #fff;
+    right: 15px;
+    position: absolute;
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    font-weight: 700;
+    transition: all 0.3s ease-out;
+}
+
+.preview_block .left.mouse_over .play:hover {
+    background-color: #f9f9f9;
+    color: #000;
+    transition: all 0.3s ease-out;
+}
+
+.preview_block .left.mouse_over .icon-control.first {
+    margin-top: 2%;
+}
+
+.preview_block .left.mouse_over .icon-control {
+    margin-bottom: 10%;
+}
+
+.preview_block .left.mouse_over a {
+    text-decoration: none;
+    color: #fff;
+}
+
+.preview_block .left.mouse_over a:hover {
+    color: #bababa;
+}
+
+.preview_block .left.mouse_over a i {
+    font-size: 30px;
+}
+
+.preview_block .level {
+    display: inline-block;
+    font-size: 10px;
+    padding: 2px 4px;
+    text-transform: uppercase;
+    font-weight: 600;
+    border-radius: 4px;
+    margin-bottom: 20%;
+}
+
+.preview_block .level.beginners {
+    background-color: rgb(236, 97, 37);
+}
+
+
+.preview_block .name {
+    font-weight: 600;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+
+.preview_block .description {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+}
+
+.preview_block p {
+    margin-bottom: 0;
+    font-size: 12px;
+    margin-bottom: 2px;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+
+.preview_block span {
+    font-weight: 600;
+}
+*/

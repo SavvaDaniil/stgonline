@@ -1,0 +1,596 @@
+﻿
+@{
+    ViewData["Title"] = "Заявки на наставничество";
+    @using Microsoft.AspNetCore.Antiforgery;
+    @inject IAntiforgery antiforgery
+    var tokenSet = antiforgery.GetAndStoreTokens(Context);
+}
+
+
+<div class="pageheader">
+    <div class="media">
+        <div class="pageicon pull-left">
+            <i class="fa fa-envelope"></i>
+        </div>
+        <div class="media-body">
+            <ul class="breadcrumb">
+                <li><a href=""><i class="glyphicon glyphicon-home"></i></a></li>
+                <li>Заявки на наставничество</li>
+            </ul>
+            <h4>Заявки на наставничество</h4>
+        </div>
+    </div>
+</div>
+
+
+<div class="contentpanel statements">
+
+    <div class="row">
+        <div class="col-sm-3">
+
+            <h5 class="md-title">Фильтр</h5>
+            <ul class="nav nav-pills nav-stacked nav-contacts">
+                <li class="active">
+                    <a href="#">
+                        Все
+                        <span class="badge pull-right"></span>
+                    </a>
+                </li>
+            </ul>
+
+            <br />
+
+
+        </div><!-- col-sm-3 -->
+        <div class="col-sm-9">
+
+            <div class="well mt10 divHide">
+                <form id="formSearch" class="row">
+                    <div class="col-sm-9">
+                        <input type="text" placeholder="Поиск" name="queryString" class="form-control" />
+                    </div>
+                    <div class="col-sm-3">
+                        <button class="btn btn-success" onclick="searchStartAgain()">Найти</button>
+                    </div>
+                    <div class="col-sm-12">
+                        <p class="warning"></p>
+                    </div>
+
+                </form>
+            </div>
+
+            <script>
+                window.onload = function () {
+                    search();
+                }
+
+                function searchStartAgain() {
+                    PAGE = 1;
+                    search();
+                }
+
+                var PAGE = 1;
+                function search() {
+                    var btn = document.getElementById("formSearch").getElementsByTagName("button")[0];
+                    var form = new FormData(document.getElementById("formSearch"));
+                    form.set("page", PAGE);
+                    btnDisabled(btn, true);
+                    $("#statement_list").html("<p>Идет загрузка...</p>");
+
+                    $.ajax({
+                        method: 'POST',
+                        type: "POST",
+                        url: "/api/statement/search",
+                        data: form,
+                        cashe: false,
+                        processData: false,
+                        contentType: false,
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+                        },
+                        error: function () {
+                            makeWarning("Ошибка соединения с сервером");
+                            btnDisabled(btn, false);
+                            $("#statement_list").empty();
+                        },
+                        success: function (html) {
+                            if (html["status"] == "success") {
+                                _buildPagination(html["statementsSearchViewModel"]["count"]);
+                                statementListBuild(html["statementsSearchViewModel"]["statements"]);
+                            } else {
+                                makeWarning("Извините, на сервере произошла неизвестная ошибка");
+                            }
+                            btnDisabled(btn, false);
+                        }
+                    });
+                }
+
+                function clearWarning() {
+                    document.getElementsByClassName("warning")[0].innerHTML = "";
+                }
+                function makeWarning(message) {
+                    document.getElementsByClassName("warning")[0].innerHTML = message;
+                }
+
+                function btnDisabled(btn, v) {
+                    v ? btn.disabled = true : btn.disabled = false;
+                }
+            </script>
+
+            <br />
+
+            <div class="pull-right" id="searchPagination">
+                <!--
+                <ul class="pagination pagination-split pagination-sm pagination-contact">
+                    <li class="disabled"><a href="#"><i class="fa fa-angle-left"></i></a></li>
+                    <li class="active"><a href="#">1</a></li>
+                    <li><a href="#">2</a></li>
+                    <li><a href="#">3</a></li>
+                    <li><a href="#">4</a></li>
+                    <li><a href="#">5</a></li>
+                    <li><a href="#"><i class="fa fa-angle-right"></i></a></li>
+                </ul>
+                    -->
+            </div>
+
+            <script>
+                function _buildPagination(count) {
+                    document.getElementById("searchPagination").innerHTML = "";
+
+                    var ul = document.createElement("ul");
+                    ul.className = "pagination pagination-split pagination-sm pagination-contact";
+
+                    var li0 = document.createElement("li");
+                    li0.className = (PAGE - 1 > 1 ? "" : "disabled");
+                    var a0 = document.createElement("a");
+                    a0.href = "#";
+                    var i1 = document.createElement("i");
+                    i1.className = "fa fa-angle-left";
+                    a0.appendChild(i1);
+                    li0.appendChild(a0);
+
+
+                    var liActive = document.createElement("li");
+                    liActive.className = "active";
+                    var a1 = document.createElement("a");
+                    a1.href = "#";
+                    a1.innerHTML = PAGE;
+                    liActive.appendChild(a1);
+
+                    var li2 = document.createElement("li");
+                    li2.className = (PAGE * 30 < count ? "" : "disabled");
+                    var a2 = document.createElement("a");
+                    a2.href = "#";
+                    var i2 = document.createElement("i");
+                    i2.className = "fa fa-angle-right";
+                    a2.appendChild(i2);
+                    li2.appendChild(a2);
+
+                    ul.appendChild(li0);
+                    ul.appendChild(liActive);
+                    ul.appendChild(li2);
+
+                    document.getElementById("searchPagination").appendChild(ul);
+                }
+            </script>
+
+
+            <h3 class="xlg-title">Найденное:</h3>
+
+            <div class="list-group contact-group" id="statement_list">
+
+                <!--
+                <a href="#" class="list-group-item">
+                    <div class="media">
+                        <div class="pull-left">
+                            <img class="img-circle img-online" src="~/admin_style/images/photos/statement1.png" alt="...">
+                        </div>
+                        <div class="media-body">
+                            <h4 class="media-heading">Weno Carasbong <small>Software Engineer at Apple, Inc.</small></h4>
+                            <div class="media-content">
+                                <i class="fa fa-map-marker"></i> Cebu Business Park, Cebu City, Philippines
+                                <ul class="list-unstyled">
+                                    <li><i class="fa fa-envelope-o"></i> weno.carasbong@email.com</li>
+                                    <li><i class="fa fa-instagram"></i> weno.carasbong</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                -->
+
+
+            </div>
+
+
+
+
+        </div>
+    </div>
+
+
+</div>
+
+
+<script>
+    function statementListBuild(statements) {
+        _clearListstatement();
+        if (statements.length == 0) {
+            document.getElementById("statement_list").innerHTML = "<p>- ничего не найдено -</p>";
+            return;
+        }
+        for (var i = 0; i < statements.length; i++) {
+            document.getElementById("statement_list").appendChild(_buildAstatementpreview(statements[i]));
+        }
+    }
+
+    function _clearListstatement() {
+        $("#statement_list").empty();
+    }
+
+
+
+    function _buildAstatementpreview(statementdata) {
+        var aBlock = document.createElement("a");
+        aBlock.className = "list-group-item";
+        var divMedia = document.createElement("div");
+        divMedia.className = "media";
+
+        divMedia.appendChild(_buildSecondnameAndFirstname(statementdata));
+        divMedia.appendChild(_buildSecondaryInfo(statementdata));
+
+        aBlock.appendChild(divMedia);
+        aBlock.onclick = function () {
+            get(statementdata["id"]);
+        }
+
+        return aBlock;
+    }
+
+
+    function _buildSecondnameAndFirstname(statementdata) {
+        var h4MediaHeading = document.createElement("h4");
+        h4MediaHeading.className = "media-heading";
+        h4MediaHeading.innerHTML =
+            (statementdata["secondname"] != null ? statementdata["secondname"] : "")
+            + " "
+            + (statementdata["firstname"] != null ? statementdata["firstname"] : "");
+        if (statementdata["date_of_add"] != null) {
+            var smallDateOfAdd = document.createElement("small");
+            smallDateOfAdd.innerHTML = statementdata["date_of_add"];
+            h4MediaHeading.appendChild(smallDateOfAdd);
+        }
+        return h4MediaHeading;
+    }
+    function _buildSecondaryInfo(statementdata) {
+        var divMediaContent = document.createElement("div");
+        divMediaContent.className = "media-content";
+
+        var iRegion = document.createElement("i");
+        iRegion.className = "fa fa-map-marker";
+        if (statementdata["region_name"] != null) {
+            iRegion.innerHTML = " " + statementdata["region_name"];
+        } else {
+            iRegion.innerHTML = " -";
+        }
+
+        var ul = document.createElement("ul");
+        ul.className = "list-unstyled";
+
+        var li = document.createElement("li");
+        var i = document.createElement("i");
+        i.className = "glyphicon glyphicon-log-in";
+        li.appendChild(i);
+        li.appendChild(_buildActiveOfStatement(statementdata["active"]));
+        ul.appendChild(li);
+
+        if (typeof (statementdata["username"]) != "undefined") {
+            var li = document.createElement("li");
+            var i = document.createElement("i");
+            i.className = "fa fa-envelope-o";
+            li.appendChild(i);
+            li.innerHTML += statementdata["username"];
+            ul.appendChild(li);
+        }
+
+        if (typeof (statementdata["teachers_wanted"]) != "undefined") {
+            var li = document.createElement("li");
+            var i = document.createElement("i");
+            i.className = "fa fa-users";
+            li.appendChild(i);
+            li.innerHTML += " " + statementdata["teachers_wanted"];
+            ul.appendChild(li);
+        }
+
+        divMediaContent.appendChild(iRegion);
+        divMediaContent.appendChild(ul);
+        return divMediaContent;
+    }
+    function _buildActiveOfStatement(active) {
+        var span = document.createElement("span");
+        if (active == 1) {
+            span.className = "success";
+            span.innerHTML = " Рассмотрена";
+        } else {
+            span.className = "danger";
+            span.innerHTML = " Не рассмотрена";
+        }
+        return span;
+    }
+</script>
+
+
+@{await Html.RenderPartialAsync("_modalEditStatementPartial"); }
+
+<script>
+    var ID_OF_statement = 0;
+    function get(id) {
+        ID_OF_statement = id;
+        var form = new FormData();
+        form.set("id", id);
+        //var btn = document.getElementById("formSearch").getElementsByTagName("button")[0];
+        //var btnSave = document.getElementById("btnSave");
+        //btnDisabled(btn, true);
+        //btnDisabled(btnSave, true);
+
+        $.ajax({
+            method: 'POST',
+            type: "POST",
+            url: "/api/statement/get",
+            data: form,
+            cashe: false,
+            processData: false,
+            contentType: false,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+            },
+            error: function () {
+                alert("Ошибка соединения с сервером");
+                //btnDisabled(btn, false);
+                //btnDisabled(btnSave, false);
+            },
+            success: function (html) {
+                if (html["status"] == "success") {
+                    modalEditStatementInit(html["statement_edit"]);
+                } else {
+                    alert("Извините, на сервере произошла неизвестная ошибка");
+                }
+                //btnDisabled(btn, false);
+                //btnDisabled(btnSave, false);
+            }
+        });
+    }
+</script>
+
+
+<script>
+    function modalEditStatementInit(statementdata) {
+
+        document.getElementById("id").value = statementdata["id"];
+        document.getElementById("disabled_input_for_id").value = statementdata["id"];
+        document.getElementById("id_of_user").value = statementdata["id_of_user"];
+        //document.getElementById("active").value = statementdata["active"];
+        document.getElementById("username").value = statementdata["username"];
+        document.getElementById("fio_of_user").value = (statementdata["secondname"] != null ? statementdata["secondname"] : "")
+            + " " + (statementdata["firstname"] != null ? statementdata["firstname"] : "");
+        document.getElementById("region_name").value = statementdata["region_name"];
+        document.getElementById("teachers_wanted").value = statementdata["teachers_wanted"];
+
+        if (statementdata["is_need_curator"] == 1) document.getElementById("is_need_curator").value = "Тариф “Базовый”";
+        if (statementdata["is_need_curator"] == 2) document.getElementById("is_need_curator").value = "Тариф “Продвинутый”";
+        if (statementdata["is_need_curator"] == 3) document.getElementById("is_need_curator").value = "Тариф “Углубленный”";
+
+        if (statementdata["experience"] == 1) document.getElementById("experience").value = "В первый раз (никогда раньше не танцевали)";
+        if (statementdata["experience"] == 2) document.getElementById("experience").value = "Начинающий (брали несколько классов и понимаете основы)";
+        if (statementdata["experience"] == 3) document.getElementById("experience").value = "Продолжающие (тацуете регулярно, хочу углубить свои знания)";
+        if (statementdata["experience"] == 4) document.getElementById("experience").value = "Профи (у вас большой опыт, просто хотите что-то новое)";
+
+        if (statementdata["expectations"] == 1) document.getElementById("expectations").value = "Хочу изучить/повторить базу";
+        if (statementdata["expectations"] == 2) document.getElementById("expectations").value = "Хочу научиться фристайлить";
+        if (statementdata["expectations"] == 3) document.getElementById("expectations").value = "Хочу выучить хореографии";
+        if (statementdata["expectations"] == 4) document.getElementById("expectations").value = "Хочу стать увереннее на танцевальных площадках";
+        if (statementdata["expectations"] == 5) document.getElementById("expectations").value = "Хочу похудеть, улучшить здоровье";
+
+        if (statementdata["expected_time_for_lessons"] == 1) document.getElementById("expected_time_for_lessons").value = "15-45 минут";
+        if (statementdata["expected_time_for_lessons"] == 2) document.getElementById("expected_time_for_lessons").value = "Больше 45 минут";
+        if (statementdata["expected_time_for_lessons"] == 3) document.getElementById("expected_time_for_lessons").value = "Готов тренироваться весь день";
+
+        document.getElementById("idols").innerHTML = statementdata["idols"];
+
+        document.getElementById("link1").innerHTML = statementdata["link1"];
+        document.getElementById("link1").href = statementdata["link1"];
+        document.getElementById("link2").innerHTML = statementdata["link2"];
+        document.getElementById("link2").href = statementdata["link2"];
+        document.getElementById("link3").innerHTML = statementdata["link3"];
+        document.getElementById("link3").href = statementdata["link3"];
+
+        _buildSelectSurator(statementdata);
+        /*
+        if (statementdata["XXXXXXXXXXXXXXXX"] == 1) document.getElementById("XXXXXXXXXXXXXXXX").value = "XXXXXXXXXXXXXXXXXXXX";
+        if (statementdata["XXXXXXXXXXXXXXXX"] == 2) document.getElementById("XXXXXXXXXXXXXXXX").value = "XXXXXXXXXXXXXXXXXXXX";
+        if (statementdata["XXXXXXXXXXXXXXXX"] == 3) document.getElementById("XXXXXXXXXXXXXXXX").value = "XXXXXXXXXXXXXXXXXXXX";
+        if (statementdata["XXXXXXXXXXXXXXXX"] == 4) document.getElementById("XXXXXXXXXXXXXXXX").value = "XXXXXXXXXXXXXXXXXXXX";
+        if (statementdata["XXXXXXXXXXXXXXXX"] == 5) document.getElementById("XXXXXXXXXXXXXXXX").value = "XXXXXXXXXXXXXXXXXXXX";
+        if (statementdata["XXXXXXXXXXXXXXXX"] == 6) document.getElementById("XXXXXXXXXXXXXXXX").value = "XXXXXXXXXXXXXXXXXXXX";
+
+
+        if (statementdata["XXXXXXXXXXXXXXXX"] == 1) document.getElementById("XXXXXXXXXXXXXXXX").value = "XXXXXXXXXXXXXXXXXXXX";
+        if (statementdata["XXXXXXXXXXXXXXXX"] == 2) document.getElementById("XXXXXXXXXXXXXXXX").value = "XXXXXXXXXXXXXXXXXXXX";
+        if (statementdata["XXXXXXXXXXXXXXXX"] == 3) document.getElementById("XXXXXXXXXXXXXXXX").value = "XXXXXXXXXXXXXXXXXXXX";
+        if (statementdata["XXXXXXXXXXXXXXXX"] == 4) document.getElementById("XXXXXXXXXXXXXXXX").value = "XXXXXXXXXXXXXXXXXXXX";
+        if (statementdata["XXXXXXXXXXXXXXXX"] == 5) document.getElementById("XXXXXXXXXXXXXXXX").value = "XXXXXXXXXXXXXXXXXXXX";
+        if (statementdata["XXXXXXXXXXXXXXXX"] == 6) document.getElementById("XXXXXXXXXXXXXXXX").value = "XXXXXXXXXXXXXXXXXXXX";
+
+        document.getElementById("XXXXXXXXXXXXXXXX").value = statementdata["XXXXXXXXXXXXXXXX"];
+        document.getElementById("XXXXXXXXXXXXXXXX").value = statementdata["XXXXXXXXXXXXXXXX"];
+        document.getElementById("XXXXXXXXXXXXXXXX").value = statementdata["XXXXXXXXXXXXXXXX"];
+        document.getElementById("XXXXXXXXXXXXXXXX").value = statementdata["XXXXXXXXXXXXXXXX"];
+        document.getElementById("XXXXXXXXXXXXXXXX").value = statementdata["XXXXXXXXXXXXXXXX"];
+        document.getElementById("XXXXXXXXXXXXXXXX").value = statementdata["XXXXXXXXXXXXXXXX"];
+        */
+        //document.getElementById("instagram").value = statementdata["instagram"];
+        //document.getElementById("date_of_birthday").value = statementdata["date_of_birthday"];
+
+        //document.getElementById("new_password").value = "";
+        //document.getElementById("label_for_warning_about_changes_and_telling_save").innerHTML = "";
+
+
+        $("#modalEditStatement").modal();
+    }
+
+    function _buildSelectSurator(statementdata) {
+        var btnSaveStatement = document.getElementById("btnSave");
+
+
+        var selectCurator = document.getElementById("id_of_curator");
+        if (isCuratorAlreadyChoosen) selectCurator.disabled = false;
+        selectCurator.innerHTML = "";
+
+        var isCuratorAlreadyChoosen = false;
+
+        var option0 = document.createElement("option");
+        option0.value = 0;
+        option0.innerHTML = "- Не выбрано";
+        if (statementdata["teacher"] == null) option0.selected = true;
+        selectCurator.appendChild(option0);
+
+        for (var i = 0; i < statementdata["curators"]["curators"].length; i++) {
+            var option = document.createElement("option");
+
+            option.value = statementdata["curators"]["curators"][i]["id"];
+            option.innerHTML = statementdata["curators"]["curators"][i]["name"];
+
+            if (statementdata["teacher"] != null) {
+                if (statementdata["teacher"]["id"] == statementdata["curators"]["curators"][i]["id"]) {
+                    option.selected = true;
+                    isCuratorAlreadyChoosen = true;
+                }
+            }
+            selectCurator.appendChild(option);
+        }
+
+        if (isCuratorAlreadyChoosen && statementdata["is_super_user"] != true) {
+            selectCurator.disabled = true;
+            //btnSaveStatement.disabled = true;
+        }
+    }
+
+
+
+
+    function _buildPackagePrivateConnectionmodalEditStatement(private_package) {
+
+        var option0 = document.createElement("option");
+        option0.value = 0;
+        option0.innerHTML = "Доступ закрыт";
+        if (private_package["active"] == 1) option0.selected = true;
+
+        //var option1 = document.createElement("option");
+        var option1 = document.createElement("option");
+        option1.value = 1;
+        option1.innerHTML = "Доступ открыт";
+        if (private_package["active"] == 1) option1.selected = true;
+
+        var select = document.createElement("select");
+        select.className = "form-control";
+        //select.name = access_to_panels["item1"];
+        select.onchange = function () {
+            changeConnectionPackagePrivateTostatement(private_package["id"], this.value);
+        }
+        select.appendChild(option0);
+        select.appendChild(option1);
+
+        var divSelect = document.createElement("div");
+        divSelect.className = "col-md-8 col-xs-12";
+        divSelect.appendChild(select);
+
+        var label = document.createElement("label");
+        label.className = "control-label col-md-4 col-xs-12";
+        //label.htmlFor = private_package["private_package_"];
+        label.innerHTML = "id"+private_package["id"] + " " + private_package["name"];
+
+        var div = document.createElement("div");
+        div.className = "form-group";
+        div.appendChild(label);
+        div.appendChild(divSelect);
+
+        return div;
+    }
+
+
+    function changeConnectionPackagePrivateTostatement(id_of_package, active) {
+        var form = new FormData();
+        form.set("id_of_statement", ID_OF_statement);
+        form.set("id_of_package", id_of_package);
+        form.set("active", active);
+        //var btn = document.getElementById("formSearch").getElementsByTagName("button")[0];
+        //var btnSave = document.getElementById("btnSave");
+        //btnDisabled(btn, true);
+        //btnDisabled(btnSave, true);
+
+        $.ajax({
+            method: 'POST',
+            type: "POST",
+            url: "/api/connection_statement_to_private_package/update",
+            data: form,
+            cashe: false,
+            processData: false,
+            contentType: false,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+            },
+            error: function () {
+                alert("Ошибка соединения с сервером");
+                //btnDisabled(btn, false);
+                //btnDisabled(btnSave, false);
+            },
+            success: function (html) {
+                if (html["status"] == "success") {
+                    showAlertSuccess();
+                    get(ID_OF_statement);
+                } else {
+                    alert("Извините, на сервере произошла неизвестная ошибка");
+                }
+                //btnDisabled(btn, false);
+                //btnDisabled(btnSave, false);
+            }
+        });
+    }
+</script>
+
+
+<script>
+    function prepare_delete_statement() {
+        $("#modalEditStatement").modal("hide");
+        $("#modal_window_for_delete_statement").modal();
+    }
+    function delete_statement() {
+        var form = new FormData(document.getElementById("formSearch"));
+        form.set("id", ID_OF_statement);
+
+        $.ajax({
+            method: 'POST',
+            type: "POST",
+            url: "/api/statement/delete",
+            data: form,
+            cashe: false,
+            processData: false,
+            contentType: false,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+            },
+            error: function () {
+                alert("Ошибка соединения с сервером");
+            },
+            success: function (html) {
+                if (html["status"] == "success") {
+                    $("#modal_window_for_delete_statement").modal("hide");
+                    searchStartAgain();
+                } else {
+                    alert("Извините, на сервере произошла неизвестная ошибка");
+                }
+            }
+        });
+
+    }
+</script>

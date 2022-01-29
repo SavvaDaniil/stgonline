@@ -1,0 +1,303 @@
+﻿@using STG.ViewModels.Admin;
+
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    @using Microsoft.AspNetCore.Antiforgery;
+    @inject IAntiforgery antiforgery
+    var tokenSet = antiforgery.GetAndStoreTokens(Context);
+    //string menuActive = (!String.IsNullOrEmpty(ViewData["menuActive"].ToString()) ? ViewData["menuActive"].ToString() : "");
+    var menuActive = ViewData["menuActive"] as string;
+    AdminAuthorizeViewModel adminAuthorizeViewModel = ViewData["AdminAuthorizeViewModel"] as AdminAuthorizeViewModel;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] | Панель администратора - STG</title>
+
+    <link rel="icon" href="~/images/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="~/images/favicon.ico" type="image/x-icon" />
+    <link href="~/admin_style/css/style.default.css" rel="stylesheet">
+    <link href="~/admin_style/css/morris.css" rel="stylesheet">
+    <link href="~/admin_style/css/select2.css" rel="stylesheet" />
+    <link href="~/admin_style/custom.css" rel="stylesheet" />
+
+    <environment include="Development">
+        <!--
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+        <link rel="stylesheet" href="~/css/site.css" />
+        <link rel="icon" href="~/images/favicon.ico" type="image/x-icon">
+            -->
+    </environment>
+    <environment exclude="Development">
+        <!--
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
+              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
+        <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
+            -->
+    </environment>
+</head>
+<body>
+
+
+    <div id="alert-success">
+        Успешно сохранено
+    </div>
+    <script>
+        function showAlertSuccess() {
+            $("#alert-success").addClass("active");
+            setTimeout(() => {
+                $("#alert-success").removeClass("active");
+            }, 1000);
+        }
+    </script>
+
+    <div id="alert-success-request">
+        Запрос выполнен успешно
+    </div>
+    <script>
+        function showAlertRequestSuccess() {
+            $("#alert-success-request").addClass("active");
+            setTimeout(() => {
+                $("#alert-success-request").removeClass("active");
+            }, 1000);
+        }
+    </script>
+
+
+
+    <header>
+        <div class="headerwrapper">
+            <div class="header-left">
+                <a href="#" class="logo">
+                    <img src="/images/logo.png" alt="" style="max-height:20px;" />
+                </a>
+                <div class="pull-right">
+                    <a href="" class="menu-collapse">
+                        <i class="fa fa-bars"></i>
+                    </a>
+                </div>
+            </div><!-- header-left -->
+
+            <div class="header-right">
+
+                <div class="pull-right">
+
+                    <div class="btn-group btn-group-option">
+                        <button type="button" class="btn btn-default dropdown-toggle" onclick="logout_admin();">
+                            <i class="glyphicon glyphicon-log-out"></i>
+                        </button>
+                        <script>
+                            function logout_admin() {
+                                var form = new FormData();
+
+                                $.ajax({
+                                    method: 'GET',
+                                    type: "GET",
+                                    url: "/api/admin/logout",
+                                    cashe: false,
+                                    processData: false,
+                                    contentType: false,
+                                    error: function () {
+                                        alert("Ошибка соединения с сервером");
+                                    },
+                                    success: function (html) {
+                                        if (html["status"] == "success") {
+                                            window.location.reload();
+                                        } else {
+                                            alert("Неизвестная ошибка на сервере");
+                                        }
+                                    }
+                                });
+                            }
+                        </script>
+                    </div><!-- btn-group -->
+
+                </div><!-- pull-right -->
+
+            </div><!-- header-right -->
+
+        </div><!-- headerwrapper -->
+    </header>
+
+    <section>
+        <div class="mainwrapper">
+            <div class="leftpanel">
+                <div class="media profile-left">
+                    <a class="pull-left profile-thumb" href="#">
+                        <img class="img-circle img-online" src="/admin_style/images/photos/profile.png" alt="...">
+                    </a>
+                    <div class="media-body">
+                        <h4 class="media-heading">Здесь имя</h4>
+                        <small class="text-muted">Здесь должность</small>
+                    </div>
+                </div><!-- media -->
+
+                <h5 class="leftpanel-title">Навигация</h5>
+
+
+                <ul class="nav nav-pills nav-stacked  nav-collapse">
+
+                    <li class="@(adminAuthorizeViewModel.menuActive == "" ? "active" : "")">
+                        <a href="/admin"><i class="fa fa-user"></i> <span>Профиль</span></a>
+                    </li>
+
+                    @if (adminAuthorizeViewModel.level == 1 || adminAuthorizeViewModel.listOfAvailablePanels.Contains("panel_users"))
+                    {
+                        <li class="@(adminAuthorizeViewModel.menuActive == "users" ? "active" : "")">
+                            <a asp-route-area="Admin" asp-controller="Admin" asp-action="Users"><i class="fa fa-users"></i> <span>Ученики</span></a>
+                        </li>
+                    }
+
+                    @if (adminAuthorizeViewModel.level == 1 || adminAuthorizeViewModel.listOfAvailablePanels.Contains("panel_statements"))
+                    {
+                        <li class="@(adminAuthorizeViewModel.menuActive == "statements" ? "active" : "")">
+                            <a asp-route-area="Admin" asp-controller="Admin" asp-action="Statements">
+                                @if (adminAuthorizeViewModel.countInactivatedStatements > 0)
+                                {
+                                    <span class="pull-right badge">@adminAuthorizeViewModel.countInactivatedStatements</span>
+                                }
+                                <i class="fa fa-envelope"></i> <span>Заявки на наставника</span>
+                            </a>
+                        </li>
+                    }
+
+                    @if (adminAuthorizeViewModel.level == 1 || adminAuthorizeViewModel.listOfAvailablePanels.Contains("panel_mentoring"))
+                    {
+
+                        <li class="@(adminAuthorizeViewModel.menuActive == "mentoring" ? "active" : "")">
+                            <a asp-route-area="Admin" asp-controller="Admin" asp-action="Mentoring">
+
+                                @if (adminAuthorizeViewModel.countUnreadPackeChatsAndHomeworks > 0)
+                                {
+                                    <span class="pull-right badge">@adminAuthorizeViewModel.countUnreadPackeChatsAndHomeworks</span>
+                                }
+
+                                <i class="fa fa-envelope-o"></i> <span>Наставники</span>
+                            </a>
+                        </li>
+                    }
+
+                    @if (adminAuthorizeViewModel.level == 1 || adminAuthorizeViewModel.listOfAvailablePanels.Contains("panel_lessons"))
+                    {
+                        <li class="@(adminAuthorizeViewModel.menuActive == "lessons" ? "active" : "")">
+                            <a asp-route-area="Admin" asp-controller="Admin" asp-action="Lessons"><i class="fa fa-list-alt"></i> <span>Уроки</span></a>
+                        </li>
+                    }
+
+                    @if (adminAuthorizeViewModel.level == 1 || adminAuthorizeViewModel.listOfAvailablePanels.Contains("panel_packages"))
+                    {
+                        <li class="@(adminAuthorizeViewModel.menuActive == "packages" ? "active" : "")">
+                            <a asp-route-area="Admin" asp-controller="Admin" asp-action="Packages"><i class="fa fa-list-alt"></i> <span>Программы</span></a>
+                        </li>
+                    }
+
+                    @if (adminAuthorizeViewModel.level == 1 || adminAuthorizeViewModel.listOfAvailablePanels.Contains("panel_videos"))
+                    {
+                        <li class="@(adminAuthorizeViewModel.menuActive == "videos" ? "active" : "")">
+                            <a asp-route-area="Admin" asp-controller="Admin" asp-action="Videos"><i class="fa fa-video-camera"></i> <span>Видео</span></a>
+                        </li>
+                    }
+
+                    @if (adminAuthorizeViewModel.level == 1 || adminAuthorizeViewModel.listOfAvailablePanels.Contains("panel_teachers"))
+                    {
+                        <li class="@(adminAuthorizeViewModel.menuActive == "teachers" ? "active" : "")">
+                            <a asp-route-area="Admin" asp-controller="Admin" asp-action="Teachers"><i class="fa fa-users"></i> <span>Преподаватели</span></a>
+                        </li>
+                    }
+
+                    @if (adminAuthorizeViewModel.level == 1 || adminAuthorizeViewModel.listOfAvailablePanels.Contains("panel_styles"))
+                    {
+                        <li class="@(adminAuthorizeViewModel.menuActive == "styles" ? "active" : "")">
+                            <a asp-route-area="Admin" asp-controller="Admin" asp-action="Styles"><i class="fa fa-list"></i> <span>Стили</span></a>
+                        </li>
+                    }
+
+                    @if (adminAuthorizeViewModel.level == 1 || adminAuthorizeViewModel.listOfAvailablePanels.Contains("panel_lessontypes"))
+                    {
+                        <li class="@(adminAuthorizeViewModel.menuActive == "lessontypes" ? "active" : "")">
+                            <a asp-route-area="Admin" asp-controller="Admin" asp-action="Lessontypes"><i class="fa fa-list-alt"></i> <span>Виды занятий</span></a>
+                        </li>
+                    }
+
+                    @if (adminAuthorizeViewModel.level == 1 || adminAuthorizeViewModel.listOfAvailablePanels.Contains("panel_admins"))
+                    {
+                        <li class="@(adminAuthorizeViewModel.menuActive == "admins" ? "active" : "")">
+                            <a asp-route-area="Admin" asp-controller="Admin" asp-action="Admins"><i class="fa fa-users"></i> <span>Администраторы</span></a>
+                        </li>
+                    }
+
+
+                    <!--
+                    <hr />
+
+                    <li><a href="./?panel=abonements"><i class="fa fa-shopping-cart"></i> <span>Абонементы</span></a></li>
+
+                    <li><a href="./?panel=invoice"><i class="fa fa-briefcase"></i> <span>Отчётность</span></a></li>
+
+                    <li>
+                        <a href="#"><i class="fa fa-file-text"></i> <span>Аналитика</span></a>
+                        <ul class="children">
+                            <li><a href="./?panel=analysis_sales">Анализ продаж</a></li>
+                            <li><a href="./?panel=analysis_sales_history">История продаж</a></li>
+                            <li><a href="./?panel=analysis_clients_visits_groups">Посещаемость групп</a></li>
+                            <li><a href="./?panel=analysis_income_groups">Доходность групп</a></li>
+                            <li>><a href="./?panel=analysis_full_history">Общая картина</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="./?panel=admins"><i class="fa fa-users"></i> <span>Администраторы</span></a></li>
+
+                    <li><a href="./?panel=preferences"><i class="fa fa-wrench"></i> <span>Общие настройки</span></a></li>
+
+                    <li><a href="./?panel=shadowing"><i class="fa fa-eye"></i> <span>Слежка</span></a></li>
+
+                    <li><a href="./?panel=dbexport"><i class="fa fa-hdd-o"></i> <span>Экспорт базы данных</span></a></li>
+
+                    <li style="background-color:red;"><a href="./?panel=messages"><span class="pull-right badge">1</span><i class="fa fa-envelope-o"></i> <span>Сообщения</span></a></li>
+
+
+                    <li><a href="./?panel=users"><i class="fa fa-child"></i> <span>Пользователи</span></a></li>
+                    -->
+                </ul>
+
+
+            </div>
+
+            <div class="mainpanel">
+                @RenderBody()
+            </div>
+        </div>
+    </section>
+
+
+
+
+
+
+
+    <script src="~/admin/js/jquery-1.11.1.min.js"></script>
+    <script src="~/admin/js/jquery-migrate-1.2.1.min.js"></script>
+    <script src="~/admin/js/bootstrap.min.js"></script>
+    <script src="~/admin/js/modernizr.min.js"></script>
+    <script src="~/admin/js/pace.min.js"></script>
+    <script src="~/admin/js/retina.min.js"></script>
+    <!--<script src="~/admin/js/jquery.cookies.js"></script>-->
+
+    <script src="~/admin/js/flot/jquery.flot.min.js"></script>
+    <script src="~/admin/js/flot/jquery.flot.resize.min.js"></script>
+    <script src="~/admin/js/flot/jquery.flot.spline.min.js"></script>
+    <script src="~/admin/js/jquery.sparkline.min.js"></script>
+    <script src="~/admin/js/morris.min.js"></script>
+    <script src="~/admin/js/raphael-2.1.0.min.js"></script>
+    <script src="~/admin/js/bootstrap-wizard.min.js"></script>
+    <script src="~/admin/js/select2.min.js"></script>
+    <script src="~/admin/js/custom.js"></script>
+    <script src="~/admin/js/dashboard.js"></script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
+

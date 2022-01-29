@@ -1,0 +1,548 @@
+﻿@using STG.ViewModels
+@using STG.ViewModels.TeacherViewModel
+@model FirstViewModel;
+
+@{
+    ViewData["Title"] = "Главная | STG Online";
+    @using Microsoft.AspNetCore.Antiforgery
+    @inject IAntiforgery antiforgery
+    var tokenSet = antiforgery.GetAndStoreTokens(Context);
+}
+
+
+<img src="/images/bdg_decor1.png" class="bgd-decor-out d-none d-md-block" />
+<div class="row section1">
+    <div class="col-1"></div>
+    <div class="col-10 col-lg-6 col-md-6 col-sm-10 preframe">
+        <iframe width="100%" height="50%" src="https://www.youtube.com/embed/MpVGD1w4sPA?rel=0&amp;fs=0&amp;showinfo=0&autoplay=1&mute=1&rel=0&loop=1&" 
+                title="YouTube video player" id="section1_youtube" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;" 
+                allowfullscreen></iframe>
+    </div>
+
+    <div class="col-12 d-md-none d-lg-none"></div>
+
+    <div class="col-1 d-md-none d-lg-none"></div>
+    <div class="col-10 col-lg-4 col-md-4 col-sm-10" id="section1_div">
+        <h5>
+            Профессиональная онлайн-площадка
+            с персональным подходом
+            к развитию
+            каждого танцора
+        </h5>
+
+        <p>
+            <button class="btn btn-section" onclick="scroll_to_pay()">
+                <font style="color:#000000!important;">Начать заниматься</font>
+            </button>
+        </p>
+    </div>
+</div>
+
+<script>
+    function resizeSection1Text() {
+        var height = document.getElementById("section1_youtube").offsetHeight;
+        var newFontSize = parseInt(height / 12, 10);
+        var newLineHeight = parseInt(height / 8, 10);
+        console.log(newLineHeight);
+        if (newLineHeight < 20 || window.screen.width < 720) return;
+        document.getElementById("section1_div").getElementsByTagName("h5")[0].style.lineHeight = newLineHeight + 'px';
+    }
+</script>
+
+
+<img src="/images/bdg_decor2.png" class="bgd-decor-out2 d-none d-md-block" />
+<div class="container">
+    <div class="row section2">
+
+        @foreach ((int, string) content in Model.arrayContentSection2)
+        {
+
+            <div class="col-12 col-lg-4 col-md-4 col-sm-12 row preblock">
+                <div class="col-3 col-lg-2 col-md-2 col-sm-3"></div>
+                <div class="block col-6 col-lg-8 col-md-8 col-sm-6">
+                    <img src="/images/section1_div@(content.Item1).png" class="img-fluid section2_img" />
+                    <p>
+                        @(content.Item2)
+                    </p>
+                </div>
+            </div>
+        }
+
+
+    </div>
+</div>
+
+
+@if (Model.teachers != null)
+{
+    <div class="container">
+        <div class="row section3">
+            <div class="col-12">
+                <h3 class="first-header">
+                    Хореографы
+                </h3>
+            </div>
+
+
+            <div class="col-1 d-md-block"></div>
+            <div class="col-10 col-lg-12 col-md-12 col-sm-10 row">
+                @foreach (TeacherLiteIndexViewModel teacher in Model.teachers)
+                {
+
+                    @if (Model.teachers.IndexOf(teacher) == 0)
+                    {
+                        <div class="col-3 d-lg-none d-md-none"></div>
+                    }
+
+                    @if (Model.teachers.Count() == 14 && Model.teachers.IndexOf(teacher) == 12)
+                    {
+                        <div class="col-2 d-none d-lg-block"></div>
+                        <div class="col-lg-2 col-md-3 d-none d-md-block"></div>
+                    }
+
+
+                    <div class="col-6 col-lg-2 col-md-3 col-sm-6 teacher @(Model.teachers.IndexOf(teacher) > 8 ? "d-none d-md-block" : "")" 
+                         onmouseover="index_teacher(this, true)"
+                         onmouseout="index_teacher(this, false)"
+                         >
+                        <a href="/teacher/@teacher.id">
+                            <img src="@teacher.posterSrc" class="img-fluid" />
+                            <p>
+                                @teacher.name
+                            </p>
+                        </a>
+                        <div class="desc-appear">
+                            @Html.Raw(teacher.description)
+                        </div>
+                    </div>
+
+
+
+                    @if (Model.teachers.IndexOf(teacher) == 0)
+                    {
+                        <div class="col-3 d-lg-none d-md-none"></div>
+                    }
+                }
+
+                <div class="col-6 d-lg-none d-md-none d-sm-block"></div>
+                <div class="col-6 d-lg-none d-md-none d-sm-block remaining-teachers-count">
+                    <p>+ 7 хореографов</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+}
+<script>
+    function index_teacher(el, isAppear) {
+        if (window.screen.width < 720) {
+            return;
+        }
+        var offset = el.getBoundingClientRect();
+        var descAppear = el.getElementsByClassName("desc-appear")[0];
+        descAppear.style.marginLeft = 0;
+        if (isAppear) {
+            descAppear.classList.add("active");
+        } else {
+            descAppear.classList.remove("active");
+            return;
+        }
+
+        //var offsetForWorkFor = (offset.left < offset.right) ? offset.left : offset.right;
+
+        var descAppearOffset = descAppear.getBoundingClientRect();
+
+        if (offset.left < window.screen.width / 3) {
+            descAppear.style.marginLeft = (- descAppearOffset.left / 2) + "px";
+        } else {
+            //var step = -descAppearOffset.left + (window.screen.width / 8);
+            descAppear.style.marginLeft = (- descAppearOffset.left / 2) + "px";
+        }
+        //console.log(descAppearOffset.left);
+    }
+</script>
+
+<div class="row section-hr">
+    <div class="d-none d-md-block col-2"></div>
+    <div class="col-12 col-lg-8 col-md-8 col-sm-12"><hr /></div>
+</div>
+
+
+
+@if (Model.curators != null)
+{
+    <div class="container">
+        <div class="row section4">
+            <div class="col-12">
+                <h3 class="first-header">
+                    Наставники
+                </h3>
+            </div>
+
+            <div class="col-1 d-md-block"></div>
+            <div class="col-10 col-lg-12 col-md-12 col-sm-10 row">
+                @foreach (TeacherCuratorChooseViewModel curator in Model.curators)
+                {
+                    @if (Model.curators.IndexOf(curator) > 3) { break; }
+
+                    <div class="col-6 col-lg-3 col-md-3 col-sm-6 curator">
+                        <a href="/teacher/@curator.id">
+                            <img src="@curator.posterSrc" class="img-fluid" />
+                            <h6>
+                                @curator.name
+                            </h6>
+                            <p>
+                                @Html.Raw(curator.shortDescription)
+                            </p>
+                        </a>
+                    </div>
+
+                }
+            </div>
+
+        </div>
+    </div>
+}
+
+<div class="row section-hr">
+    <div class="d-none d-md-block col-2"></div>
+    <div class="col-12 col-lg-8 col-md-8 col-sm-12"><hr /></div>
+</div>
+
+
+
+<img src="/images/bdg_decor3.png" class="bgd-decor-out3 d-none d-md-block" />
+<div class="container">
+    <div class="row">
+        <div class="col-1"></div>
+
+        <div class="row col-10 section5">
+            <div class="col-12 section-header">
+                <h3 id="destination_of_scroll_to_pay">
+                    Выбери свой путь<br />развития
+                </h3>
+            </div>
+
+            <div class="col-12 col-lg-6 col-md-12 col-sm-12 left-separator row">
+                <div class="col-12">
+                    <h5>
+                        Свободный<br />доступ
+                    </h5>
+                </div>
+                <div class="col-12 block left row">
+
+                    <div class="col-12 row desc">
+                        <div class="col-12 col-lg-4 col-md-4 col-sm-12">
+                            <div class="pre-image">
+                                <img src="/images/section5_div_0.png" class="img-fluid" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-8 col-md-8 col-sm-12">
+                            <p>На этом пути ты можешь разучивать хореографии и повышать свой уровень вместе с профессионалами</p>
+                        </div>
+                    </div>
+                    <div class="col-12 row desc">
+                        <div class="col-12 col-lg-4 col-md-4 col-sm-12">
+                            <div class="pre-image">
+                                <img src="/images/section5_div_1.png" class="img-fluid section5_img1" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-8 col-md-8 col-sm-12">
+                            <p>Тебе будет открыто более 20 классов с хореографиями и техниками по различным стилям от наших хореографов</p>
+                        </div>
+                    </div>
+                    <div class="col-12 choose">
+                        <button type="button" class="btn" data-toggle="modal" data-target="#modalFreeAccess">
+                            Выбрать
+                        </button>
+                    </div>
+
+
+                </div>
+            </div>
+
+
+            <div class="col-12 col-lg-6 col-md-12 col-sm-12 right-separator row">
+                <div class="col-12">
+                    <h5>
+                        Эксклюзивный<br />доступ
+                    </h5>
+                </div>
+                <div class="col-12 block left row">
+
+                    <div class="col-12 row desc">
+                        <div class="col-12 col-lg-4 col-md-4 col-sm-12">
+                            <div class="pre-image">
+                                <img src="/images/section5_div_2.png" class="img-fluid section5_img2" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-8 col-md-8 col-sm-12">
+                            <p>На этом пути ты можешь выбрать любого из наших наставников, который составит индивидуальный план тренировок, который принесет реальный рост именно тебе</p>
+                        </div>
+                    </div>
+                    <div class="col-12 row desc">
+                        <div class="col-12 col-lg-4 col-md-4 col-sm-12">
+                            <div class="pre-image">
+                                <img src="/images/section5_div_3.png" class="img-fluid" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-8 col-md-8 col-sm-12">
+                            <ul>
+                                <li>2 занятия в неделю</li>
+                                <li>После просмотра 95% урока открывается доступ к следующему</li>
+                                <li>Доступ к программе на 3 месяца</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-12 choose">
+                        <button type="button" class="btn" data-toggle="modal" data-target="#modalExcluziveAccess">
+                            Выбрать
+                        </button>
+                    </div>
+
+
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<div class="row section-hr">
+    <div class="d-none d-md-block col-2"></div>
+    <div class="col-12 col-lg-8 col-md-8 col-sm-12"><hr /></div>
+</div>
+
+
+
+
+
+<div class="container">
+    <div class="row section6">
+        <div class="col-12 section-header">
+            <h3>
+                Преимущества
+            </h3>
+        </div>
+
+        <div class="col-1 d-md-none"></div>
+        <div class="col-10 col-lg-12 col-md-12 col-sm-10 row">
+            <div class="d-none d-lg-block col-1"></div>
+            <div class="col-5 d-none d-md-block row">
+                <div class="block col-12" id="section7_ul">
+                    <ul>
+                        <li>Разнообразие стилей</li>
+                        <li>Топовые хореографы</li>
+                        <li>Удобный интерфейс</li>
+                        <li>Переключение зеркального отображения + вид спереди и сзади</li>
+                        <li>Брендированная локация</li>
+                        <li>Уровни: Beginners / Middle / Advanced</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-12 col-lg-5 col-md-12 col-sm-12">
+                <img src="/images/preview_player.jpg" class="img-fluid" />
+            </div>
+            <div class="col-12 d-md-none d-lg-none row pre-block">
+                <div class="block col-12">
+                    <ul>
+                        <li>Разнообразие стилей</li>
+                        <li>Топовые хореографы</li>
+                        <li>Удобный интерфейс</li>
+                        <li>Переключение зеркального отображения + вид спереди и сзади</li>
+                        <li>Брендированная локация</li>
+                        <li>Уровни: Beginners / Middle / Advanced</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function resizeSection5Text() {
+        var height = document.getElementById("section7_ul").offsetHeight;
+        var newFontSize = parseInt(height / 12, 10);
+        var newLineHeight = parseInt(height / 8, 10); if (newLineHeight < 20) return;
+        //document.getElementById("section7_ul").style.fontSize = newFontSize + 'px';
+        //document.getElementById("section7_ul").style.lineHeight = newLineHeight + 'px';
+        document.getElementById("section7_ul").style.paddingTop = newLineHeight + 'px';
+    }
+
+
+    window.addEventListener('resize', function (event) {
+        resizeSection1Text();
+        resizeSection5Text();
+    }, true);
+    window.onload = function () {
+        resizeSection1Text();
+        resizeSection5Text();
+    }
+</script>
+
+
+<div class="row section7">
+    <div class="col-3 d-none d-md-block"></div>
+    <div class="col-12 col-lg-6 col-md-6 col-sm-12 section-header">
+        <h3>
+            Начни свой путь с любого уголка планеты
+        </h3>
+        <p>
+            Скидка на первый месяц подписки
+        </p>
+    </div>
+    <div class="col-3 d-none d-md-block">
+        <p class="to_pay" onclick="scroll_to_pay()">
+            <a href="#">
+                <img src="~/images/arrow_up_in_circle.png" class="img-fluid" />
+            </a>
+        </p>
+    </div>
+
+</div>
+<script>
+    function scroll_to_pay() {
+        $('html, body').animate({
+            scrollTop: $("#destination_of_scroll_to_pay").offset().top
+        }, {
+            duration: 370,
+            easing: "linear"
+        });
+    }
+
+</script>
+
+
+@{await Html.RenderPartialAsync("_modalFreeAccessPartial");}
+
+
+
+
+
+
+
+<div class="modal fade" id="modalExcluziveAccess" tabindex="-1" role="dialog" aria-labelledby="modalExcluziveAccessLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content modalExcluziveAccess">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalExcluziveAccessLabel">
+                    Мы подготовили для тебя несколько удобных программ тренировок с наставником
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="modalExcluziveAccessBtnClose">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12 col-lg-4 col-md-4 col-sm-12 row block">
+                        <div class="col-12">
+                            <h3>Тариф “Базовый”</h3>
+                        </div>
+                        <div class="col-12">
+                            <ul>
+                                <li>Персональная система тренировок, составленная выбранным тобой наставником</li>
+                                <li>План развития (8 уроков)</li>
+                                <li>Занятия по собственной уникальной программе</li>
+                            </ul>
+                        </div>
+                        <div class="col-12 d-sm-block d-md-none">
+                            <button class="btn" onclick="chooseExcluziveRate(1)">
+                                Выбрать
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-4 col-md-4 col-sm-12 block second">
+                        <div class="col-12">
+                            <h3>Тариф “Продвинутый”</h3>
+                        </div>
+                        <div class="col-12">
+                            <ul>
+                                <li>Персональная система тренировок, составленная выбранным тобой наставником</li>
+                                <li>План развития (8 уроков)</li>
+                                <li>Занятия по собственной уникальной программе</li>
+                                <li>Домашнее задание в конце программы: хореография, основанная на пройденом материале</li>
+                                <li>По итогам домашнего задания наставник подводит итоги о проделанной работе и дает рекомендации по дальнейшему пути развития</li>
+                            </ul>
+                        </div>
+                        <div class="col-12 d-sm-block d-md-none">
+                            <button class="btn" onclick="chooseExcluziveRate(2)">
+                                Выбрать
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-4 col-md-4 col-sm-12 block first">
+                        <div class="col-12">
+                            <h3>Тариф “Углубленный”</h3>
+                        </div>
+                        <div class="col-12">
+                            <ul>
+                                <li>Персональная система тренировок, составленная выбранным тобой наставником</li>
+                                <li>План развития (8 уроков)</li>
+                                <li>Занятия по собственной уникальной программе</li>
+                                <li>8 домашних заданий</li>
+                                <li>Наставник следит за правильностью исполнения каждого урока, дает рекомендации и исправляет ошибки</li>
+                                <li>Фидбэк о проделанной работе в конце курса и рекомендации по дальнейшему пути развития</li>
+                            </ul>
+                        </div>
+                        <div class="col-12 d-sm-block d-md-none">
+                            <button class="btn" onclick="chooseExcluziveRate(3)">
+                                Выбрать
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+            -->
+            <div class="row">
+                <div class="col-4 d-none d-md-block">
+                    <button class="btn" onclick="chooseExcluziveRate(1)">
+                        Выбрать
+                    </button>
+                </div>
+                <div class="col-4 d-none d-md-block">
+                    <button class="btn" onclick="chooseExcluziveRate(2)">
+                        Выбрать
+                    </button>
+                </div>
+                <div class="col-4 d-none d-md-block">
+                    <button class="btn" onclick="chooseExcluziveRate(3)">
+                        Выбрать
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<button type="button" style="opacity:0;" data-toggle="modal" data-target="#modalExcluziveAccess" id="btnOpenRegistration"></button>
+<script>
+    var RATE = 0;
+    function chooseExcluziveRate(value) {
+        document.getElementById("modalExcluziveAccessBtnClose").click();
+        RATE = value;
+        document.getElementById("is_need_curator_mea").value = value;
+        curatorControl(value);
+        setTimeout(
+            function () {
+                $('#modalExcluziveAccessInit').modal();
+                //document.getElementById("btnOpenRegistration").click();
+            }, 500
+        );
+    }
+
+
+    document.getElementsByClassName("btn-section1")[0].getElementsByTagName("span")[0].style.color = "#000000";
+    
+</script>
+
+
+@{await Html.RenderPartialAsync("_modalExcluziveAccessPartial"); }

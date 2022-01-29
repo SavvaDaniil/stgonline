@@ -1,0 +1,600 @@
+﻿@{
+    @using Microsoft.AspNetCore.Antiforgery;
+    @inject IAntiforgery antiforgery
+    var tokenSet = antiforgery.GetAndStoreTokens(Context);
+
+    int idMenuActive = (!String.IsNullOrEmpty(ViewData["idMenuActive"].ToString()) ? (int)ViewData["idMenuActive"] : 0);
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta content="no-cache" http-equiv="Pragma" />
+    <meta content="no-cache, no-store, must-revalidate" http-equiv="Cache-Control" />
+
+    <!--
+    <meta content="post-check=0, pre-check=0" http-equiv="Cache-Control" />
+    <meta content="0" http-equiv="Expires" />
+    <META HTTP-EQUIV="EXPIRES" CONTENT="Mon, 22 Jul 2002 11:12:01 GMT">
+    <meta content="*" http-equiv="Clear-Site-Data" />
+    -->
+    <!--
+    <meta content="*" http-equiv="Vary" />
+        -->
+
+    <meta name="yandex-verification" content="0a86e640278e841c" />
+
+    <title>@ViewData["Title"] - STG</title>
+
+    <link rel="stylesheet" href="~/dist/css/bootstrap.min.css?@DateTime.Now.Ticks" />
+    <link rel="stylesheet" href="~/fontawesome/css/font-awesome.min.css?@DateTime.Now.Ticks" />
+    <link rel="stylesheet" href="~/main.css?@DateTime.Now.Ticks" />
+    <link rel="stylesheet" href="~/lesson.css?@DateTime.Now.Ticks" />
+    <link rel="stylesheet" href="~/preview_block.css?@DateTime.Now.Ticks" />
+    <link rel="stylesheet" href="~/first.css?@DateTime.Now.Ticks" />
+    <link rel="stylesheet" href="~/main_tablet.css?@DateTime.Now.Ticks" />
+    <link rel="stylesheet" href="~/main_mobile.css?@DateTime.Now.Ticks" />
+
+    <environment include="Development">
+        <!--
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+        <link rel="stylesheet" href="~/css/site.css" />
+        <link rel="icon" href="~/images/favicon.ico" type="image/x-icon">
+            -->
+    </environment>
+    <environment exclude="Development">
+        <!--
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
+              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
+        <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
+            -->
+    </environment>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EVTFDF7F13"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-EVTFDF7F13');
+    </script>
+
+</head>
+<body onunload="">
+
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+        (function (m, e, t, r, i, k, a) {
+            m[i] = m[i] || function () { (m[i].a = m[i].a || []).push(arguments) };
+            m[i].l = 1 * new Date(); k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1, k.src = r, a.parentNode.insertBefore(k, a)
+        })
+            (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+        ym(85704037, "init", {
+            clickmap: true,
+            trackLinks: true,
+            accurateTrackBounce: true,
+            webvisor: true
+        });
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/85704037" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
+
+
+
+    <div class="row header">
+
+        <div class="col-1 d-none d-lg-block"></div>
+        <div class="col-3 d-lg-none d-md-block d-sm-block"></div>
+
+        <div class="col-6 col-lg-1 col-md-6 col-sm-6 logo">
+            <a href="/">
+                <img src="/images/logo.svg" class="img-fluid" />
+            </a>
+        </div>
+        <div class="col-6 d-none d-lg-block menu">
+            <ul>
+                <li class="@(idMenuActive == 1 ? "active" : "")"><a href="/"><span>Главная</span></a></li>
+                <li class="@(idMenuActive == 2 ? "active" : "" )"><a href="/lessons"><span>Уроки</span></a></li>
+                <li class="@(idMenuActive == 3 ? "active" : "" )"><a href="/packages"><span>Мои программы</span></a></li>
+                <li class="@(idMenuActive == 4 ? "active" : "" )"><a href="/teachers"><span>Преподаватели</span></a></li>
+            </ul>
+        </div>
+
+        <div class="col-3 d-none d-lg-block right @(Context.User.Identity.IsAuthenticated ? "auth" : "")">
+            <a href="https://instagram.com/stgonline.pro" target="_blank" class="social ">
+                <img src="/images/instagram_logo.svg" class="img-fluid" />
+            </a>
+            <a href="https://www.youtube.com/channel/UCu5mK3Csr-0jQaMZzIYom4A" target="_blank" class="social youtube ">
+                <img src="/images/youtube_play_button.svg" class="img-fluid" />
+            </a>
+
+            @if (Context.User.Identity.IsAuthenticated)
+            {
+                <p data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="dropdownMenuButton">
+                    <a href="#">
+                        <img src="/images/user_default.svg" class="img-fluid avatar" />
+                    </a>
+                </p>
+                <div class="dropdown-menu already-sign-in" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="/profile">Аккаунт</a>
+                    <hr />
+                    <a class="dropdown-item" href="#" onclick="logout()">Выйти</a>
+                </div>
+                <script>
+                function logout() {
+                    $.ajax({
+                        method: 'GET',
+                        type: "GET",
+                        url: "/api/user/logout",
+                        cashe: false,
+                        processData: false,
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+                        },
+                        error: function () {
+
+                        },
+                        success: function (html) {
+                            window.location.href = "/lessons";
+                        }
+                    });
+                }
+                </script>
+
+            }
+            else
+            {
+
+                <a href="/login" class="a-sign-in">
+                    <button type="button" class="btn btn-sign-in">
+                        Войти
+                    </button>
+                </a>
+
+            }
+        </div>
+
+        <div class="col-3 d-lg-none d-md-block d-sm-block div-btn-bar">
+            <button class="btn-bar" onclick="menuMobile()">
+                <i class="fa fa-bars" aria-hidden="true"></i>
+            </button>
+        </div>
+
+
+    </div>
+
+    <div class="col-12 d-lg-none menu-mobile">
+        <button class="btn-bar" onclick="menuMobile()">
+            <i class="fa fa-times" aria-hidden="true"></i>
+        </button>
+        <ul>
+            @if (Context.User.Identity.IsAuthenticated)
+            {
+                <li><a href="/profile"><span>Аккаунт</span></a></li>
+                <li><a href="#" onclick="logout()"><span>Выйти</span></a></li>
+            }
+            else
+            {
+                <li><a href="/login"><span>Войти</span></a></li>
+            }
+            <hr />
+            <li class="@(idMenuActive == 1 ? "active" : "")"><a href="/"><span>Главная</span></a></li>
+            <li class="@(idMenuActive == 2 ? "active" : "" )"><a href="/lessons"><span>Уроки</span></a></li>
+            <li class="@(idMenuActive == 3 ? "active" : "" )"><a href="/packages"><span>Мои программы</span></a></li>
+            <li class="@(idMenuActive == 4 ? "active" : "" )"><a href="/teachers"><span>Преподаватели</span></a></li>
+        </ul>
+        <a href="https://instagram.com/stg.online.pro" target="_blank" class="social ">
+            <img src="/images/instagram_logo.svg" class="img-fluid" />
+        </a>
+        <a href="https://www.youtube.com/channel/UCu5mK3Csr-0jQaMZzIYom4A" target="_blank" class="social youtube ">
+            <img src="/images/youtube_play_button.svg" class="img-fluid" />
+        </a>
+
+    </div>
+
+
+
+    <div class="row main">
+        <div class="col-12 row" id="content">
+            @RenderBody()
+        </div>
+    </div>
+
+
+    <script>
+        var MENU_STATUS = false;
+        function menuMobile() {
+            var divMenuMobile = document.getElementsByClassName("menu-mobile")[0];
+            if (MENU_STATUS) {
+                divMenuMobile.classList.remove("active");
+                MENU_STATUS = !MENU_STATUS;
+            } else {
+                divMenuMobile.classList.add("active");
+                MENU_STATUS = !MENU_STATUS;
+            }
+        }
+
+        function isValidDate(dateString) {
+
+            // Parse the date parts to integers
+            var parts = dateString.split("-");
+            var day = parseInt(parts[2], 10);
+            var month = parseInt(parts[1], 10);
+            var year = parseInt(parts[0], 10);
+
+            // Check the ranges of month and year
+            if (year < 1000 || year > 3000 || month == 0 || month > 12)
+                return false;
+
+            var monthLength = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+            // Adjust for leap years
+            if (year % 400 == 0 || (year % 100 != 0 && year % 4 == 0))
+                monthLength[1] = 29;
+
+            // Check the range of the day
+            return day > 0 && day <= monthLength[month - 1];
+        };
+
+        function isValidateEmail(email) {
+            const re = /^(([^<>()[\]\\.,;:\s@("@")"]+(\.[^<>()[\]\\.,;:\s@("@")"]+)*)|(".+"))@("@")((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            return re.test(String(email).toLowerCase());
+        }
+    </script>
+
+
+
+
+
+
+    <div class="row footer">
+        <div class="col-1 d-none d-md-block"></div>
+        <div class="col-12 col-lg-5 col-md-5 col-sm-12 row">
+
+            <div class="col-3 div-social logo">
+                <img src="/images/logo.svg" class="img-fluid" />
+            </div>
+            <div class="col-9 div-social">
+                <a href="https://instagram.com/stgonline.pro" target="_blank" class="social ">
+                    <img src="/images/instagram_logo.svg" class="img-fluid" />
+                </a>
+                <a href="https://www.youtube.com/channel/UCu5mK3Csr-0jQaMZzIYom4A" target="_blank" class="social youtube ">
+                    <img src="/images/youtube_play_button.svg" class="img-fluid" />
+                </a>
+            </div>
+
+            <div class="col-3 div-social second logo">
+                <a href="https://studio.lilfamnation.com/" target="_blank">
+                    <img src="/images/lilfam_logo.svg" class="img-fluid lilfam" />
+                </a>
+            </div>
+            <div class="col-9 div-social second">
+                <a href="https://www.instagram.com/studio.lilfam.nation" target="_blank" class="social ">
+                    <img src="/images/instagram_logo.svg" class="img-fluid" />
+                </a>
+                <a href="https://www.youtube.com/channel/UCU9Cg1bOscgFugUdPWK33-Q" target="_blank" class="social youtube ">
+                    <img src="/images/youtube_play_button.svg" class="img-fluid" />
+                </a>
+                <a href="https://vk.com/lilfam" target="_blank" class="social ">
+                    <img src="/images/vk.svg" class="img-fluid" />
+                </a>
+                <a href="https://www.facebook.com/LILFam-Nation-Студия-танцев-104644867653697/" target="_blank" class="social ">
+                    <img src="/images/facebook.svg" class="img-fluid" />
+                </a>
+                <a href="https://t.me/lilfamchannel" target="_blank" class="social ">
+                    <img src="/images/telegram.svg" class="img-fluid" />
+                </a>
+            </div>
+
+        </div>
+
+        <div class="col-12 col-lg-5 col-md-5 col-sm-12 row">
+            <div class="col-12 d-md-none d-lg-block">
+                <div class="footer-menu">
+                    <ul>
+                        <li>
+                            <a href="/">Главная</a>
+                        </li>
+                        <li>
+                            <a href="/lessons">Уроки</a>
+                        </li>
+                        <li>
+                            <a href="/packages">Мои программы</a>
+                        </li>
+                        <li>
+                            <a href="/teachers">Преподаватели</a>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+
+            <div class="col-6 d-md-block d-lg-none d-none">
+                <div class="footer-menu">
+                    <ul>
+                        <li>
+                            <a href="/">Главная</a>
+                        </li>
+                        <li>
+                            <a href="/lessons">Уроки</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-6 d-md-block d-lg-none d-none">
+                <div class="footer-menu">
+                    <ul>
+                        <li>
+                            <a href="/packages">Мои программы</a>
+                        </li>
+                        <li>
+                            <a href="/teachers">Преподаватели</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <p class="telephone">
+                    <a href="tel:+79233442228">
+                        +7 (923) 344-22-28
+                    </a>
+                </p>
+            </div>
+        </div>
+
+
+        <div class="col-12">
+            <p class="copyright">&copy;Copyright @DateTime.Now.Year All right reserved</p>
+        </div>
+    </div>
+
+
+    <!--
+    <partial name="_CookieConsentPartial" />
+     -->
+
+
+    <script>
+
+        var id_of_not_available_lesson = 0;
+    function globalCheckAccess(id_of_lesson) {
+
+        var form = new FormData();
+        form.append("id", id_of_lesson);
+
+        $.ajax({
+            method: 'POST',
+            type: "POST",
+            url: "/api/lesson/check_access",
+            data: form,
+            cashe: false,
+            processData: false,
+            contentType: false,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+            },
+            error: function () {
+                alert("Ошибка соединения с сервером");
+            },
+            success: function (html) {
+                id_of_not_available_lesson = id_of_lesson;
+
+                if (html["status"] == "success") {
+                    window.location.href = "/lesson/" + id_of_lesson;
+                } else if (html["status"] == "error" && html["errors"] == "excluzive") {
+                    //$("#modalExcluziveError").modal();
+                    loadModalNotAvailableLessonTeaser(html["lessonTeaserViewModel"]["teaserSrc"], 2);
+                } else if (html["status"] == "error" && html["errors"] == "not_available") {
+                    //window.location.href = "/lesson/buy/" + id_of_lesson;
+                    if (html["lessonTeaserViewModel"] != null) {
+                        if (html["lessonTeaserViewModel"]["teaserSrc"] != null) {
+                            
+                            
+                            loadModalNotAvailableLessonTeaser(html["lessonTeaserViewModel"]["teaserSrc"], 1);
+                            /*
+                            var video = document.getElementById("modalNotAvailableLessonTeaser").getElementsByTagName("video")[0];
+                            var videoSource = video.getElementsByTagName("source")[0];
+                            videoSource.src = html["lessonTeaserViewModel"]["teaserSrc"];
+                            video.load();
+                            video.play();
+                            */
+
+                        } else {
+                            //отправляем на оплату
+                            window.location.href = "/lesson/buy/" + id_of_lesson;
+                        }
+                    }
+                } else if (html["status"] == "error" && html["errors"] == "login") {
+                    window.location.href = "/login";
+                }  else {
+                    alert("Извините, на сервере произошла неизвестная ошибка");
+                }
+            }
+        });
+        }
+
+        function loadModalNotAvailableLessonTeaser(teaserSrc, public1_private2) {
+            var modal = document.getElementById("modalNotAvailableLessonTeaser");
+            var content_for_private = modal.getElementsByClassName("for_private")[0];
+            var content_for_public = modal.getElementsByClassName("for_public")[0];
+            var domVideoJs = modal.getElementsByClassName("video-js")[0];
+
+            if (teaserSrc != null && typeof (teaserSrc) != "undefined") {
+                if (domVideoJs.classList.contains("divHideImportant")) domVideoJs.classList.remove("divHideImportant");
+                playerNotAvailableLessonTeaser.ready(function () {
+                    this.src({
+                        src: teaserSrc,
+                    });
+                });
+            } else {
+                if (!domVideoJs.classList.contains("divHideImportant")) domVideoJs.classList.add("divHideImportant");
+            }
+
+            if (public1_private2 == 1) {
+                if (!document.getElementById("modalNotAvailableLessonTeaserLabel").classList.contains("divHide"))
+                    document.getElementById("modalNotAvailableLessonTeaserLabel").classList.add("divHide");
+                if (!content_for_private.classList.contains("divHide"))
+                    content_for_private.classList.add("divHide");
+                if (content_for_public.classList.contains("divHide"))
+                    content_for_public.classList.remove("divHide");
+
+                $("#modalNotAvailableLessonTeaser").modal();
+            } else if (public1_private2 == 2) {
+                if (document.getElementById("modalNotAvailableLessonTeaserLabel").classList.contains("divHide"))
+                    document.getElementById("modalNotAvailableLessonTeaserLabel").classList.remove("divHide");
+                if (content_for_private.classList.contains("divHide"))
+                    content_for_private.classList.remove("divHide");
+                if (!content_for_public.classList.contains("divHide"))
+                    content_for_public.classList.add("divHide");
+
+                $("#modalNotAvailableLessonTeaser").modal();
+            }
+            $('#modalNotAvailableLessonTeaser').on('hidden.bs.modal', function () {
+                playerNotAvailableLessonTeaser.pause();
+            })
+        }
+
+    </script>
+
+    <div class="modal fade" id="modalExcluziveError" tabindex="-1" role="dialog" aria-labelledby="modalExcluziveErrorLabel" aria-hidden="true">
+        <div class="modal-dialog modal-md" role="document">
+            <div class="modal-content modalExcluziveError">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="modalExcluziveErrorBtnClose">
+                        <img src="~/images/close.png" class="img-fluid" />
+                    </button>
+                    <h5 class="modal-title" id="modalExcluziveErrorLabel">
+                        Ошибка доступа
+                    </h5>
+                </div>
+                <div class="modal-body">
+                    <p>Данный урок доступен только по эксклюзивному доступу</p>
+                    <button class="btn" onclick="toExcluziveAccess()">
+                        Подробнее
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toExcluziveAccess() {
+            $("#modalExcluziveError").modal("hide");
+            $("#modalTeacher").modal("hide");
+            window.location.href = "/#destination_of_scroll_to_pay";
+        }
+    </script>
+
+
+
+    <div class="modal fade" id="modalNotAvailableLessonTeaser" tabindex="-1" role="dialog" aria-labelledby="modalNotAvailableLessonTeaserLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content modalNotAvailableLessonTeaser">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="modalNotAvailableLessonTeaserBtnClose">
+                        <img src="~/images/close.png" class="img-fluid" />
+                    </button>
+                    <h5 class="modal-title" id="modalNotAvailableLessonTeaserLabel">
+                        Ошибка доступа
+                    </h5>
+                </div>
+
+                <div class="modal-body">
+
+
+                    <video-js id=lesson-teaser-noavailable class="video-js vjs-default-skin vjs-16-9 full-screen-always-available" controls playsinline preload="false"></video-js>
+
+                    <!--
+    <video class="" id="lessonTeaserVideo" preload="auto">
+        <source src="#" type='video/mp4'>
+    </video>
+        -->
+
+                    <div class="text-center for_public">
+                        <button class="btn" onclick="toLesson()">
+                            Купить подписку
+                        </button>
+                    </div>
+                    <div class="for_private">
+                        <p>Данный урок доступен только по эксклюзивному доступу</p>
+                        <button class="btn" onclick="toExcluziveAccess()">
+                            Подробнее
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function toLesson() {
+            window.location.href = "/lesson/buy/" + id_of_not_available_lesson;
+        }
+
+    </script>
+
+
+
+
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="~/dist/js/bootstrap.min.js?" asp-append-version="true"></script>
+
+
+    <link href="~/videojs-http-streaming/video.js/dist/video-js.css" rel="stylesheet" type="text/css" />
+    <script src="~/videojs-http-streaming/video.js/dist/video.js"></script>
+    <script src="~/videojs-http-streaming/@@videojs/http-streaming/dist/videojs-http-streaming.min.js"></script>
+
+    <script>
+
+        var overrideNative = false;
+        var playerNotAvailableLessonTeaser = videojs('lesson-teaser-noavailable', {
+            html5: {
+                vhs: {
+                    overrideNative: !overrideNative
+                },
+                nativeVideoTracks: overrideNative,
+                nativeAudioTracks: overrideNative,
+                nativeTextTracks: overrideNative
+            }
+        });
+
+    </script>
+
+    <environment include="Development">
+        <!--
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+        -->
+    </environment>
+    <environment exclude="Development">
+
+        <!--
+        <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.3.1.min.js"
+                asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
+                asp-fallback-test="window.jQuery"
+                crossorigin="anonymous"
+                integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT">
+        </script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
+                asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
+                asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"
+                crossorigin="anonymous"
+                integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd">
+        </script>
+        <script src="~/js/site.min.js" asp-append-version="true"></script>
+            -->
+    </environment>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

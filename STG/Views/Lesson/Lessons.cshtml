@@ -1,0 +1,199 @@
+﻿@using STG.Entities
+
+@{
+    ViewData["Title"] = "Классы | STG";
+    @using Microsoft.AspNetCore.Antiforgery;
+    @inject IAntiforgery antiforgery
+    var tokenSet = antiforgery.GetAndStoreTokens(Context);
+}
+
+<div class="col-1 d-none d-md-block"></div>
+<div class="col-12 col-lg-10 col-md-10 col-sm-12 lessons" style="padding:0;">
+
+    <div class="row filter">
+        <div class="col-12">
+            <ul>
+                <li class="filterLevel filterLevel0 active" id="filterLevel0" onclick="filterLevel('0')">
+                    All
+                </li>
+                @foreach (var level in ViewData["levelList"] as List<Level>)
+                {
+                    <li id="@("filterLevel" + level.Id)" class="filterLevel active" onclick="filterLevel('@level.Id')">
+                        @level.Name
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+
+
+    <div class="row" id="divListLessons">
+
+
+    </div>
+
+</div>
+
+<script src="~/js/viewmodel/PreviewVideo1.js"></script>
+<script src="~/js/factory/PreviewVideo1Factory.js"></script>
+<script>
+    var countOfLessonsSkip = 0;
+    var countOfLessonsTake = 18;
+    var currentFilterLevel = 0;
+    var isFilterLoading = false;
+    var getMaxLessons = false;
+
+
+    function filterLevel(value) {
+        var list = document.getElementsByClassName("filterLevel");
+        for (var i = 0; i < list.length; i++) {
+            list[i].classList.remove("active");
+            if (value == 0) document.getElementById("filterLevel" + i).classList.add("active");
+        }
+        document.getElementById("filterLevel" + value).classList.add("active");
+
+        countOfLessonsSkip = 0;
+        countOfLessonsTake = 18;
+        getMaxLessons = false;
+
+        currentFilterLevel = value;
+        $("#divListLessons").empty();
+        searchLessons();
+    }
+
+    function testAdd() {
+        const previewVideo1Factory = new PreviewVideo1Factory();
+        document.getElementById("divListLessons").appendChild(previewVideo1Factory.createAndGetHtml(1, "Maksim Bon", null, null, "", "", "", 0, null, null));
+    }
+
+    function searchLessons() {
+        if (isFilterLoading || getMaxLessons) return;
+        var form = new FormData();
+        //form.append("isFree", 1);
+        form.append("skip", countOfLessonsSkip);
+        form.append("take", countOfLessonsTake);
+        form.append("id_of_level", currentFilterLevel);
+
+        isFilterLoading = true;
+        searchLessonsLoading(true);
+        $.ajax({
+            method: 'POST',
+            type: "POST",
+            url:  "/api/lesson/search",
+            data: form,
+            cashe: false,
+            processData: false,
+            contentType: false,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+            },
+            error:function(){
+                searchLessonsLoading(false);
+            },
+            success: function(html)
+            {
+                if (html["lessons"] !== null && typeof (html["lessons"]) !== "undefined") {
+                    const lessons = html["lessons"];
+                    if (lessons.length == 0) getMaxLessons = true;
+
+                    const previewVideo1Factory = new PreviewVideo1Factory();
+
+                    var contentHtml;
+
+                    for (var i = 0; i < lessons.length; i++) {
+                        contentHtml = document.createElement("div");
+                        contentHtml.className = "col-12 col-lg-4 col-md-6 col-sm-12 row";
+                        contentHtml.appendChild(
+                            previewVideo1Factory.createAndGetHtml(
+                                lessons[i]["id"],
+                                lessons[i]["shortName"],
+                                lessons[i]["teacherName"],
+                                lessons[i]["styleName"],
+                                lessons[i]["video"],
+                                lessons[i]["lessonTypeName"],
+                                lessons[i]["levelName"],
+                                lessons[i]["active"],
+                                lessons[i]["posterSrc"],
+                                lessons[i]["teaserSrc"]
+                            )
+                        );
+
+                        document.getElementById("divListLessons").appendChild(contentHtml);
+                    }
+                    countOfLessonsSkip += lessons.length;
+                    searchLessonsLoading(false);
+                    isFilterLoading = false;
+                }
+            }
+        });
+    }
+    window.onload = function () {
+        searchLessons();
+    }
+
+    function searchLessonsLoading(status) {
+        if (status) {
+            let divLoading = document.createElement("div");
+            divLoading.className = "col-12";
+            divLoading.id = "labelLoading";
+            let labelLoading = document.createElement("p");
+            labelLoading.align = "center";
+            labelLoading.innerHTML = "Идет загрузка...";
+            divLoading.appendChild(labelLoading);
+            document.getElementById("divListLessons").appendChild(divLoading);
+        } else {
+            let labelLoading = document.getElementById("labelLoading");
+            document.getElementById("divListLessons").removeChild(labelLoading);
+        }
+    }
+
+
+
+
+    function control_video(id, action) {
+        if (action === 0) {
+            document.getElementById('preview' + id).pause();
+            $("#preview" + id).removeClass("active");
+            $("#mouse_out" + id).removeClass("hide");
+            $("#mouse_over" + id).removeClass("show");
+        } else if (action === 1) {
+            document.getElementById('preview' + id).play();
+            $("#preview" + id).addClass("active");
+            $("#mouse_out" + id).addClass("hide");
+            $("#mouse_over" + id).addClass("show");
+        }
+    }
+    function control_sound(id, action) {
+
+    }
+
+
+    function videoControlSound(id, action) {
+        if (action === 0) {
+            document.getElementById('preview' + id).muted = true;
+            $("#volumeOn_" + id).addClass("hide");
+            $("#volumeOff_" + id).removeClass("hide");
+        } else if (action === 1) {
+            document.getElementById('preview' + id).muted = false;
+            $("#volumeOff_" + id).addClass("hide");
+            $("#volumeOn_" + id).removeClass("hide");
+        }
+    }
+
+
+    window.addEventListener('scroll', function (e) {
+
+        if ($(window).scrollTop() + $(window).height() + $(window).height()*0.8 >= getDocHeight()) {
+            searchLessons();
+        }
+    });
+
+    function getDocHeight() {
+        var D = document;
+        return Math.max(
+            D.body.scrollHeight, D.documentElement.scrollHeight,
+            D.body.offsetHeight, D.documentElement.offsetHeight,
+            D.body.clientHeight, D.documentElement.clientHeight
+        );
+    }
+</script>

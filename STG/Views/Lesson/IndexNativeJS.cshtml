@@ -1,0 +1,896 @@
+﻿@using STG.ViewModels.Lesson;
+@model LessonVideoViewModel;
+
+@{
+    Layout = "_LayoutStaticHeaderwithoutJQuery";
+    ViewData["Title"] = Model.shortName + " | STG";
+    @using Microsoft.AspNetCore.Antiforgery;
+    @inject IAntiforgery antiforgery
+    var tokenSet = antiforgery.GetAndStoreTokens(Context);
+}
+
+
+
+<link href="https://unpkg.com/video.js/dist/video-js.css" rel="stylesheet">
+
+<script>
+    var isDivControlSpeedActive = false;
+    function controlSpeedVisual() {
+        if (isDivControlSpeedActive) return;
+        document.getElementById("divControlSpeed").classList.add("active");
+        setTimeout(function () {
+            document.getElementById("divControlSpeed").classList.remove("active");
+            isDivControlSpeedActive = false;
+        }, 1500);
+    }
+</script>
+
+
+
+<div class="modal fade" id="modalLessonTeaser" tabindex="-1" role="dialog" aria-labelledby="modalLessonTeaserLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content modalLessonTeaser">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="modalLessonTeaserBtnClose" onclick="closeModalLessonTeaser()">
+                    <img src="~/images/close.png" class="img-fluid" />
+                </button>
+            </div>
+            <div class="modal-body">
+
+
+                <video-js id=teaser-video class="video-js vjs-default-skin vjs-16-9 full-screen-always-available" controls playsinline preload="false">
+                    <!--<source src="@Model.teaserSrc" type="video/mp4">-->
+                </video-js>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var teaserAlreadyLoaded = false;
+    function loadTeaser() {
+        if (!teaserAlreadyLoaded) {
+            teaserAlreadyLoaded = true;
+
+            playerTeaser.ready(function () {
+                this.src({
+                    src: '@Model.teaserSrc',
+                    type: 'application/x-mpegURL',
+                });
+            });
+        }
+
+        openModalLessonTeaser();
+    }
+
+    function openModalLessonTeaser() {
+        document.getElementById("backdrop").style.display = "block";
+        document.getElementById("modalLessonTeaser").style.display = "block";
+        document.getElementById("modalLessonTeaser").classList.add("show");
+    }
+    function closeModalLessonTeaser() {
+        playerTeaser.pause();
+        document.getElementById("backdrop").style.display = "none";
+        document.getElementById("modalLessonTeaser").style.display = "none";
+        document.getElementById("modalLessonTeaser").classList.remove("show");
+    }
+</script>
+
+<style type="text/css">
+    .st0 {
+        fill-rule: evenodd;
+        clip-rule: evenodd;
+    }
+</style>
+
+<div class="col-12 lesson row">
+
+    <div class="col-1 d-none d-md-block"></div>
+
+    <div class="col-12 col-lg-10 col-md-10 col-sm-12">
+        <div class="lesson-block div-basic-opacity">
+
+            <!--
+
+            <button class="btn btn-player-control" onclick="controlRewind(true)">
+                <svg version="1.1" width="10px" height="10px" fill="currentColor" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 122.88 100.11" style="enable-background:new 0 0 122.88 100.11" xml:space="preserve"><g><polygon class="st0" points="122.88,49.67 57.34,100.11 57.34,55.97 0,100.11 0,0 57.34,43.46 57.34,0 122.88,49.67" /></g></svg>
+            </button>
+    -->
+
+            <div class="player">
+                <video-js id=example-video class="video-js vjs-default-skin vjs-16-9" controls playsinline preload="false" poster="@(Model.posterSrc != null ? Model.posterSrc : "")">
+                    <!--<source src="@Model.videoMobileSrc" type="application/x-mpegURL">-->
+
+                </video-js>
+            </div>
+            <div class="row d-md-none control-mobile rewind">
+                <div class="col-3 d-none d-md-block"></div>
+                <div class="col-6 d-md-none backward">
+                    <button class="btn btn-player-control" onclick="controlRewind(false)">
+                        <svg version="1.1" width="20px" height="20px" fill="currentColor" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 122.88 100.11" style="enable-background:new 0 0 122.88 100.11" xml:space="preserve"><g><polygon class="st0" points="0,49.67 65.54,100.11 65.54,55.97 122.88,100.11 122.88,0 65.54,43.46 65.54,0 0,49.67" /></g></svg>
+                    </button>
+                </div>
+                <div class="col-6 d-md-none forward">
+                    <button class="btn btn-player-control" onclick="controlRewind(true)">
+                        <svg version="1.1" width="20px" height="20px" fill="currentColor" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 122.88 100.11" style="enable-background:new 0 0 122.88 100.11" xml:space="preserve"><g><polygon class="st0" points="122.88,49.67 57.34,100.11 57.34,55.97 0,100.11 0,0 57.34,43.46 57.34,0 122.88,49.67" /></g></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="d-lg-none control-mobile row">
+
+                <div class="col-2 d-none d-md-block" style="padding:0;">
+                    <button class="btn btn-player-control" onclick="controlRewind(false)">
+                        <svg version="1.1" width="20px" height="20px" fill="currentColor" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 122.88 100.11" style="enable-background:new 0 0 122.88 100.11" xml:space="preserve"><g><polygon class="st0" points="0,49.67 65.54,100.11 65.54,55.97 122.88,100.11 122.88,0 65.54,43.46 65.54,0 0,49.67" /></g></svg>
+                    </button>
+                </div>
+
+                <div class="col-3 col-md-2" style="padding:0;">
+                    <button class="btn btn-player-control flip" onclick="playerMobileStatusFlipChange(this)">
+                        <svg version="1.1" width="20px" height="20px" fill="none" viewBox="0 0 512 512" xml:space="preserve"> <path fill-rule="evenodd" clip-rule="evenodd" d="M256,0c-8.284,0-15,6.716-15,15v70c0,8.284,6.716,15,15,15s15-6.716,15-15V15C271,6.716,264.284,0,256,0z" fill="currentColor" /> <path d="M256,137c-8.284,0-15,6.716-15,15v70c0,8.284,6.716,15,15,15s15-6.716,15-15v-70C271,143.716,264.284,137,256,137z" fill="currentColor" /> <path d="M256,275c-8.284,0-15,6.716-15,15v70c0,8.284,6.716,15,15,15s15-6.716,15-15v-70C271,281.716,264.284,275,256,275z" fill="currentColor" /> <path d="M256,412c-8.284,0-15,6.716-15,15v70c0,8.284,6.716,15,15,15s15-6.716,15-15v-70C271,418.716,264.284,412,256,412z" fill="currentColor" /> <path d="M179.402,103.503l-120-36.842c-4.549-1.398-9.491-0.552-13.317,2.276C42.258,71.765,40,76.241,40,81v350 c0,4.759,2.258,9.235,6.085,12.063c3.841,2.839,8.787,3.668,13.317,2.275l120-36.842c6.299-1.933,10.598-7.751,10.598-14.339 V117.842C190,111.254,185.7,105.437,179.402,103.503z M160,383.071l-90,27.632V101.296l90,27.632V383.071z" fill="currentColor" /> <path d="M465.915,68.937c-3.827-2.828-8.769-3.674-13.317-2.276l-120,36.842c-6.299,1.933-10.598,7.751-10.598,14.339v276.316 c0,6.588,4.3,12.405,10.598,14.339l120,36.842c4.566,1.402,9.505,0.541,13.317-2.276C469.742,440.235,472,435.759,472,431V81 C472,76.241,469.742,71.765,465.915,68.937z M442,410.704l-90-27.632V128.928l90-27.632V410.704z" fill="currentColor" /> </svg>
+                    </button>
+                </div>
+                <div class="col-3 col-md-2" style="padding:0;">
+                    <button class="btn btn-player-control second" onclick="playerMobileStatusRotateChange(this)">
+                        <svg width="20px" height="20px" fill="none" viewBox="0 0 72.41 72.41" style="enable-background:new 0 0 72.41 72.41;" xml:space="preserve"><path d="M71.237,38.112c-0.643,0-1.168,0.524-1.168,1.168c0,7.625-15.511,14.062-33.869,14.064 c-18.359,0-33.869-6.441-33.869-14.062c0-3.521,3.485-7.058,9.56-9.699c6.376-2.775,14.854-4.311,23.901-4.351l-4.161,4.155 c-0.455,0.456-0.455,1.196,0,1.651c0.229,0.229,0.528,0.341,0.827,0.341s0.598-0.116,0.827-0.341l6.989-6.983l-6.989-6.989 c-0.455-0.455-1.196-0.455-1.651,0s-0.455,1.196,0,1.651l4.179,4.179c-9.369,0.042-18.182,1.649-24.849,4.547 C3.894,30.515,0,34.723,0,39.284c0,9.2,15.905,16.401,36.205,16.401C56.507,55.681,72.41,48.475,72.41,39.28 C72.405,38.637,71.881,38.112,71.237,38.112z" fill="currentColor" /> </svg>
+                    </button>
+                </div>
+                <div class="col-3 col-md-2" style="padding:0;">
+                    <button class="btn btn-player-control" onclick="divSpeedMobileControl(this)">
+                        <svg width="20px" height="20px" fill="none" viewBox="0 0 305 305" style="enable-background:new 0 0 305 305;" xml:space="preserve"> <path d="M305,173.726c0-41.662-16.799-79.469-43.972-107.02c-0.212-0.282-0.438-0.558-0.695-0.815 c-0.257-0.257-0.532-0.483-0.814-0.694C231.968,38.024,194.161,21.226,152.5,21.226c-41.661,0-79.468,16.799-107.02,43.971 c-0.282,0.212-0.557,0.438-0.814,0.694c-0.257,0.257-0.483,0.532-0.695,0.815C16.799,94.257,0,132.064,0,173.726 c0,40.729,15.859,79.018,44.655,107.821c0.004,0.004,0.008,0.009,0.012,0.013c0.003,0.002,0.005,0.005,0.008,0.007 c0.004,0.004,0.008,0.008,0.012,0.012c1.464,1.464,3.383,2.195,5.302,2.195c1.92,0,3.84-0.732,5.304-2.197 c0.125-0.125,0.238-0.258,0.352-0.39l23.112-23.113c2.929-2.93,2.929-7.678,0-10.607c-2.929-2.928-7.678-2.928-10.606,0 l-18.036,18.036c-21.031-23.403-33.232-52.857-34.91-84.277h25.507c4.142,0,7.5-3.357,7.5-7.5s-3.358-7.5-7.5-7.5H15.207 c1.744-32.272,14.668-61.618,34.957-84.229l17.987,17.987c1.464,1.464,3.384,2.196,5.303,2.196c1.919,0,3.839-0.732,5.303-2.196 c2.929-2.93,2.929-7.678,0-10.607L60.771,71.389C83.383,51.1,112.728,38.176,145,36.433v25.506c0,4.143,3.358,7.5,7.5,7.5 s7.5-3.357,7.5-7.5V36.433c32.272,1.743,61.617,14.668,84.229,34.957l-17.987,17.987c-2.929,2.93-2.929,7.678,0,10.607 c1.464,1.464,3.384,2.196,5.303,2.196s3.839-0.732,5.303-2.196l17.987-17.987c20.289,22.612,33.214,51.957,34.957,84.229h-25.506 c-4.142,0-7.5,3.357-7.5,7.5s3.358,7.5,7.5,7.5h25.507c-1.678,31.42-13.878,60.875-34.909,84.278l-18.036-18.037 c-2.928-2.928-7.677-2.928-10.606,0c-2.929,2.93-2.929,7.678,0,10.607l23.485,23.485c1.464,1.464,3.384,2.196,5.303,2.196 c0.959,0,1.919-0.183,2.822-0.549c0.903-0.366,1.749-0.915,2.482-1.647C289.137,252.755,305,214.459,305,173.726z" fill="currentColor" /> <path d="M186.956,87.718c-3.847-1.541-8.211,0.327-9.751,4.173l-21.673,54.1 c-1.01-0.108-2.02-0.182-3.031-0.182c-10.556,0-20.091,5.847-24.886,15.259c-5.012,9.839-3.728,21.595,3.432,31.445 c0.732,1.007,1.652,1.928,2.666,2.665c5.817,4.229,12.314,6.464,18.788,6.464c10.556,0,20.092-5.847,24.886-15.259 c5.012-9.839,3.728-21.594-3.427-31.437c-0.732-1.01-1.654-1.934-2.671-2.674c-0.547-0.398-1.106-0.761-1.665-1.123l21.505-53.681 C192.669,93.624,190.801,89.258,186.956,87.718z M164.02,179.574c-2.221,4.359-6.635,7.067-11.52,7.067 c-3.204,0-6.429-1.119-9.589-3.327c-3.6-5.169-4.307-10.773-1.93-15.438c2.22-4.359,6.634-7.067,11.52-7.067 c1.558,0,3.12,0.27,4.678,0.795c0.051,0.021,0.098,0.048,0.15,0.069c0.164,0.065,0.329,0.118,0.494,0.171 c1.43,0.549,2.854,1.305,4.266,2.291C165.688,169.304,166.396,174.909,164.02,179.574z" fill="currentColor" /> </svg>
+                    </button>
+                </div>
+                <div class="col-3 col-md-2" style="padding:0;">
+                    <button class="btn btn-player-control" onclick="divTimingMobileControl(this)" data-toggle="collapse" data-target="#divTimingMobileCollapse" aria-expanded="false" aria-controls="divTimingMobileCollapse">
+                        <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+                             width="20px" height="20px"
+                             viewBox="0 0 24 24"
+                             style=" fill:#00fff0;">
+                            <path d="M 12 2 C 6.4889971 2 2 6.4889971 2 12 C 2 17.511003 6.4889971 22 12 22 C 17.511003 22 22 17.511003 22 12 C 22 6.4889971 17.511003 2 12 2 z M 12 4 C 16.430123 4 20 7.5698774 20 12 C 20 16.430123 16.430123 20 12 20 C 7.5698774 20 4 16.430123 4 12 C 4 7.5698774 7.5698774 4 12 4 z M 11 6 L 11 12.414062 L 15.292969 16.707031 L 16.707031 15.292969 L 13 11.585938 L 13 6 L 11 6 z"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="col-2 d-none d-md-block" style="padding:0;">
+                    <button class="btn btn-player-control" onclick="controlRewind(true)">
+                        <svg version="1.1" width="20px" height="20px" fill="currentColor" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 122.88 100.11" style="enable-background:new 0 0 122.88 100.11" xml:space="preserve"><g><polygon class="st0" points="122.88,49.67 57.34,100.11 57.34,55.97 0,100.11 0,0 57.34,43.46 57.34,0 122.88,49.67" /></g></svg>
+                    </button>
+                </div>
+
+            </div>
+
+
+            <script>
+                var isDivSpeedMobileActive = false;
+                function divSpeedMobileControl(btn) {
+                    if (isDivSpeedMobileActive) {
+                        document.getElementById("divSpeedMobileCollapse").classList.remove("active");
+                        btn.classList.remove("active");
+                        isDivSpeedMobileActive = false;
+                    } else {
+                        document.getElementById("divSpeedMobileCollapse").classList.add("active");
+                        btn.classList.add("active");
+                        isDivSpeedMobileActive = true;
+                    }
+                }
+            </script>
+
+            <div class="divSpeedMobileCollapse" id="divSpeedMobileCollapse">
+                <div onclick="controlSpeed(0.5,this)">0.5x</div>
+                <div onclick="controlSpeed(0.75,this)">0.75x</div>
+                <div class="active" onclick="controlSpeed(1.0,this)">1x</div>
+                <div onclick="controlSpeed(1.5,this)">1.5x</div>
+                <div onclick="controlSpeed(1.75,this)">1.75x</div>
+                <div onclick="controlSpeed(2.0,this)">2x</div>
+            </div>
+
+            <script>
+                var isDivTimingMobileActive = false;
+                function divTimingMobileControl(btn) {
+                    if (isDivTimingMobileActive) {
+                        document.getElementById("divTimingMobileCollapse").classList.remove("active");
+                        btn.classList.remove("active");
+                        isDivTimingMobileActive = false;
+                    } else {
+                        document.getElementById("divTimingMobileCollapse").classList.add("active");
+                        btn.classList.add("active");
+                        isDivTimingMobileActive = true;
+                    }
+                }
+            </script>
+
+            <div class="divTimingMobile" id="divTimingMobileCollapse">
+                <!--
+        <ul>
+            <li class="section">
+                Раздел
+                <ul>
+                    <li>
+                        <a href="#" onclick="">00:00 - Подраздел</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+            -->
+            </div>
+
+            <div class="lesson-description row">
+                <div class="d-none d-md-block col-lg-2 col-md-2">
+                    <img src="@Model.posterTeacherSrc" class="img-fluid" />
+                </div>
+                <div class="col-12 col-lg-5 col-md-5 col-sm-12">
+
+                    @if (Model.teaserSrc != null)
+                    {
+
+                        <div class="divForBtnTeaser">
+                            <button type="button" class="btn" onclick="loadTeaser()">
+                                Предпросмотр
+                            </button>
+                        </div>
+
+                    }
+
+                    <p>Хореограф: <a href="/teacher/@Model.id_of_teacher" target="_blank">@Model.name_of_teacher</a></p>
+                    <p>Музыка: @Model.musicName</p>
+                </div>
+                <div class="col-12 col-lg-5 col-md-5 col-sm-12 right">
+                    <p>Вид занятия: @Model.lessonTypeName</p>
+                    <p>
+                        Уровень:
+                        @foreach (string levelName in Model.levelNames)
+                        {
+                            @(Model.levelNames[0] != levelName ? "/" : "")
+                            <span>@levelName</span>
+                        }
+                    </p>
+                    <p>Длительность: @Model.duration</p>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+    <!--
+    <div class="col-12 d-lg-none d-md-none control-mobile">
+        <button class="btn btn-player-control flip" onclick="playerMobileStatusFlipChange(this)">
+            <svg version="1.1" width="30px" height="30px" fill="none" viewBox="0 0 512 512" xml:space="preserve"> <path fill-rule="evenodd" clip-rule="evenodd" d="M256,0c-8.284,0-15,6.716-15,15v70c0,8.284,6.716,15,15,15s15-6.716,15-15V15C271,6.716,264.284,0,256,0z" fill="currentColor" /> <path d="M256,137c-8.284,0-15,6.716-15,15v70c0,8.284,6.716,15,15,15s15-6.716,15-15v-70C271,143.716,264.284,137,256,137z" fill="currentColor" /> <path d="M256,275c-8.284,0-15,6.716-15,15v70c0,8.284,6.716,15,15,15s15-6.716,15-15v-70C271,281.716,264.284,275,256,275z" fill="currentColor" /> <path d="M256,412c-8.284,0-15,6.716-15,15v70c0,8.284,6.716,15,15,15s15-6.716,15-15v-70C271,418.716,264.284,412,256,412z" fill="currentColor" /> <path d="M179.402,103.503l-120-36.842c-4.549-1.398-9.491-0.552-13.317,2.276C42.258,71.765,40,76.241,40,81v350 c0,4.759,2.258,9.235,6.085,12.063c3.841,2.839,8.787,3.668,13.317,2.275l120-36.842c6.299-1.933,10.598-7.751,10.598-14.339 V117.842C190,111.254,185.7,105.437,179.402,103.503z M160,383.071l-90,27.632V101.296l90,27.632V383.071z" fill="currentColor" /> <path d="M465.915,68.937c-3.827-2.828-8.769-3.674-13.317-2.276l-120,36.842c-6.299,1.933-10.598,7.751-10.598,14.339v276.316 c0,6.588,4.3,12.405,10.598,14.339l120,36.842c4.566,1.402,9.505,0.541,13.317-2.276C469.742,440.235,472,435.759,472,431V81 C472,76.241,469.742,71.765,465.915,68.937z M442,410.704l-90-27.632V128.928l90-27.632V410.704z" fill="currentColor" /> </svg>
+        </button>
+
+        <button class="btn btn-player-control second" onclick="playerMobileStatusRotateChange(this)">
+            <svg width="30px" height="30px" fill="none" viewBox="0 0 72.41 72.41" style="enable-background:new 0 0 72.41 72.41;" xml:space="preserve"><path d="M71.237,38.112c-0.643,0-1.168,0.524-1.168,1.168c0,7.625-15.511,14.062-33.869,14.064 c-18.359,0-33.869-6.441-33.869-14.062c0-3.521,3.485-7.058,9.56-9.699c6.376-2.775,14.854-4.311,23.901-4.351l-4.161,4.155 c-0.455,0.456-0.455,1.196,0,1.651c0.229,0.229,0.528,0.341,0.827,0.341s0.598-0.116,0.827-0.341l6.989-6.983l-6.989-6.989 c-0.455-0.455-1.196-0.455-1.651,0s-0.455,1.196,0,1.651l4.179,4.179c-9.369,0.042-18.182,1.649-24.849,4.547 C3.894,30.515,0,34.723,0,39.284c0,9.2,15.905,16.401,36.205,16.401C56.507,55.681,72.41,48.475,72.41,39.28 C72.405,38.637,71.881,38.112,71.237,38.112z" fill="currentColor" /> </svg>
+        </button>
+    </div>
+        -->
+
+
+
+
+    <div class="col-12"></div>
+    <div class="col-1 d-none d-md-block"></div>
+    <div class="col-12 col-lg-10 col-md-10 col-sm-12 row other-lessons">
+        <div class="col-12">
+            <h2>
+                Больше классов от <a href="/teacher/@Model.id_of_teacher" target="_blank">@Model.name_of_teacher</a>
+            </h2>
+        </div>
+        <div class="row col-12" id="other-lessons">
+
+
+        </div>
+    </div>
+
+    <script>
+
+        function getOtherLessonsOfTeacher() {
+            var form = new FormData();
+            form.append("id", @Model.id_of_teacher);
+
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == XMLHttpRequest.DONE) {   // XMLHttpRequest.DONE == 4
+                    if (xmlhttp.status == 200) {
+                        var html = JSON.parse(xmlhttp.response);
+
+                        var lessonsDiv = document.getElementById("other-lessons");
+                        lessonsDiv.innerHTML = "";
+
+                        if (html["status"] == "success") {
+
+                            const lessons = html["lessons"];
+
+                            const previewVideo1Factory = new PreviewVideo1Factory();
+                            var contentHtml;
+                            for (var i = 0; i < lessons.length; i++) {
+                                contentHtml = document.createElement("div");
+                                contentHtml.className = "col-12 col-lg-4 col-md-6 col-sm-12";
+                                contentHtml.style.padding = "0";
+                                contentHtml.appendChild(
+                                    previewVideo1Factory.createAndGetHtml(
+                                        lessons[i]["id"],
+                                        lessons[i]["shortName"],
+                                        lessons[i]["teacherName"],
+                                        lessons[i]["styleName"],
+                                        lessons[i]["video"],
+                                        lessons[i]["lessonTypeName"],
+                                        lessons[i]["levelName"],
+                                        lessons[i]["active"],
+                                        lessons[i]["posterSrc"],
+                                        lessons[i]["teaserSrc"]
+                                    )
+                                );
+                                lessonsDiv.appendChild(contentHtml);
+                            }
+                        }
+                    }
+                    else if (xmlhttp.status == 400) {
+                        console.log('There was an error 400');
+                    }
+                    else {
+                        console.log('something else other than 200 was returned');
+                    }
+                }
+            };
+
+            xmlhttp.append
+            xmlhttp.open("POST", "/api/lesson/by_teacher", true);
+            xmlhttp.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+            xmlhttp.send(form);
+        }
+    </script>
+
+
+    <!--
+    <link href="~/video-js-hls/video.js/dist/video-js.css" rel="stylesheet" type="text/css">
+
+
+    <script src="~/video-js-hls/video.js/dist/video.js"></script>
+    <script src="~/video-js-hls/videojs-contrib-hls/dist/videojs-contrib-hls.js"></script>
+        -->
+    <!--
+    <link href="~/video-js-hls/video.js/dist/video-js.css" rel="stylesheet" type="text/css">
+    <script src="~/video-js-hls/video.js/dist/video.js"></script>
+    <script src="~/http-streaming-2.11.2/src/videojs-http-streaming.js"></script>
+        -->
+    <!--
+    <link href="~/videojs-http-streaming/video.js/dist/video-js.css" rel="stylesheet" type="text/css">
+
+    <script src="~/videojs-http-streaming/video.js/dist/video.js"></script>
+    <script src="~/videojs-http-streaming/@@videojs/http-streaming/dist/videojs-http-streaming.min.js"></script>
+        -->
+    <!--
+    <link href="~/video-js-7/video.js/dist/video-js.css" rel="stylesheet" type="text/css">
+    <script src="~/video-js-7/video.js/dist/video.min.js"></script>
+    -->
+    <!--03.11.2021-->
+    <!--
+    <link href="~/video.js/dist/video-js.css?@DateTime.Now.Ticks" rel="stylesheet" type="text/css">
+    <script src="~/video.js/dist/video.js?@DateTime.Now.Ticks"></script>
+    <script src="~/videojs-contrib-hls/dist/videojs-contrib-hls.min.js?@DateTime.Now.Ticks"></script>
+        -->
+
+
+    <script src="https://unpkg.com/video.js/dist/video.js"></script>
+    <script src="https://unpkg.com/@@videojs/http-streaming/dist/videojs-http-streaming.js"></script>
+
+
+
+    <script src="~/js/facade/VideoJSTiming.js"></script>
+
+    <script>
+        var playerStatusFlip = false;
+        var playerStatusRotate = false;
+        function playerStatusFlipChange(btnEl) {
+            var video = document.getElementsByTagName("video")[1];
+            if (playerStatusFlip) {
+                video.classList.remove("flip");
+                btnEl.removeClass("active");
+            } else {
+                video.classList.add("flip");
+                btnEl.addClass("active");
+            }
+            playerStatusFlip = !playerStatusFlip;
+        }
+        function playerMobileStatusFlipChange(btn) {
+            var video = document.getElementsByTagName("video")[1];
+            if (playerStatusFlip) {
+                video.classList.remove("flip");
+                btn.classList.remove("active");
+            } else {
+                video.classList.add("flip");
+                btn.classList.add("active");
+            }
+            playerStatusFlip = !playerStatusFlip;
+        }
+
+
+        function playerStatusRotateChange(btnEl) {
+            var video = document.getElementsByTagName("video")[1];
+            if (playerStatusRotate) {
+                video.classList.remove("rotate");
+                btnEl.removeClass("active");
+            } else {
+                video.classList.add("rotate");
+                btnEl.addClass("active");
+            }
+            playerStatusRotate = !playerStatusRotate;
+        }
+        function playerMobileStatusRotateChange(btn) {
+            var video = document.getElementsByTagName("video")[1];
+            if (playerStatusRotate) {
+                video.classList.remove("rotate");
+                btn.classList.remove("active");
+            } else {
+                video.classList.add("rotate");
+                btn.classList.add("active");
+            }
+            playerStatusRotate = !playerStatusRotate;
+        }
+
+        var overrideNative = false;
+        //overrideNative: !videojs.browser.IS_ANY_SAFARI,
+        // hls:
+
+        var player = videojs('example-video', {
+            html5: {
+                vhs: {
+                    overrideNative: !overrideNative
+                },
+                nativeVideoTracks: overrideNative,
+                nativeAudioTracks: overrideNative,
+                nativeTextTracks: overrideNative
+            }
+        });
+        player.ready(function () {
+            if (window.screen.width <= 1025) {
+                this.src({
+                    src: '@(Model.videoMobileSrc != null ? Model.videoMobileSrc : Model.videoSrc)',
+                    type: 'application/x-mpegURL',
+                });
+            } else {
+                this.src({
+                    src: '@Model.videoSrc',
+                    type: 'application/x-mpegURL',
+                });
+            }
+        });
+
+
+
+
+        var playerTeaser = videojs('teaser-video', {
+            html5: {
+                vhs: {
+                    overrideNative: !overrideNative
+                },
+                nativeVideoTracks: overrideNative,
+                nativeAudioTracks: overrideNative,
+                nativeTextTracks: overrideNative
+            }
+        });
+
+
+
+        //player.currentTime(120);
+        /*
+        videojs('example-video').ready(function () {
+            this.on('timeupdate', function () {
+                console.log(this.currentTime());
+            })
+        });
+        */
+
+        //player.play();
+
+        /*
+        var Button = videojs.getComponent('Button');
+        var button = new Button(player, {
+            clickHandler: function(event) {
+                videojs.log('Clicked');
+            }
+        });
+        */
+
+        function buildPlayerInterface() {
+
+            //var pNameOfLesson = player.addChild('button');
+            //pNameOfLesson.addClass("vjs_name");
+            //var elementDom = pNameOfLesson.el();
+            //var htmlContent = "<p>@Model.name</p>";
+            //elementDom.innerHTML = htmlContent;
+
+            var btnControlBackward = player.addChild('button');
+            btnControlBackward.addClass("html-classname");
+            btnControlBackward.addClass("backward");
+            var myButtonDom = btnControlBackward.el();
+            var svgEl = '<svg version="1.1" width="30px" height="30px" fill="currentColor" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 122.88 100.11" style="enable-background:new 0 0 122.88 100.11" xml:space="preserve"><style type="text/css">.st0{fill-rule:evenodd;clip-rule:evenodd;}</style><g><polygon class="st0" points="0,49.67 65.54,100.11 65.54,55.97 122.88,100.11 122.88,0 65.54,43.46 65.54,0 0,49.67"/></g></svg>';
+            myButtonDom.innerHTML = svgEl + "<p>Назад</p>";
+            btnControlBackward.on('click', function () {
+                controlRewind(false);
+            });
+
+
+            var btnControlForward = player.addChild('button');
+            btnControlForward.addClass("html-classname");
+            btnControlForward.addClass("forward");
+            var myButtonDom = btnControlForward.el();
+            var svgEl = '<svg version="1.1" width="30px" height="30px" fill="currentColor" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 122.88 100.11" style="enable-background:new 0 0 122.88 100.11" xml:space="preserve"><style type="text/css">.st0{fill-rule:evenodd;clip-rule:evenodd;}</style><g><polygon class="st0" points="122.88,49.67 57.34,100.11 57.34,55.97 0,100.11 0,0 57.34,43.46 57.34,0 122.88,49.67"/></g></svg>';
+            myButtonDom.innerHTML = svgEl + "<p>Вперед</p>";
+            btnControlForward.on('click', function () {
+                controlRewind(true);
+            });
+
+
+
+
+            var btnControlFlip = player.addChild('button');
+
+            btnControlFlip.addClass("html-classname");
+            var myButtonDom = btnControlFlip.el();
+            var svgEl = '<svg width="30px" height="30px" viewBox="0 0 14 18" fill="none" xmlns="http://www.w3.org/2000/svg" color="champYellow.2" class="sc-cIShpX sc-ccLTTT jRmGLG"><path fill-rule="evenodd" clip-rule="evenodd" d="M0.5 2.36131C0.5 1.33334 1.44896 0.5 2.61957 0.5H11.3804C12.551 0.5 13.5 1.33334 13.5 2.36131V15.6387C13.5 16.6667 12.551 17.5 11.3804 17.5H2.61957C1.44896 17.5 0.5 16.6667 0.5 15.6387V2.36131ZM2.61957 1.74088C2.22936 1.74088 1.91304 2.01866 1.91304 2.36131V15.6387C1.91304 15.9813 2.22936 16.2591 2.61957 16.2591H11.3804C11.7706 16.2591 12.087 15.9813 12.087 15.6387V2.36131C12.087 2.01866 11.7706 1.74088 11.3804 1.74088H2.61957Z" fill="currentColor"></path><path d="M2.76123 8.89476V14.2737C2.76123 14.9591 3.39387 15.5146 4.17427 15.5146H9.82645C10.6068 15.5146 11.2395 14.9591 11.2395 14.2737V3.72629C11.2395 3.10573 10.7208 2.59157 10.0433 2.49994L2.76123 8.89476Z" fill="currentColor"></path><path d="M7.86168 2.48541H4.17427C3.39387 2.48541 2.76123 3.04097 2.76123 3.72629V6.96441L7.86168 2.48541Z" fill="currentColor"></path></svg>';
+
+            var svgEl = '<svg version="1.1" width="30px" height="30px" fill="none" viewBox="0 0 512 512" xml:space="preserve"> <path fill-rule="evenodd" clip-rule="evenodd" d="M256,0c-8.284,0-15,6.716-15,15v70c0,8.284,6.716,15,15,15s15-6.716,15-15V15C271,6.716,264.284,0,256,0z" fill="currentColor" /> <path d="M256,137c-8.284,0-15,6.716-15,15v70c0,8.284,6.716,15,15,15s15-6.716,15-15v-70C271,143.716,264.284,137,256,137z" fill="currentColor" /> <path d="M256,275c-8.284,0-15,6.716-15,15v70c0,8.284,6.716,15,15,15s15-6.716,15-15v-70C271,281.716,264.284,275,256,275z" fill="currentColor" /> <path d="M256,412c-8.284,0-15,6.716-15,15v70c0,8.284,6.716,15,15,15s15-6.716,15-15v-70C271,418.716,264.284,412,256,412z" fill="currentColor" /> <path d="M179.402,103.503l-120-36.842c-4.549-1.398-9.491-0.552-13.317,2.276C42.258,71.765,40,76.241,40,81v350 c0,4.759,2.258,9.235,6.085,12.063c3.841,2.839,8.787,3.668,13.317,2.275l120-36.842c6.299-1.933,10.598-7.751,10.598-14.339 V117.842C190,111.254,185.7,105.437,179.402,103.503z M160,383.071l-90,27.632V101.296l90,27.632V383.071z" fill="currentColor" /> <path d="M465.915,68.937c-3.827-2.828-8.769-3.674-13.317-2.276l-120,36.842c-6.299,1.933-10.598,7.751-10.598,14.339v276.316 c0,6.588,4.3,12.405,10.598,14.339l120,36.842c4.566,1.402,9.505,0.541,13.317-2.276C469.742,440.235,472,435.759,472,431V81 C472,76.241,469.742,71.765,465.915,68.937z M442,410.704l-90-27.632V128.928l90-27.632V410.704z" fill="currentColor" /> </svg>';
+            myButtonDom.innerHTML = svgEl + "<p>Отзеркалить</p>";
+            btnControlFlip.on('click', function () {
+                playerStatusFlipChange(btnControlFlip);
+            });
+
+
+
+
+
+            var btnControlSide = player.addChild('button');
+            btnControlSide.addClass("html-classname");
+            btnControlSide.addClass("second");
+            var myButtonDom = btnControlSide.el();
+            var svgEl = '<svg width="30px" height="30px" viewBox="0 0 14 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="champYellow.2" class="sc-cIShpX sc-ccLTTT jRmGLG"><path d="M5 20H0V22H5V24L8 21L5 18V20ZM9 20V22H14V20H9ZM7 8C8.1 8 9 7.1 9 6C9 4.9 8.1 4 7 4C5.9 4 5.01 4.9 5.01 6C5.01 7.1 5.9 8 7 8ZM12 0H2C0.9 0 0 0.9 0 2V16C0 17.1 0.9 18 2 18H12C13.1 18 14 17.1 14 16V2C14 0.9 13.1 0 12 0ZM2 2H12V12.5C12 10.83 8.67 10 7 10C5.33 10 2 10.83 2 12.5V2Z" fill="currentColor"></path></svg>';
+            var svgEl = '<svg width="30px" height="30px" fill="none" viewBox="0 0 72.41 72.41" style="enable-background:new 0 0 72.41 72.41;" xml:space="preserve"><path d="M71.237,38.112c-0.643,0-1.168,0.524-1.168,1.168c0,7.625-15.511,14.062-33.869,14.064 c-18.359,0-33.869-6.441-33.869-14.062c0-3.521,3.485-7.058,9.56-9.699c6.376-2.775,14.854-4.311,23.901-4.351l-4.161,4.155 c-0.455,0.456-0.455,1.196,0,1.651c0.229,0.229,0.528,0.341,0.827,0.341s0.598-0.116,0.827-0.341l6.989-6.983l-6.989-6.989 c-0.455-0.455-1.196-0.455-1.651,0s-0.455,1.196,0,1.651l4.179,4.179c-9.369,0.042-18.182,1.649-24.849,4.547 C3.894,30.515,0,34.723,0,39.284c0,9.2,15.905,16.401,36.205,16.401C56.507,55.681,72.41,48.475,72.41,39.28 C72.405,38.637,71.881,38.112,71.237,38.112z" fill="currentColor" /> </svg>';
+            myButtonDom.innerHTML = svgEl + "<p>Сменить вид</p>";
+
+            btnControlSide.on('click', function () {
+                playerStatusRotateChange(btnControlSide);
+            });
+
+
+            var btnControlSpeed = player.addChild('button');
+            btnControlSpeed.addClass("html-classname");
+            btnControlSpeed.addClass("third");
+            var myButtonDom = btnControlSpeed.el();
+            var svgEl = '<div class="control-speed" id="divControlSpeed" onmouseover="controlSpeedVisual()" onmousemove="controlSpeedVisual()"><div onclick="controlSpeed(2.0,this)">2x</div><div onclick="controlSpeed(1.75,this)">1.75x</div><div onclick="controlSpeed(1.5,this)">1.5x</div><div class="active" onclick="controlSpeed(1.0,this)">1x</div><div onclick="controlSpeed(0.75,this)">0.75x</div><div onclick="controlSpeed(0.5,this)">0.5x</div></div><svg width="30px" height="30px" viewBox="0 0 45 32" fill="none" xmlns="http://www.w3.org/2000/svg" color="white" class="sc-cIShpX sc-ccLTTT dwLLka"><path fill-rule="evenodd" clip-rule="evenodd" d="M22.3945 4.13627C12.3863 4.13627 4.27272 12.2498 4.27272 22.258H0.727264C0.727264 10.2917 10.4282 0.59082 22.3945 0.59082C34.3608 0.59082 44.0617 10.2917 44.0617 22.258H40.5162C40.5162 12.2498 32.4027 4.13627 22.3945 4.13627Z" fill="currentColor"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M24.1668 12.3105V22.2578H20.6213V12.3105H24.1668Z" fill="currentColor"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M22.3944 24.0303C21.3133 24.0303 20.4369 24.9067 20.4369 25.9878C20.4369 27.0689 21.3133 27.9453 22.3944 27.9453C23.4755 27.9453 24.3519 27.0689 24.3519 25.9878C24.3519 24.9067 23.4755 24.0303 22.3944 24.0303ZM16.8915 25.9878C16.8915 22.9486 19.3552 20.4849 22.3944 20.4849C25.4336 20.4849 27.8974 22.9486 27.8974 25.9878C27.8974 29.027 25.4336 31.4907 22.3944 31.4907C19.3552 31.4907 16.8915 29.027 16.8915 25.9878Z" fill="currentColor"></path></svg>';
+
+            var svgEl = '<div class="control-speed" id="divControlSpeed" onmouseover="controlSpeedVisual()" onmousemove="controlSpeedVisual()"><div onclick="controlSpeed(2.0,this)">2x</div><div onclick="controlSpeed(1.75,this)">1.75x</div><div onclick="controlSpeed(1.5,this)">1.5x</div><div class="active" onclick="controlSpeed(1.0,this)">1x</div><div onclick="controlSpeed(0.75,this)">0.75x</div><div onclick="controlSpeed(0.5,this)">0.5x</div></div><svg width="30px" height="30px" fill="none" viewBox="0 0 305 305" style="enable-background:new 0 0 305 305;" xml:space="preserve"> <path d="M305,173.726c0-41.662-16.799-79.469-43.972-107.02c-0.212-0.282-0.438-0.558-0.695-0.815 c-0.257-0.257-0.532-0.483-0.814-0.694C231.968,38.024,194.161,21.226,152.5,21.226c-41.661,0-79.468,16.799-107.02,43.971 c-0.282,0.212-0.557,0.438-0.814,0.694c-0.257,0.257-0.483,0.532-0.695,0.815C16.799,94.257,0,132.064,0,173.726 c0,40.729,15.859,79.018,44.655,107.821c0.004,0.004,0.008,0.009,0.012,0.013c0.003,0.002,0.005,0.005,0.008,0.007 c0.004,0.004,0.008,0.008,0.012,0.012c1.464,1.464,3.383,2.195,5.302,2.195c1.92,0,3.84-0.732,5.304-2.197 c0.125-0.125,0.238-0.258,0.352-0.39l23.112-23.113c2.929-2.93,2.929-7.678,0-10.607c-2.929-2.928-7.678-2.928-10.606,0 l-18.036,18.036c-21.031-23.403-33.232-52.857-34.91-84.277h25.507c4.142,0,7.5-3.357,7.5-7.5s-3.358-7.5-7.5-7.5H15.207 c1.744-32.272,14.668-61.618,34.957-84.229l17.987,17.987c1.464,1.464,3.384,2.196,5.303,2.196c1.919,0,3.839-0.732,5.303-2.196 c2.929-2.93,2.929-7.678,0-10.607L60.771,71.389C83.383,51.1,112.728,38.176,145,36.433v25.506c0,4.143,3.358,7.5,7.5,7.5 s7.5-3.357,7.5-7.5V36.433c32.272,1.743,61.617,14.668,84.229,34.957l-17.987,17.987c-2.929,2.93-2.929,7.678,0,10.607 c1.464,1.464,3.384,2.196,5.303,2.196s3.839-0.732,5.303-2.196l17.987-17.987c20.289,22.612,33.214,51.957,34.957,84.229h-25.506 c-4.142,0-7.5,3.357-7.5,7.5s3.358,7.5,7.5,7.5h25.507c-1.678,31.42-13.878,60.875-34.909,84.278l-18.036-18.037 c-2.928-2.928-7.677-2.928-10.606,0c-2.929,2.93-2.929,7.678,0,10.607l23.485,23.485c1.464,1.464,3.384,2.196,5.303,2.196 c0.959,0,1.919-0.183,2.822-0.549c0.903-0.366,1.749-0.915,2.482-1.647C289.137,252.755,305,214.459,305,173.726z" fill="currentColor" /> <path d="M186.956,87.718c-3.847-1.541-8.211,0.327-9.751,4.173l-21.673,54.1 c-1.01-0.108-2.02-0.182-3.031-0.182c-10.556,0-20.091,5.847-24.886,15.259c-5.012,9.839-3.728,21.595,3.432,31.445 c0.732,1.007,1.652,1.928,2.666,2.665c5.817,4.229,12.314,6.464,18.788,6.464c10.556,0,20.092-5.847,24.886-15.259 c5.012-9.839,3.728-21.594-3.427-31.437c-0.732-1.01-1.654-1.934-2.671-2.674c-0.547-0.398-1.106-0.761-1.665-1.123l21.505-53.681 C192.669,93.624,190.801,89.258,186.956,87.718z M164.02,179.574c-2.221,4.359-6.635,7.067-11.52,7.067 c-3.204,0-6.429-1.119-9.589-3.327c-3.6-5.169-4.307-10.773-1.93-15.438c2.22-4.359,6.634-7.067,11.52-7.067 c1.558,0,3.12,0.27,4.678,0.795c0.051,0.021,0.098,0.048,0.15,0.069c0.164,0.065,0.329,0.118,0.494,0.171 c1.43,0.549,2.854,1.305,4.266,2.291C165.688,169.304,166.396,174.909,164.02,179.574z" fill="currentColor" /> </svg>';
+
+            myButtonDom.innerHTML = svgEl + "<p>Скорость</p>";
+
+
+            btnControlSpeed.on("mouseover", function () { controlSpeedVisual(); });
+            btnControlSpeed.on("mousemove", function () { controlSpeedVisual(); });
+        }
+
+        function controlSpeed(v, el) {
+            designControlpeed();
+            player.playbackRate(v);
+            el.classList.add("active");
+        }
+        function designControlpeed() {
+            var els = document.getElementById("divControlSpeed").getElementsByTagName("div");
+            for (var i = 0; i < els.length; i++) {
+                els[i].classList.remove("active");
+            }
+            var els = document.getElementById("divSpeedMobileCollapse").getElementsByTagName("div");
+            for (var i = 0; i < els.length; i++) {
+                els[i].classList.remove("active");
+            }
+        }
+        function controlRewind(isForward) {
+            player.currentTime(player.currentTime() + (isForward ? 10 : -10));
+        }
+
+        /*
+        var btnControlWebCamera = player.addChild('button');
+        btnControlWebCamera.addClass("html-classname");
+        var myButtonDom = btnControlWebCamera.el();
+        var svgEl = '<svg width="30px" height="30px" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg" color="white" class="sc-cIShpX sc-ccLTTT dwLLka"><path fill-rule="evenodd" clip-rule="evenodd" d="M14.2858 9.58067C14.2858 11.9858 12.367 13.9355 10.0001 13.9355C7.63313 13.9355 5.71436 11.9858 5.71436 9.58067C5.71436 7.17556 7.63313 5.22583 10.0001 5.22583C12.367 5.22583 14.2858 7.17556 14.2858 9.58067ZM12.7731 9.58067C12.7731 11.1369 11.5316 12.3985 10 12.3985C8.46847 12.3985 7.22691 11.1369 7.22691 9.58067C7.22691 8.02442 8.46847 6.76283 10 6.76283C11.5316 6.76283 12.7731 8.02442 12.7731 9.58067Z" fill="currentColor"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M5.9169 3.74194H2C1.82081 3.74194 1.71429 3.88822 1.71429 4V16C1.71429 16.1118 1.82081 16.2581 2 16.2581H18C18.1792 16.2581 18.2857 16.1118 18.2857 16V4C18.2857 3.88822 18.1792 3.74194 18 3.74194H14.0831L12.2531 1.74194H7.7469L5.9169 3.74194ZM7 0L5.17 2H2C0.9 2 0 2.9 0 4V16C0 17.1 0.9 18 2 18H18C19.1 18 20 17.1 20 16V4C20 2.9 19.1 2 18 2H14.83L13 0H7Z" fill="currentColor"></path></svg>';
+        myButtonDom.innerHTML = svgEl + "<p>Веб камера <br />(выкл)</p>";
+        btnControlWebCamera.on('click', function(){
+
+        });
+
+
+
+
+        var videoWebCamera = document.createElement("video");
+        videoWebCamera.classList.add("video-web-camera");
+        document.getElementsByClassName("video-js")[0].appendChild(videoWebCamera);
+        */
+
+        /*
+       var myButton = player.addChild("button");
+
+// There are many functions available for button component
+// like below mentioned in this docs
+// https://docs.videojs.com/button.
+// You can set attributes and clasess as well.
+
+// Getting html DOM
+var myButtonDom = myButton.el();
+// Since now you have the html dom element
+// you can add click events
+
+
+// Now I am setting the text as you needed.
+myButtonDom.innerHTML = "Hello";
+
+myButtonDom.onclick = function(){
+      alert("Redirecting");
+      //window.location.href = "https://www.google.com"
+}
+
+*/
+
+
+
+
+
+
+        function newButtonToggle() {
+
+            var MyComponent = videojs.extend(videojs.getComponent('Button'), {
+                myCustomMethod: function () {
+                    // Do things in my method.
+                }
+            });
+
+            /*
+            videojs.newButton = videojs.extend(videojs.getComponent('Button'),{
+               init: function(player, options){
+                videojs.Button.call(this, player, options);
+                this.on('click', this.onClick);
+               }
+            });
+
+
+            videojs.newButton.prototype.onClick = function() {
+                //Add click routine here..
+            };
+
+             //Creating New Button
+            var createNewButton = function() {
+                var props = {
+                    className: 'vjs-new-button vjs-control',
+                    innerHTML: '<div class="vjs-control-content">666' + ('New') + '</div>',
+                    role: 'button',
+                    'aria-live': 'polite',
+                    tabIndex: 0
+                    };
+                return videojs.Component.prototype.createEl(null, props);
+            };
+
+            //Adding the newly created button to Control Bar
+
+            videojs.plugin('newButton', function() {
+                var options = { 'el' : createNewButton() };
+                newButton = new videojs.newButton(this, options);
+                this.controlBar.el().appendChild(newButton.el());
+            });
+
+            //Now setting up Player
+            var vid = videojs("example-video", {
+                plugins : { newButton : {} }
+            });
+            */
+
+            videojs.Btn = videojs.extend(videojs.getComponent('Button'), {
+                init: function (player, options) {
+                    videojs.Button.call(this, player, options);
+                    this.on('click', this.onClick);
+                }
+            });
+
+            videojs.Btn.prototype.onClick = function () {
+                alert("Click on my custom button!");
+            };
+
+            var createCustomButton = function () {
+                var props = {
+                    className: 'vjs-custom-button vjs-control',
+                    innerHTML: '<div class="vjs-control-content"><span class="vjs-control-text"><input type="button">my button</button></span></div>',
+                    role: 'button',
+                    'aria-live': 'polite',
+                    tabIndex: 0
+                };
+                return videojs.Component.prototype.createEl(null, props);
+            };
+
+            var myBtn;
+            videojs.plugin('myBtn', function () {
+                var options = {
+                    'el': createCustomButton()
+                };
+                myBtn = new videojs.Btn(this, options);
+                this.controlBar.el().appendChild(myBtn.el());
+            });
+
+            var vid = videojs("example-video", {
+                plugins: {
+                    myBtn: {}
+                }
+            });
+        }
+
+        //newButtonToggle();
+    </script>
+
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-12 lesson-description">
+
+        </div>
+
+
+
+    </div>
+
+</div>
+
+
+<script>
+    window.onload = function () {
+        buildPlayerInterface();
+        getAllVideoSections();
+        getOtherLessonsOfTeacher();
+
+
+        var video = document.getElementsByTagName("video")[1];
+        video.onkeypress = function (e) {
+            if (e.keyCode == 32) {
+                event.preventDefault();
+            }
+        }
+        video.onmousedown = function (e) {
+            event.preventDefault();
+            return false;
+        }
+
+        var btns = document.getElementsByTagName("button");
+
+        for (var i = 0; i < btns.length; i++) {
+            btns[i].onkeypress = function (e) {
+                if (e.keyCode == 32) {
+                    event.preventDefault();
+                    return false;
+                }
+            }
+            btns[i].onkeydown = function (e) {
+                if (e.keyCode == 32) {
+                    event.preventDefault();
+                    return false;
+                }
+            }
+            btns[i].onmousedown = function (e) {
+                event.preventDefault();
+                return false;
+            }
+        }
+
+        var body = document.getElementsByTagName("body")[0];
+        body.onkeydown = function (e) {
+            if (e.keyCode == 32) {
+                e.preventDefault();
+                if (player.paused()) {
+                    player.play();
+                }
+                else {
+                    player.pause();
+                }
+                return false;
+            }
+            if (e.keyCode == 37) {
+                e.preventDefault();
+                controlRewind(false);
+                return false;
+            }
+            if (e.keyCode == 39) {
+                e.preventDefault();
+                controlRewind(true);
+                return false;
+            }
+        }
+
+        /*
+        document.body.onkeypress = function (e) {
+            if (e.keyCode == 32) {
+                var player = videojs('example-video');
+                if (!player.paused()) {
+                    player.pause();
+                } else {
+                    player.play();
+                }
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }
+        */
+    }
+
+    function closeDivTiming() {
+        var videoJSTiming = new VideoJSTiming();
+        videoJSTiming.divTimingControl(false);
+    }
+    function changeTimecode(value) {
+        var player = videojs('example-video');
+        player.currentTime(value);
+    }
+
+
+function getAllVideoSections() {
+    var player = videojs('example-video');
+
+    var form = new FormData();
+    form.append("id_of_video", "@Model.id_of_video");
+
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function () {
+        if (xmlhttp.readyState == XMLHttpRequest.DONE) {   // XMLHttpRequest.DONE == 4
+            if (xmlhttp.status == 200) {
+                var html = JSON.parse(xmlhttp.response);
+
+                var videoJSTiming = new VideoJSTiming();
+                videoJSTiming.bulidBtnTiming(player);
+                videoJSTiming.buildTiming(player, "@Model.name", html);
+
+                videoJSTiming.buildTimingMobile(document.getElementById("divTimingMobileCollapse"), html);
+            }
+        }
+    };
+    xmlhttp.open("POST", "/api/videosection/get", true);
+    xmlhttp.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+    xmlhttp.send(form);
+
+}
+</script>
+
+
+<script>
+    var lastCurrentTime = 0;
+    var updatingCurrentTime = false;
+    player.on('timeupdate', function () {
+        if (Math.abs(lastCurrentTime - parseInt(player.currentTime(), 10)) > 5) {
+            lastCurrentTime = parseInt(player.currentTime(), 10);
+            console.log('the time was updated to: ' + lastCurrentTime);
+            if (!updatingCurrentTime) updateObserverLessonUser();
+        }
+    });
+
+    function updateObserverLessonUser() {
+        updatingCurrentTime = true;
+        var player = videojs('example-video');
+
+        var form = new FormData();
+        form.append("id_of_lesson", "@Model.id");
+        form.append("currentTime", lastCurrentTime);
+        form.append("length", parseInt(player.duration(), 10));
+
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == XMLHttpRequest.DONE) {   // XMLHttpRequest.DONE == 4
+                if (xmlhttp.status == 200) {
+                    updatingCurrentTime = false;
+                }
+            }
+        };
+        xmlhttp.append
+        xmlhttp.open("POST", "/api/observer_lesson_user/update", true);
+        xmlhttp.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+        xmlhttp.send(form);
+    }
+</script>
+
+
+
+
+<script src="~/js/viewmodel/PreviewVideo1.js"></script>
+<script src="~/js/factory/PreviewVideo1Factory.js"></script>

@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<AmoCRMXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <status>true</status>
+  <expires_in>86400</expires_in>
+  <access_token>XXXXXXXXXXX</access_token>
+  <refresh_token>XXXXXXXXXXX</refresh_token>
+  <date_of_set_str>1630250842</date_of_set_str>
+</AmoCRMXML>

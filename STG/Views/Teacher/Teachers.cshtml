@@ -1,0 +1,123 @@
+﻿@using STG.ViewModels.TeacherViewModel;
+@model ListTeacherLiteViewModels;
+
+@{
+    ViewData["Title"] = "Преподаватели | STG";
+    @using Microsoft.AspNetCore.Antiforgery
+    @inject IAntiforgery antiforgery
+    var tokenSet = antiforgery.GetAndStoreTokens(Context);
+}
+
+
+<div class="container">
+    <div class="row teachers">
+
+        <div class="col-1 d-none d-md-block"></div>
+        <div class="col-12 col-lg-10 col-md-10 col-sm-12 row">
+            @foreach (TeacherPreviewViewModel teacher in Model.teachers)
+            {
+
+                <div class="col-12 col-lg-4 col-md-6 col-sm-6 teacher">
+                    <div class="block" onclick="teacherGetModal(@teacher.id)">
+                        <!--<div class="bgd-light"></div>-->
+                        <img src="@teacher.posterSrc" class="img-fluid" />
+                        <p class="name">
+                            @teacher.name
+                        </p>
+                    </div>
+                </div>
+            }
+
+        </div>
+
+    </div>
+</div>
+
+
+
+<script>
+
+function teacherGetModal(id) {
+    var form = new FormData();
+    form.append("id", id);
+
+    $.ajax({
+        method: 'POST',
+        type: "POST",
+        url: "/api/teacher/get_modal",
+        data: form,
+        cashe: false,
+        processData: false,
+        contentType: false,
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+        },
+        error: function () {
+            alert("Ошибка соединения с сервером");
+        },
+        success: function (html) {
+
+            if (html["status"] == "success") {
+                var teacherModal = html["teacherModal"];
+                var modal = document.getElementById("modalTeacher").getElementsByClassName("modal-body")[0];
+                modal.getElementsByTagName("img")[0].src = teacherModal["posterSrc"];
+                modal.getElementsByClassName("teacher-name")[0].innerHTML = "";
+                if (teacherModal["instagram"] != null && typeof (teacherModal["instagram"]) != "undefined") {
+                    var aInst = document.createElement("a"); aInst.target = "_blank";
+                    aInst.href = teacherModal["instagram"];
+                    var imgInst = document.createElement("img");
+                    imgInst.className = "img-fluid";
+                    imgInst.src = "/images/instagram_logo.svg";
+                    aInst.appendChild(imgInst);
+                    modal.getElementsByClassName("teacher-name")[0].appendChild(aInst);
+                }
+                modal.getElementsByClassName("teacher-name")[0].innerHTML += teacherModal["name"];
+                modal.getElementsByClassName("description")[0].innerHTML = teacherModal["description"];
+
+                const lessonsDiv = document.getElementById("modal-teacher-lessons");
+                lessonsDiv.innerHTML = "";
+                const lessons = teacherModal["lessons"];
+                if (lessons.length == 0) {
+                    document.getElementById("modal-teacher-info").className = "col-12";
+                } else {
+                    document.getElementById("modal-teacher-info").className = "col-12 col-lg-6 col-md-6 col-sm-12";
+                }
+                const previewVideo1Factory = new PreviewVideo1Factory();
+                var contentHtml;
+                for (var i = 0; i < lessons.length; i++) {
+                    contentHtml = document.createElement("div");
+                    contentHtml.className = "col-12";
+                    contentHtml.appendChild(
+                        previewVideo1Factory.createAndGetHtml(
+                            lessons[i]["id"],
+                            lessons[i]["shortName"],
+                            lessons[i]["teacherName"],
+                            lessons[i]["styleName"],
+                            lessons[i]["video"],
+                            lessons[i]["lessonTypeName"],
+                            lessons[i]["levelName"],
+                            lessons[i]["active"],
+                            lessons[i]["posterSrc"],
+                            lessons[i]["teaserSrc"]
+                        )
+                    );
+                    lessonsDiv.appendChild(contentHtml);
+                }
+
+
+                $("#modalTeacher").modal();
+            } else {
+                alert("Извините, неизвестная ошибка на сервере");
+            }
+        }
+    });
+}
+</script>
+
+@{await Html.RenderPartialAsync("_modalTeacherPartial"); }
+
+
+
+
+<script src="~/js/viewmodel/PreviewVideo1.js"></script>
+<script src="~/js/factory/PreviewVideo1Factory.js"></script>

@@ -1,0 +1,309 @@
+﻿@*
+
+*@
+@using STG.ViewModels;
+@model FirstViewModel;
+
+@{
+    @using Microsoft.AspNetCore.Antiforgery
+    @inject IAntiforgery antiforgery
+    var tokenSet = antiforgery.GetAndStoreTokens(Context);
+    int first_id_of_subscription = 0;
+}
+
+
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="modalFreeAccess" tabindex="-1" role="dialog" aria-labelledby="modalFreeAccessLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content modalRegistration">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalFreeAccessLabel">
+                    @(Context.User.Identity.IsAuthenticated ? "Покупка подписки" : "Регистрация")
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <img src="~/images/close.png" class="img-fluid" />
+                </button>
+            </div>
+            <div class="modal-body">
+
+
+                <form action="#" autocomplete="off">
+                    @if (!Context.User.Identity.IsAuthenticated)
+                    {
+
+                        <div class="form-group">
+                            <label>Личная информация</label>
+                            <input type="text" class="form-control" placeholder="Ваше имя" name="firstname" id="firstname_mfa" onkeypress="removeNotFilledModalFreeAccess(this)" />
+                            <input type="text" class="form-control" placeholder="Ваша фамилия" name="secondname" id="secondname_mfa" onkeypress="removeNotFilledModalFreeAccess(this)" />
+                            <input type="text" class="form-control" placeholder="Электронная почта" name="username" id="username_mfa" onkeypress="removeNotFilledModalFreeAccess(this)" />
+
+                            <select class="form-control" name="id_of_region" id="id_of_region_mfa" onchange="removeNotFilledModalFreeAccess(this)">
+                                <option value="0">Регион</option>
+                                @foreach (var region in Model.regionEnum)
+                                {
+                                    <option value="@region.id">@region.name</option>
+                                }
+                            </select>
+                            <input type="text" class="form-control" placeholder="Ссылка на ваш instagram" name="instagram" id="instagram_mfa" onkeypress="removeNotFilledModalFreeAccess(this)" />
+                        </div>
+
+                        <div class="form-group">
+                            <label>Дата рождения</label>
+                            <input type="date" class="form-control" placeholder="Дата рождения" name="date_of_birthday" id="date_of_birthday_mfa" onkeypress="removeNotFilledModalFreeAccess(this)" />
+
+                        </div>
+
+                        <div class="form-group">
+                            <input type="password" class="form-control" placeholder="Придумайте пароль" name="password" id="password_mfa" onkeypress="removeNotFilledModalFreeAccess(this)" />
+                        </div>
+
+                        <div class="form-group">
+                            <input type="password" class="form-control" placeholder="Подтвердить пароль" name="password_again" id="password_again_mfa" onkeypress="removeNotFilledModalFreeAccess(this)" />
+                        </div>
+                    }
+
+                    <div class="row">
+
+                        <div class="col-12 row abonement-info @(Context.User.Identity.IsAuthenticated ? "divHide" : "")" onclick="change_prolongation(0, 0)">
+                            <div class="col-12">
+                                Без оплаты подписки
+                            </div>
+                        </div>
+
+                        @for (int key = 0; key < Model.subscriptions.Count; key++)
+                        {
+
+                            @if (key == 0) { first_id_of_subscription = Model.subscriptions[key].id; }
+
+                            <div class="col-12 row abonement-info @(key == 0 ? " active" : "")" onclick="change_prolongation(@(key + 1), @Model.subscriptions[key].id)">
+                                <div class="col-8">
+                                    @Model.subscriptions[key].name
+                                </div>
+                                <div class="col-4">
+                                    <p>@Model.subscriptions[key].price руб.</p>
+                                </div>
+                            </div>
+
+                        }
+                    </div>
+
+                    <div class="form-check prolongation-div">
+                        <input class="form-check-input" type="checkbox" value="" id="prolongation_mfa" checked />
+                        <label class="form-check-label" for="prolongation_mfa">
+                            Автопродление
+                        </label>
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="privacy_mfa" onchange="enableFormModalFreeAccess()" />
+                        <label class="form-check-label" for="privacy_mfa">
+                            Я принимаю <a href="/privacy" target="_blank">политику конфиденциальности</a>
+                        </label>
+                    </div>
+
+
+                    <script>
+                    var ID_OF_SUBSCRIPTION = @first_id_of_subscription;
+                    function change_prolongation(value, id_of_subscription) {
+                        var els = document.getElementById("modalFreeAccess").getElementsByClassName("abonement-info");
+                        for (var i = 0; i < els.length; i++) {
+                            els[i].classList.remove("active");
+                        }
+                        ID_OF_SUBSCRIPTION = id_of_subscription;
+                        document.getElementsByClassName("abonement-info")[value].classList.add("active");
+                        var btnModalFreeAccess = document.getElementById("modalFreeAccess").getElementsByTagName("button")[1];
+                        if (ID_OF_SUBSCRIPTION == 0) {
+                            btnModalFreeAccess.innerHTML = "Зарегистрироваться";
+                        } else {
+                            btnModalFreeAccess.innerHTML = "Оплатить";
+                        }
+                        }
+
+
+                        function registrationFreeAccessNotAuth(btn) {
+
+                            var form = new FormData(document.getElementById("modalFreeAccess").getElementsByTagName("form")[0]);
+
+                            var inputs = document.getElementById("modalFreeAccess").getElementsByTagName("form")[0].getElementsByTagName("input");
+                            for (let i = 0; i < inputs.length; i++) {
+                                inputs[i].classList.remove("not_filled");
+                            }
+                            clearWarning();
+
+                            btnDisabledModalFreeAccess(btn, true);
+
+                            if (form.get("firstname") == "") {
+                                makeWarningModalFreeAccess("Не указано имя");
+                                makeInputNotFilled("firstname");
+                                btnDisabledModalFreeAccess(btn, false);
+                                return;
+                            }
+                            if (form.get("secondname") == "") {
+                                makeWarningModalFreeAccess("Не указана фамилия");
+                                makeInputNotFilled("secondname");
+                                btnDisabledModalFreeAccess(btn, false);
+                                return;
+                            }
+                            if (form.get("username") == "") {
+                                makeWarningModalFreeAccess("Не указана электронная почта");
+                                makeInputNotFilled("username");
+                                btnDisabledModalFreeAccess(btn, false);
+                                return;
+                            }
+                            if (!isValidateEmail(form.get("username"))) {
+                                makeWarningModalFreeAccess("Электронная почта введена некорректно");
+                                makeInputNotFilled("username");
+                                btnDisabledModalFreeAccess(btn, false);
+                                return;
+                            }
+                            if (form.get("date_of_birthday") != "" && !isValidDate(form.get("date_of_birthday"))) {
+                                makeWarningModalFreeAccess("Введена некоррентная дата рождения");
+                                makeInputNotFilled("date_of_birthday");
+                                btnDisabledModalFreeAccess(btn, false);
+                                return;
+                            }
+                            if (form.get("id_of_region") == 0) {
+                                makeWarningModalFreeAccess("Не указан регион");
+                                makeInputNotFilled("id_of_region");
+                                btnDisabledModalFreeAccess(btn, false);
+                                return;
+                            }
+                            if (form.get("password") == "") {
+                                makeWarningModalFreeAccess("Не указан пароль");
+                                makeInputNotFilled("password");
+                                btnDisabledModalFreeAccess(btn, false);
+                                return;
+                            }
+                            if (form.get("password_again") == "") {
+                                makeWarningModalFreeAccess("Не указан пароль еще раз");
+                                makeInputNotFilled("password_again");
+                                btnDisabledModalFreeAccess(btn, false);
+                                return;
+                            }
+                            if (form.get("password_again") != form.get("password")) {
+                                makeWarningModalFreeAccess("Пароли не совпадают");
+                                makeInputNotFilled("password_again");
+                                btnDisabledModalFreeAccess(btn, false);
+                                return;
+                            }
+
+
+                            $.ajax({
+                                method: 'POST',
+                                type: "POST",
+                                url: "/api/user/registration",
+                                data: form,
+                                cashe: false,
+                                processData: false,
+                                contentType: false,
+                                beforeSend: function (xhr) {
+                                    xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+                                },
+                                error: function () {
+                                    makeWarningModalFreeAccess("Ошибка соединения с сервером");
+                                    btnDisabledModalFreeAccess(btn, false);
+                                },
+                                success: function (html) {
+
+                                    if (html["status"] == "success") {
+                                        if (ID_OF_SUBSCRIPTION == 0) {
+                                            window.location.href = "/lessons";
+                                        } else {
+                                            buy(btn);
+                                        }
+                                    } else if (html["status"] == "error" && html["errors"] == "username_already_exist") {
+                                        makeWarningModalFreeAccess("Указанный email уже зарегистрирован в базе");
+                                    } else if (html["status"] == "error" && html["errors"] == "no_data") {
+                                        makeWarningModalFreeAccess("Извините, произошла ошибка на сервере");
+                                    } else {
+                                        makeWarningModalFreeAccess("Извините, неизвестная ошибка на сервере");
+                                    }
+                                    btnDisabledModalFreeAccess(btn, false);
+                                }
+                            });
+                        }
+
+
+                        function buy(btn) {
+
+                            var form = new FormData(document.getElementById("modalFreeAccess").getElementsByTagName("form")[0]);
+                            var is_prolongation = (document.getElementById("prolongation_mfa").checked ? 1 : 0);
+
+                            form.append("is_prolongation", is_prolongation);
+                            form.append("id_of_subscription", ID_OF_SUBSCRIPTION);
+                            $.ajax({
+                                method: 'POST',
+                                type: "POST",
+                                url:  "/api/payment/new",
+                                data: form,
+                                cashe: false,
+                                processData: false,
+                                contentType: false,
+                                beforeSend: function (xhr) {
+                                    xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+                                },
+                                error:function(){
+                                    alert("Ошибка соединения с сервером");
+                                    btnDisabledModalFreeAccess(btn, false);
+                                },
+                                success: function(html)
+                                {
+                                    if (html["status"] == "success") {
+                                        if (html["payment"]["status"] == true && html["payment"]["paymentURL"] != null && typeof (html["payment"]["paymentURL"]) != "undefined") {
+                                            window.location.href = html["payment"]["paymentURL"];
+                                        } else {
+                                            alert("Извините, на сервере произошла ошибка связи с банком");
+                                            btnDisabledModalFreeAccess(btn, false);
+                                        }
+                                    }  else {
+                                        alert("Извините, на сервере произошла неизвестная ошибка");
+                                        btnDisabledModalFreeAccess(btn, false);
+                                    }
+                                }
+                            });
+                        }
+
+
+
+                        function clearWarningModalFreeAccess() {
+                            document.getElementById("modalFreeAccess").getElementsByClassName("warning")[0].innerHTML = "";
+                        }
+                        function makeWarningModalFreeAccess(value) {
+                            document.getElementById("modalFreeAccess").getElementsByClassName("warning")[0].innerHTML = value;
+                        }
+                        function makeInputNotFilled(name) {
+                            document.getElementById(name + "_mfa").classList.add("not_filled");
+                        }
+                        function btnDisabledModalFreeAccess(btn, v) {
+                            v ? btn.disabled = true : btn.disabled = false;
+                        }
+                        function removeNotFilledModalFreeAccess(el) {
+                            el.classList.remove("not_filled");
+                            clearWarningModalFreeAccess();
+                        }
+                        function enableFormModalFreeAccess() {
+                            var btn = document.getElementById("modalFreeAccess").getElementsByTagName("button")[1];
+                            if (document.getElementById("privacy_mfa").checked) {
+                                btn.disabled = false;
+                            } else {
+                                btn.disabled = true;
+                            }
+                        }
+                    </script>
+
+                </form>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" onclick="@(Context.User.Identity.IsAuthenticated ? "buy(this)" : "registrationFreeAccessNotAuth(this)")" disabled >
+                    Оплатить
+                </button>
+                <p class="warning"></p>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,678 @@
+@media (max-width:641px) {
+
+    .video-js .vjs-big-play-button {
+        top: -10% !important;
+        left: -10% !important;
+    }
+
+
+    .section1 {
+        text-align: center;
+        height: auto;
+    }
+    .section1 h5 {
+        text-align: center;
+    }
+    .section1 .preframe {
+        margin: 25px 0;
+    }
+    .section1 .icons {
+        margin-top: 0;
+    }
+    .section3 {
+        padding-top: 1vh !important;
+    }
+    .section6 .custom {
+        display:none;
+    }
+    .section7 h3 {
+        font-size: 14px;
+        text-shadow: 0px 0px 30px rgb(0 255 240 / 71%);
+        margin-bottom: 8px;
+        margin-top: 0;
+    }
+
+    .section7 p {
+        font-size: 10px;
+        margin-bottom: 20px;
+    }
+
+    .footer .footer-menu ul {
+        margin-top: 35px;
+    }
+    .footer .footer-menu {
+        margin-top: 35px;
+    }
+
+
+
+
+    .lesson .divTimingMobile {
+        font-size:12px;
+    }
+    .lesson .divForBtnTeaser {
+        text-align:center;
+    }
+    .lesson .control-mobile.rewind .btn {
+        width: 100%;
+    }
+    .lesson .control-mobile.rewind .backward {
+        padding-left:10px;
+    }
+    .lesson .control-mobile.rewind .forward {
+        padding-right: 10px;
+    }
+
+
+
+    .package .lessons .package-day p.lesson-stats.first {
+        margin-top: 10px;
+    }
+    .package .package-day .package-day-number {
+        position: static;
+        text-align: center;
+    }
+    .package .lessons h3 {
+        font-size: 20px;
+    }
+    .package .lessons .statistic {
+        font-size: 14px;
+    }
+
+}
+
+
+@media (max-width: 768px) {
+
+    body {
+        background-image: url(images/background_repeat_mobile.png);
+    }
+
+    .not-found {
+        font-size: 12px;
+    }
+    .modal-md-fullwidth {
+        max-width:100%;
+    }
+    .video-js .vjs-big-play-button {
+        margin-left: 40%;
+    }
+
+
+    .header .btn-sign-in {
+        font-weight: 700;
+        margin: 10px 4px 4px 10px;
+        font-size: 8px;
+    }
+
+    .header .right .avatar {
+        margin: 8px;
+        max-height: 40px;
+    }
+
+    .header .social {
+        display: none;
+    }
+    .header.relative, .header.static {
+        margin-bottom: -50px;
+    }
+
+    .h-title {
+        font-size:18px;
+    }
+
+    .first-header {
+        margin: 25px 0 50px 0;
+    }
+
+
+
+    .section1 {
+        height: auto;
+    }
+
+        .section1 .preframe {
+            height: fit-content;
+        }
+
+        .section1 h5 {
+            margin-top: 8%;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .section1 p {
+            text-align: center;
+        }
+
+        .section1 .btn-section {
+            font-size: 12px;
+            padding: 4px 18px;
+        }
+        .section1 .preframe .big_light {
+            display: none;
+        }
+        .section1 .preframe img.pc {
+            display:none;
+        }
+        .section1 .div-pc {
+            display:none;
+        }
+        .section1 iframe {
+            margin: 0;
+            width: 100%;
+        }
+        .section1 .preblock {
+            margin-top: 20px;
+        }
+        .section1 .preblock .block p {
+            text-align: center;
+            font-size: 12px;
+            margin-top:20px;
+        }
+        .section1 .preblock.widthless .block p {
+            margin-left: 0;
+        }
+
+
+
+
+
+
+    .login .block {
+        margin: 12px;
+        padding: 12px;
+    }
+
+
+
+
+
+    .section2 {
+        margin-top: 0;
+    }
+
+    .section2 .block {
+        margin-top: 0;
+        padding: 12px;
+    }
+
+    .section2 .preblock {
+        margin-bottom: 35px;
+        min-height:260px;
+    }
+
+    .section2 .block img.section2_img {
+        max-height: 78px;
+    }
+
+    .section2 .block p {
+        font-size: 13px;
+    }
+
+
+
+    .first-header {
+        font-size: 19px;
+        text-shadow: 0px 0px 30px rgba(0, 255, 240, 0.71);
+    }
+
+    .section-header {
+        font-size: 19px;
+        text-shadow: 0px 0px 30px rgba(0, 255, 240, 0.71);
+    }
+
+    .section3 {
+        padding-top: 2vh !important;
+    }
+
+        .section3 img {
+            max-height: 200px;
+        }
+
+        .section3 .remaining-teachers-count p {
+            text-align: right;
+            margin-right: 24px;
+            font-size: 12px;
+            text-shadow: 0px 0px 30px rgba(0, 255, 240, 0.71);
+        }
+
+    .section3 .teacher img, .teachers .teacher img {
+
+    }
+
+
+    .section4 .curator .block.poster {
+        padding-bottom:25px;
+    }
+    .section4 .curator p {
+        font-size:12px;
+    }
+
+    .section4 .curator h6 {
+        font-family: "Montserrat";
+        font-size: 14px;
+    }
+    .section4 .curator .block.poster {
+        width:100%;
+    }
+    .section4 .curator .block.desc {
+        padding-top:10px;
+    }
+
+
+
+    .section5 {
+        padding-top: 3vh !important;
+        margin-bottom: 12vh !important;
+    }
+
+        .section5 h3 {
+            font-size: 19px;
+            margin-bottom: 50px;
+            text-shadow: 0px 0px 30px rgba(0, 255, 240, 0.71);
+        }
+
+        .section5 .left-separator {
+            padding-right: 15px;
+            border-right: none;
+            margin-bottom: 50px;
+        }
+
+        .section5 h5 {
+            font-size: 18px;
+        }
+
+        .section5 .block .pre-image {
+            height: auto;
+            border: none;
+        }
+
+        .section5 .block p, .section5 .block ul {
+            font-size: 14px;
+        }
+
+
+        .section5 .block .pre-image img {
+            margin-bottom:5%;
+        }
+
+
+        .section5 .right-separator {
+            padding-left: 15px;
+        }
+
+        .section5 .choose .btn {
+            font-size: 11px;
+        }
+
+
+
+
+
+
+    .section6 {
+        padding-top: 4vh !important;
+    }
+
+        .section6 img {
+            margin-bottom: 15px;
+        }
+
+        .section6 .pre-block {
+            padding: 15px;
+        }
+
+        .section6 ul {
+            font-size: 14px;
+        }
+        .section6 .custom {
+
+        }
+        .section6 p.custom {
+            font-size: 12px;
+            margin-bottom: 0;
+        }
+        .section6 .custom.custom-top-corner {
+            height: 25px;
+            width: 23px;
+            left: 74%;
+        }
+        .section6 .custom.custom-left-1 {
+            margin-top: 20%;
+        }
+        .section6 .custom.custom-left-1-line {
+            right: -9%;
+        }
+        .section6 .custom.custom-left-2 {
+            margin-top: 15%;
+            text-align: right;
+        }
+        .section6 .custom.custom-left-2-line {
+            right: -9%;
+        }
+        .section6 .custom.custom-left-3 {
+            margin-top: 15%;
+        }
+        .section6 .custom.custom-left-3-line {
+            right: -9%;
+        }
+        .section6 .custom.custom-bottom-corner {
+            height: 36px;
+            width: 28px;
+            left: 79%;
+        }
+        .section6 .custom.custom-right-1 {
+            margin-top: 30%;
+        }
+        .section6 .custom.custom-right-1-line {
+            left: -8%;
+        }
+        .section6 .custom.custom-right-2-line {
+            left: -8%;
+        }
+        .section6 .custom.custom-bottom-corner2 {
+            height: 28px;
+        }
+
+
+
+
+    .section7 {
+        padding: 100px 0 30px 0;
+    }
+    .section7 h3 {
+        font-size: 20px;
+        text-shadow: 0px 0px 30px rgb(0 255 240 / 71%);
+        margin-bottom:15px;
+        margin-top:35px;
+    }
+
+    .section7 p {
+        font-size: 16px;
+        margin-bottom:20px;
+    }
+
+
+    .footer {
+        margin-top:50px;
+        padding-top: 30px;
+    }
+    .footer .footer-menu {
+        float:none;
+    }
+    .footer .footer-menu ul {
+        margin-top:0;
+    }
+    .footer .footer-menu ul li {
+        float:none;
+        margin-left:0;
+        margin-top:15px;
+    }
+    .footer p.telephone {
+        position: inherit;
+        text-align:left;
+        margin-left:15px;
+        font-size:14px;
+        margin-bottom:0;
+        margin-top:11px;
+    }
+    .footer p.copyright {
+        font-size:16px;
+    }
+
+
+    .modalRegistration .abonement-info {
+        font-size: 12px;
+    }
+    .modal h5 {
+        font-size: 14px;
+    }
+    .modalRegistration label {
+        font-size: 12px;
+    }
+    .modalExcluziveAccess, .modalRegistration {
+        padding:0;
+    }
+    .modalExcluziveAccess .block {
+        margin-bottom:25px;
+    }
+    .modal .btn {
+        font-size:11px;
+    }
+    .modalExcluziveAccess .btn {
+        font-family: "Montserrat-Bold";
+    }
+
+    #modalExcluziveAccess .modal-lg {
+        max-width: 100% !important;
+    }
+    .modalExcluziveAccess h3 {
+        font-size: 16px;
+    }
+
+    .modalExcluziveAccess ul {
+        font-size: 12px;
+    }
+    .modal-content.modalExcluziveError {
+        margin-left: 0;
+    }
+    .modalNotAvailableLessonTeaser .modal-body p {
+        font-size: 12px;
+    }
+
+    .homework-files-for-uploads p {
+        font-size:12px;
+    }
+
+
+
+
+    .main {
+        margin-top: 70px;
+    }
+
+
+    .filter {
+        font-size:12px;
+    }
+    .filter li {
+        padding:4px 10px;
+    }
+    .filter li.filterLevel0 {
+        padding:4px 5px;
+    }
+
+
+
+
+
+    .lesson {
+        padding:0;
+    }
+    .lesson-description .btn {
+        font-size: 10px;
+        margin-bottom: 24px;
+    }
+    .lesson-description {
+        margin-top: 30px;
+    }
+    .lesson-description p {
+        font-size:12px;
+        margin-bottom: 12px;
+        margin-top:4px;
+    }
+    .lesson-description h4 {
+        font-size:16px;
+    }
+    .lesson .other-lessons h2 {
+        margin-bottom: 20px;
+        font-size: 20px;
+    }
+
+
+    .vjs-has-started .vjs_name {
+        display: none !important;
+    }
+    .btn_open_timing.active {
+        display: none !important;
+    }
+    .vjs-has-started .html-classname {
+        display: none !important;
+    }
+    .vjs-user-inactive .html-classname, .vjs-user-inactive .vjs_name {
+        display: none !important;
+    }
+    .video-test .vjs-fullscreen-control.vjs-control.vjs-button {
+        display: block !important;
+    }
+
+
+
+
+
+
+
+
+    .package-info {
+        margin-bottom:25px;
+    }
+    .package .title {
+        margin: 0 0 12px 0;
+        font-size: 14px;
+    }
+    .package .package-info .description {
+        padding: 15px;
+    }
+    .package .package-info .description .short-info-stats {
+        font-size: 10px;
+    }
+    .package .package-info .description .short-info-tariff {
+        font-size: 10px;
+        margin-bottom: 12px;
+    }
+    .package .package-info .btn-start .btn {
+        font-size: 11px;
+        margin-right: 10px;
+        margin-bottom: 10px;
+    }
+    .package .package-mentor .poster {
+        width:100%;
+        float:none;
+    }
+    .package .package-mentor .poster img {
+        max-height: 120px;
+    }
+    .package .package-mentor .poster h4 {
+        font-size: 14px;
+        margin-top: 10px;
+    }
+    .package .package-mentor h4 {
+        font-size: 14px;
+    }
+    .package .package-mentor .description {
+        font-size: 12px;
+    }
+
+
+    .package .lessons {
+        margin-top: 25px;
+    }
+    .package .lessons h3 {
+        margin: 20px 0 20px 0;
+    }
+    .package .lessons p.lesson-stats {
+        font-size: 12px;
+    }
+    .package .lessons p.lesson-stats .btn {
+        margin-top:4px;
+    }
+    .package .package-day {
+        margin-right: 0;
+        margin-bottom:20px;
+    }
+    .package .package-day.left {
+        margin-right: 0;
+    }
+    .package .package-day.right {
+        margin-left:0;
+    }
+    .package .package-day {
+        margin-left:0;
+        margin-right: 0;
+    }
+    .package .package-day .package-day-number {
+        font-size: 16px;
+    }
+    .package .lessons .statistic {
+        margin-bottom: 30px;
+    }
+    .package .lessons .package-day p.lesson-stats.first {
+        font-size: 12px;
+    }
+    .package .lessons .package-day p.lesson-stats {
+        margin-bottom: 4px;
+    }
+    .package .lessons .preview_video_1 {
+        margin:12px 0;
+    }
+    .package .lessons .preview_video_1 .name {
+        font-size: 12px;
+    }
+    .package .lessons .preview_video_1 .description {
+        font-size: 10px;
+    }
+    .preview_video_1 .preview-video-title {
+        font-size:30px;
+    }
+    .preview_video_1 .preview-video-title.short {
+        font-size: 20px;
+    }
+    .preview_video_1 .preview-video-title.short.shorter {
+        font-size: 16px;
+    }
+
+
+    .widget-chat {
+        right: 10px;
+        bottom: 10px;
+        width: 95%;
+    }
+    .widget-chat-body {
+
+    }
+
+
+
+    .package-chat .row {
+        padding: 8px 0;
+    }
+    .package-passing-lessons .package-day h4 {
+        font-size:16px;
+    }
+    .package-passing-lessons .package-day h5 {
+        font-size: 14px;
+    }
+    .package-passing-lessons .package-day p {
+        font-size: 12px;
+    }
+    .package-passing-lessons .package-day .package-lesson .user-answer-block, .package-passing-lessons .package-day .package-lesson .admin-answer-block {
+        font-size: 12px;
+    }
+
+
+
+
+    .payment-new .block h5 {
+        font-size:14px;
+    }
+    .payment-new .block .abonement-info, .payment-new .block .lesson-price-info {
+        font-size: 10px;
+    }
+    .payment-new .block label {
+        font-size: 10px;
+    }
+    .payment-new form .btn {
+        font-size: 11px;
+    }
+}

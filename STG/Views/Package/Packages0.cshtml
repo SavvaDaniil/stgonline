@@ -1,0 +1,126 @@
+﻿@using STG.ViewModels.Package;
+@model ListPackagePreviewViewModel;
+
+
+@{
+    ViewData["Title"] = "Мои программы | STG";
+    @using Microsoft.AspNetCore.Antiforgery;
+    @inject IAntiforgery antiforgery
+    var tokenSet = antiforgery.GetAndStoreTokens(Context);
+}
+
+
+<div class="col-1 d-none d-md-block"></div>
+<div class="col-12 col-lg-10 col-md-10 col-sm-12 packages" style="padding:0;">
+
+    <div class="row" id="divListPackages">
+
+        @if (Model.packages.Count() == 0)
+        {
+            <div class="col-12 not-found">
+                - подключенных программ не найдено -
+            </div>
+        }
+
+
+        @foreach (PackagePreviewViewModel package in Model.packages)
+        {
+
+            <div class="col-12 col-lg-4 col-md-4 col-sm-6">
+                <a href="/package/@package.id">
+                    <div class="preview_block">
+
+
+                        <div class="video-container"
+                             onmouseover=@(package.teaserSrc != null ? "control_video(@package.id , 1)" : "")
+                             onmouseout=@(package.teaserSrc != null ? "control_video(@package.id , 0)" : "")>
+
+                            @if (package.teaserSrc != null)
+                            {
+                                <video id="preview@package.id" width="300px" height="300px" muted preload="none" poster="@package.posterSrc">
+                                    <source src="@package.teaserSrc" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
+                                </video>
+
+                            }
+
+                            <div class="left mouse_out" id="mouse_out@package.id">
+
+                                @if (package.levelName != null)
+                                {
+                                    <!--
+                                    <div class="level @package.levelName">
+                                        @package.levelName
+                                    </div>
+                                        -->
+
+                                }
+
+
+                                <div class="lock single">
+                                    @if (package.active == 0)
+                                    {
+                                        <i class="fa fa-lock" aria-hidden="true"></i>
+                                    }
+                                </div>
+
+                                <div class="description">
+                                    <div class="name">
+                                        @package.name
+                                    </div>
+
+
+
+
+                                    @if (package.teacherName != null)
+                                    {
+
+                                        <p>Наставник: <span>@package.teacherName</span></p>
+
+                                    }
+
+
+
+                                    @if (package.lessonsCount != 0)
+                                    {
+
+                                        <p>Количество уроков: <span>@package.lessonsCount</span></p>
+
+                                    }
+
+
+                                </div>
+                            </div>
+
+                            <div class="left mouse_over" id="mouse_over@package.id">
+                                <div class="play">
+                                    <i class="fa fa-lock" aria-hidden="true"></i> Play
+                                </div>
+                                <div class="icon-control first">
+                                    <a href="#" title="В избранное">
+                                        <i class="fa fa-heart-o" aria-hidden="true"></i>
+                                    </a>
+                                </div>
+
+                                <div class="icon-control">
+                                    <a href="#" title="Включить звук" id="volumeOff_@package.id"
+                                       onclick="videoControlSound(@package.id, 1)">
+                                        <i class="fa fa-volume-off" aria-hidden="true"></i>
+                                    </a>
+                                    <a href="#" title="Выключить звук" id="volumeOn_@package.id"
+                                       onclick="videoControlSound(@package.id, 0)" class="hide">
+                                        <i class="fa fa-volume-up" aria-hidden="true"></i>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <img src="@package.posterSrc" class="img-fluid" />
+
+
+                        </div>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+
+</div>

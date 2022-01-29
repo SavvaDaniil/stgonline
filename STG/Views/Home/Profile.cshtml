@@ -1,0 +1,153 @@
+﻿@using STG.ViewModels;
+
+@model UserProfileViewModel;
+
+@{
+    ViewData["Title"] = "Мой аккаунт";
+    @using Microsoft.AspNetCore.Antiforgery
+    @inject IAntiforgery antiforgery
+    var tokenSet = antiforgery.GetAndStoreTokens(Context);
+}
+
+
+<div class="col-1 d-none d-md-block"></div>
+<div class="col-12 col-lg-6 col-md-6 col-sm-12 profile">
+    <h2 class="h-title">Мой аккаунт</h2>
+
+    <form id="userForm">
+        <div class="form-group">
+            <label for="username">Логин/электронная почта</label>
+            <input type="email" class="form-control" value="@Model.username" id="username" name="username"
+                   placeholder="Логин/электронная почта" onkeypress="removeNotFilled(this)" />
+        </div>
+
+        <div class="form-group">
+            <label for="firstname">Имя</label>
+            <input type="text" class="form-control" value="@Model.firstname" id="firstname" name="firstname" placeholder="Имя" onkeypress="removeNotFilled(this)" />
+        </div>
+
+        <div class="form-group">
+            <label for="secondname">Фамилия</label>
+            <input type="text" class="form-control" value="@Model.secondname" id="secondname" name="secondname" placeholder="Фамилия" onkeypress="removeNotFilled(this)" />
+        </div>
+
+        <div class="form-group">
+            <label for="date_of_birthday">Дата рождения</label>
+            <input type="date" class="form-control" value="@Model.date_of_birthday" id="date_of_birthday" name="date_of_birthday" onkeypress="removeNotFilled(this)" />
+        </div>
+
+        <div class="form-group">
+            <label for="instagram">Ссылка на instagram</label>
+            <input type="url" class="form-control" value="@Model.instagram" id="instagram" name="instagram" placeholder="Ссылка на instagram" onkeypress="removeNotFilled(this)" />
+        </div>
+
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" name="prolongation" id="prolongation" @(Model.prolongation == 1 ? "checked" : "") />
+            <label class="form-check-label" for="prolongation">
+                <b>Автопродление подписки</b>
+            </label>
+        </div>
+
+        <hr />
+
+        <div class="form-group">
+            <label for="newPassword">Новый пароль</label>
+            <input type="password" class="form-control" id="newPassword" name="newPassword" onkeypress="removeNotFilled(this)" />
+        </div>
+        <div class="form-group">
+            <label for="newPasswordAgain">Новый пароль еще раз</label>
+            <input type="password" class="form-control" id="newPasswordAgain" name="newPasswordAgain" onkeypress="removeNotFilled(this)" />
+        </div>
+        <div class="form-group">
+            <label for="currentPassword">Текущий пароль</label>
+            <input type="password" class="form-control" id="currentPassword" name="currentPassword" onkeypress="removeNotFilled(this)" />
+        </div>
+
+        <p id="warning"></p>
+
+        <button type="button" class="btn btn-success" onclick="save(this)">
+            Сохранить
+        </button>
+
+        <script>
+            function save(btn) {
+                clearWarning();
+                btnEndabled(btn, true);
+
+                var form = new FormData(document.getElementById("userForm"));
+
+                if (document.getElementById("prolongation").checked) {
+                    form.set("prolongation", 1);
+                } else {
+                    form.set("prolongation", 0);
+                }
+
+                if (form.get("username") == "") {
+                    $("#warning").html("Не указана электронная почта");
+                    $("#username").addClass("not_filled");
+                    btnEndabled(btn, false);
+                    return;
+                }
+                if (form.get("newPassword") != "" && form.get("newPasswordAgain") != form.get("newPassword")) {
+                    $("#warning").html("Пароли не совпадают");
+                    $("#newPasswordAgain").addClass("not_filled");
+                    btnEndabled(btn, false);
+                    return;
+                }
+                if (form.get("newPassword") != "" && form.get("newPasswordAgain") == form.get("newPassword") && form.get("currentPassword") == "") {
+                    $("#warning").html("Не указан текущий пароль");
+                    $("#currentPassword").addClass("not_filled");
+                    btnEndabled(btn, false);
+                    return;
+                }
+
+
+                $.ajax({
+                    method: 'POST',
+                    type: "POST",
+                    url:  "/api/user/save",
+                    data: form,
+                    cashe: false,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+                    },
+                    error:function(){
+                        $("#warning").html("Ошибка соединения с сервером");
+                        btnEndabled(btn, false);
+                    },
+                    success: function(html)
+                    {
+                        if (html["status"] == "success") {
+                            window.location.reload();
+                        } else if (html["status"] == "error" && html["error"] == "username_already_exist") {
+                            $("#warning").html("Извините, указанная почта уже зарегистрированна в базе");
+                            btnEndabled(btn, false);
+                        } else if (html["status"] == "error" && html["error"] == "need_current_password") {
+                            $("#warning").html("Для изменения логина введите пожалуйста текущий пароль");
+                            btnEndabled(btn, false);
+                        } else if (html["status"] == "error" && html["error"] == "wrong") {
+                            $("#warning").html("Текущий пароль введен неверно");
+                            btnEndabled(btn, false);
+                        }  else {
+                            $("#warning").html("Извините, на сервере произошла неизвестная ошибка");
+                            btnEndabled(btn, false);
+                        }
+                    }
+                });
+
+            }
+            function clearWarning() {
+                $("#warning").html("");
+            }
+            function btnEndabled(btn, v) {
+                v ? btn.disabled = true : btn.disabled = false;
+            }
+            function removeNotFilled(el) {
+                el.classList.remove("not_filled");
+                clearWarning();
+            }
+        </script>
+    </form>
+</div>

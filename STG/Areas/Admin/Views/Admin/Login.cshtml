@@ -1,0 +1,94 @@
+﻿
+@{
+    Layout = "_LayoutLogin";
+    @using Microsoft.AspNetCore.Antiforgery;
+    @inject IAntiforgery antiforgery
+    var tokenSet = antiforgery.GetAndStoreTokens(Context);
+    ViewData["Title"] = "Login";
+}
+
+
+<section>
+
+    <div class="panel panel-signin">
+        <div class="panel-body">
+            <div class="logo text-center">
+                <img src="/images/logo_black.png" width="50%" alt="logo">
+            </div>
+            <br />
+            <h4 class="text-center mb5">ВХОД</h4>
+            <p class="text-center" style="color:red;" id="warning">
+
+            </p>
+
+            <div class="mb30"></div>
+
+            <form action="#" id="loginForm" method="post">
+                <div class="input-group mb15">
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                    <input type="text" name="username" class="form-control" placeholder="Username" required onkeypress="clearWarning()" />
+                </div><!-- input-group -->
+                <div class="input-group mb15">
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+                    <input type="password" name="password" class="form-control" placeholder="Password" required onkeypress="clearWarning()" />
+                </div><!-- input-group -->
+
+                <div class="clearfix">
+
+                    <div class="pull-right">
+                        <button type="button" class="btn btn-success" onclick="login(this)">Войти <i class="fa fa-angle-right ml5"></i></button>
+                    </div>
+                </div>
+            </form>
+
+            <script>
+        function login(btn){
+            var form = new FormData(document.getElementById("loginForm"));
+
+            if(form.get("username") == null || form.get("password") == ""){
+                $("#warning").html("Заполните пожалуйста оба поля");
+                return;
+            }
+
+            btnAddEndabled(btn, true);
+            $.ajax({
+                method: 'POST',
+                type: "POST",
+                url:  "/api/admin/login",
+                data: form,
+                cashe: false,
+                processData: false,
+                contentType: false,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+                },
+                error:function(){
+                    alert("Ошибка соединения с сервером");
+                    btnAddEndabled(btn, false);
+                },
+                success: function(html)
+                {
+                    if (html["status"] == "success") {
+                        window.location.reload();
+                    } else if(html["errors"] == "wrong"){
+                        $("#warning").html("Неверно введены логин или пароль");
+                    } else {
+                        $("#warning").html("Неизвестная ошибка на сервере");
+                    }
+                    btnAddEndabled(btn, false);
+                }
+            });
+        }
+        function btnAddEndabled(btn, v) {
+            v ? btn.disabled = true : btn.disabled = false;
+        }
+        function clearWarning(){
+            $("#warning").html("");
+        }
+            </script>
+
+        </div><!-- panel-body -->
+
+    </div><!-- panel -->
+
+</section>

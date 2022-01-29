@@ -1,0 +1,357 @@
+﻿@using STG.ViewModels.TeacherViewModel;
+
+@model EnumTeachersViewModel;
+
+@{
+    ViewData["Title"] = "Преподаватели";
+    @using Microsoft.AspNetCore.Antiforgery;
+    @inject IAntiforgery antiforgery
+    var tokenSet = antiforgery.GetAndStoreTokens(Context);
+}
+
+<div id="contents_prepods">
+    <div class="pageheader">
+        <div class="media">
+            <div class="pageicon pull-left">
+                <i class="fa fa-users"></i>
+            </div>
+            <div class="media-body">
+                <ul class="breadcrumb">
+                    <li><a href=""><i class="glyphicon glyphicon-users"></i></a></li>
+                    <li>Преподаватели</li>
+                </ul>
+                <h4>Преподаватели</h4>
+            </div>
+        </div><!-- media -->
+    </div><!-- pageheader -->
+
+    <br />
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+
+
+                <div class="col-md-6">
+                    <button class="btn btn-default" data-toggle="modal" data-target="#modal_add">Добавить</button>
+                </div>
+
+                <div class="modal fade" id="modal_add" tabindex="-1" role="dialog">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button aria-hidden="true" data-dismiss="modal" class="close" type="button">&times;</button>
+                                <h4 class="modal-title">Добавить нового преподавателя</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div class="panel panel-default">
+                                    <form id="formNewTeacher">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="form-group">
+                                                    <label class="col-sm-3 control-label" for="fio">ФИО <span class="asterisk">*</span></label>
+                                                    <div class="col-sm-9">
+                                                        <input type="text" maxlength="256" name="fio" class="form-control" placeholder="ФИО нового преподавателя" required id="fio_of_new_prepod" onkeypress="function_for_input_for_name_of_new_prepod();" />
+                                                        <span style="color:red;" id="warningAdd"></span>
+                                                    </div>
+                                                </div><!-- form-group -->
+                                                <div class="form-group">
+                                                    <label class="col-sm-3 control-label" for="instagram">Instagram:</label>
+                                                    <div class="col-sm-9">
+                                                        <input type="url" class="form-control" name="instagram" id="instagram_of_new_prepod" maxlength="516" />
+                                                    </div>
+                                                </div>
+                                            </div><!-- row -->
+                                        </div><!-- panel-body -->
+                                        <div class="panel-footer">
+                                            <div class="row">
+                                                <div class="col-sm-9 col-sm-offset-3">
+                                                    <button class="btn btn-primary mr5" onclick="create(this);">Создать</button>
+                                                    <button type="reset" class="btn btn-dark" onclick="clear_form_modal_of_create_new_prepod();">Сбросить</button>
+                                                    <button class="btn btn-danger mr5" id="btn_for_close_in_modal_of_create_new_prepod" data-dismiss="modal">Закрыть</button>
+                                                </div>
+                                            </div>
+                                        </div><!-- panel-footer -->
+                                    </form>
+                                </div><!-- panel -->
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+
+
+                <script>
+                    function create(btn) {
+                        var form = new FormData(document.getElementById("formNewTeacher"));
+                        btnAddEndabled(btn, true);
+                        
+                        if (form.get("fio") == "") {
+                            document.getElementById("warningAdd").innerHTML = "Поле ФИО обязательно";
+                            btnAddEndabled(btn, false);
+                        } else {
+                            $.ajax({
+                                method: 'POST',
+                                type: "POST",
+                                url:  "/api/teacher/add",
+                                data: form,
+                                cashe: false,
+                                processData: false,
+                                contentType: false,
+                                beforeSend: function (xhr) {
+                                    xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+                                },
+                                error:function(){
+                                    $("#warningAdd").html("Ошибка соединения с сервером");
+                                    btnAddEndabled(btn, false);
+                                },
+                                success: function(html)
+                                {
+                                    if (html["status"] == "success") {
+                                        location.reload();
+                                    } else {
+                                        $("#warningAdd").html("Извините, на сервере произошла неизвестная ошибка");
+                                        btnAddEndabled(btn, false);
+                                    }
+                                }
+                            });
+
+                        }
+                    }
+                    function btnAddEndabled(btn, v) {
+                        v ? btn.disabled = true : btn.disabled = false;
+                    }
+
+                    function clear_form_modal_of_create_new_prepod() {
+                        document.getElementById("fio_of_new_prepod").value = "";
+                        document.getElementById("phone_of_new_prepod").value = "";
+                        document.getElementById("warningAdd").innerHTML = "";
+
+                    }
+
+                    function function_for_input_for_name_of_new_prepod() {
+                        var fio_of_new_prepod = document.getElementById("fio_of_new_prepod").value.trim();
+                        document.getElementById("warningAdd").innerHTML = "";
+                    }
+                </script>
+
+
+                <div class="modal fade" style="padding-top:20%;" id="modal_delete" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" style="width: 50%;">
+                        <div class="modal-content">
+                            <div class="modal-header" style="background-color: #ffffff">
+                                <button class="close" type="button" data-dismiss="modal">&times;</button>
+                                <h4 align="left" class="modal-title" style="padding-left: 1em"> Вы уверены, что хотите удалить преподавателя?</h4>
+                            </div>
+                            <div class="modal-body">
+
+                                <center>
+                                    <button type="button" class="btn btn-success" data-dismiss="modal" data-target="" onclick="deleteTeacher();">Да</button>
+
+                                    <button type="button" class="btn btn-danger" data-dismiss="modal" data-target="">Нет</button>
+                                </center>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <script>
+                    var idOfTeacher = 0;
+                    function deleteTeacher() {
+                        if (idOfTeacher != 0) {
+                            var form = new FormData();
+                            form.append("id", idOfTeacher);
+
+                            $.ajax({
+                                method: 'POST',
+                                type: "POST",
+                                url:  "/api/teacher/delete",
+                                data: form,
+                                cashe: false,
+                                processData: false,
+                                contentType: false,
+                                beforeSend: function (xhr) {
+                                    xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+                                },
+                                error:function(){
+                                    alert("Ошибка соединения с сервером");
+                                },
+                                success: function(html)
+                                {
+                                    location.reload();
+                                }
+                            });
+                        } else {
+                            alert("Не указан id преподавателя");
+                        }
+                    }
+                </script>
+
+
+                <div class="col-md-6">
+                    <p align="right"><button class="btn btn-success btn-rounded" onclick="location.reload();">Обновить страницу</button></p>
+                </div>
+
+                <div class="col-md-12" id="div_for_list_of_prepods">
+
+                    @if (!@Model.enumTeachers.Any())
+                    {
+                        <p class="warningNotFound">Преподавателей не найдено</p>
+                    }
+                    else
+                    {
+
+                        <table class="table bootstrap-datatable datatable small-font" border="1">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>ФИО</th>
+                                    <th>Отображать?</th>
+                                    <th>Является наставником?</th>
+                                    <th>Очередность</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                @foreach (var teacher in @Model.enumTeachers)
+                                {
+                                <tr>
+                                    <td>@teacher.id</td>
+                                    <td>@teacher.name</td>
+                                    <td>
+                                        @if (teacher.active == 1)
+                                        {
+                                            <font class="status-granted">Да</font>
+                                        }
+                                        else
+                                        {
+                                            <font class="status-denied">Нет</font>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (teacher.isCurator == 1)
+                                        {
+                                            <font class="status-granted">Да</font>
+                                        }
+                                        else
+                                        {
+                                            <font class="status-denied">Нет</font>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (!teacher.Equals(Model.enumTeachers.First()))
+                                        {
+                                            <button class="btn btn-sm btn-order" onclick="change_order(@teacher.id, 1)">
+                                                <i class="fa fa-arrow-up"></i>
+                                            </button>
+                                        }
+                                        @if (!teacher.Equals(Model.enumTeachers.Last()))
+                                        {
+                                            <button class="btn btn-sm btn-order" onclick="change_order(@teacher.id, 0)">
+                                                <i class="fa fa-arrow-down"></i>
+                                            </button>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a href="~/admin/teacher/@teacher.id" target="_blank">
+                                            <i class="fa fa-pencil"></i>
+                                        </a>
+                                        <a href="#" onclick="idOfTeacher = '@teacher.id';" data-toggle="modal" data-target="#modal_delete" style="color:red;">
+                                            <i class="fa fa-ban"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                }
+
+                            </tbody>
+                        </table>
+                    }
+
+
+                    </div>
+
+
+
+
+                <script>
+                    function get(id) {
+                            var form = new FormData();
+                            form.append("id", id);
+
+                            $.ajax({
+                                method: 'POST',
+                                type: "POST",
+                                url:  "/api/teacher/get",
+                                data: form,
+                                cashe: false,
+                                processData: false,
+                                contentType: false,
+                                beforeSend: function (xhr) {
+                                    xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+                                },
+                                error:function(){
+                                    alert("Ошибка соединения с сервером");
+                                },
+                                success: function(html)
+                                {
+                                    if (html["status"] == "success") {
+
+                                    }
+                                }
+                            });
+                    }
+
+                    function change_order(id_of_teacher, change_order_to_0_down_1_up) {
+                        var form = new FormData();
+                        form.append("id_of_teacher", id_of_teacher);
+                        form.append("change_order_to_0_down_1_up", change_order_to_0_down_1_up);
+                        disableBtnOrder(true);
+
+                        $.ajax({
+                            method: 'POST',
+                            type: "POST",
+                            url:  "/api/teacher/change_order",
+                            data: form,
+                            cashe: false,
+                            processData: false,
+                            contentType: false,
+                            beforeSend: function (xhr) {
+                                xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+                            },
+                            error:function(){
+                                alert("Ошибка соединения с сервером");
+                                disableBtnOrder(false);
+                            },
+                            success: function(html)
+                            {
+                                disableBtnOrder(false);
+                                if (html["status"] == "success") {
+                                    window.location.reload();
+                                }
+                            }
+                        });
+                    }
+                    function disableBtnOrder(value) {
+                        var els = document.getElementsByClassName("btn-order");
+                        for (var i = 0; i < els.length; i++) {
+                            els[i].disabled = value;
+                        }
+                    }
+                </script>
+
+            </div><!-- table-responsive -->
+
+
+        </div><!-- col-md-12 -->
+
+
+
+    </div><!-- row -->
+
+
+</div>

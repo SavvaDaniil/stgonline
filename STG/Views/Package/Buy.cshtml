@@ -1,0 +1,119 @@
+﻿@using STG.ViewModels.Package;
+
+@model PackageBuyViewModel;
+
+@{
+    ViewData["Title"] = "Покупка доступа к программе | STG";
+    @using Microsoft.AspNetCore.Antiforgery
+    @inject IAntiforgery antiforgery
+    var tokenSet = antiforgery.GetAndStoreTokens(Context);
+}
+
+
+
+<div class="col-12 row payment-new">
+    <div class="col-1 col-lg-4 col-md-4 col-sm-1"></div>
+
+    <div class="col-10 col-lg-4 col-md-4 col-sm-10 row">
+        <div class="block col-12 row">
+            <div class="col-12">
+                <h5>
+                    Оплата доступа к программе: @Model.package.name
+                </h5>
+            </div>
+
+
+            <div class="col-12 row lesson-price-info active" onclick="choose_single_pay()">
+                <div class="col-8">
+                    Разовая оплата на<br />@Model.package.days дней
+                </div>
+                <div class="col-4">
+                    <p>@Model.package.price руб.</p>
+                </div>
+            </div>
+
+
+            <form action="#" class="col-12">
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="agreement" onchange="enableForm()" />
+                    <label class="form-check-label" for="agreement">
+                        Я принимаю <a href="/agreement" target="_blank">пользовательское соглашение</a>
+                    </label>
+                </div>
+
+                <div class="text-center">
+                    <button type="button" class="btn btn-block" disabled id="btnPayment" onclick="buy(this)">
+                        Приступить к оплате
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+    function choose_single_pay() {
+
+        document.getElementsByClassName("lesson-price-info")[0].classList.add("active");
+        if (document.getElementById("prolongation").checked) {
+            //document.getElementById("prolongation").checked = false;
+        }
+        document.getElementById("prolongation").disabled = true;
+    }
+
+
+    function enableForm() {
+        var btn = document.getElementById("btnPayment");
+        if (document.getElementById("agreement").checked) {
+            btn.disabled = false;
+        } else {
+            btn.disabled = true;
+        }
+    }
+
+    function buy(btn) {
+        var form = new FormData();
+
+        form.append("id_of_package", "@Model.package.id");
+        btnEnabled(btn, true);
+
+        $.ajax({
+            method: 'POST',
+            type: "POST",
+            url:  "/api/payment/new",
+            data: form,
+            cashe: false,
+            processData: false,
+            contentType: false,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+            },
+            error:function(){
+                alert("Ошибка соединения с сервером");
+                btnEnabled(btn, false);
+            },
+            success: function(html)
+            {
+                if (html["status"] == "success") {
+                    //window.location.reload();
+                    //window.location.href = "/fake/lesson/" + html["payment"]["id"];
+                    if (html["payment"]["status"] == true && html["payment"]["paymentURL"] != null && typeof (html["payment"]["paymentURL"]) != "undefined") {
+                        window.location.href = html["payment"]["paymentURL"];
+                    } else {
+                        alert("Извините, на сервере произошла ошибка связи с банком");
+                        btnEnabled(btn, false);
+                    }
+                }  else {
+                    alert("Извините, на сервере произошла неизвестная ошибка");
+                    btnEnabled(btn, false);
+                }
+            }
+        });
+    }
+    function btnEnabled(btn, v) {
+        v ? btn.disabled = true : btn.disabled = false;
+    }
+</script>

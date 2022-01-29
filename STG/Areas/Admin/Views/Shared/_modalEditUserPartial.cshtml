@@ -1,0 +1,958 @@
+﻿@{
+    @using Microsoft.AspNetCore.Antiforgery;
+    @inject IAntiforgery antiforgery
+    var tokenSet = antiforgery.GetAndStoreTokens(Context);
+}
+
+
+
+<div class="modal fade bs-example-modal-lg in" id="modalEditUser" tabindex="-1" role="dialog" aria-hidden="false">
+
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button aria-hidden="true" id="button_for_close_modal_info_about_admin" data-dismiss="modal" class="close" type="button">×</button>
+                <h4 class="modal-title">
+                    Данные пользователя
+                </h4>
+            </div>
+            <div class="modal-body" id="div_for_info_of_admin">
+
+                <!--<div class="contentpanel">-->
+
+
+
+                <div class="row">
+                    <div class="col-sm-4 col-md-3">
+                        <div class="text-center">
+
+                            <img class="img-circle img-offline img-responsive img-profile" src="images/photos/profile-nophoto.jpg" alt="...">
+
+                            <div>
+                                <p align="center">
+                                    <button type="button" class="btn btn-success" onclick="change_access(0);" id="btnActive">Доступ Открыт</button>
+                                    <br>
+                                    <span style="font-size:80%;">(щелкните, чтобы изменить)</span>
+                                </p>
+                            </div>
+
+                        </div><!-- text-center -->
+
+                    </div><!-- col-sm-4 col-md-3 -->
+
+                    <div class="col-sm-8 col-md-9">
+
+                        <!-- Nav tabs -->
+                        <ul class="nav nav-tabs nav-line">
+                            <li class="active"><a href="#profile" data-toggle="tab"><strong>Профиль</strong></a></li>
+                            <li><a href="#followers" data-toggle="tab"><strong>Доступы к приватным программам</strong></a></li>
+                            <li><a href="#purchases_subscription" data-toggle="tab"><strong>Подписки</strong></a></li>
+
+                        </ul>
+
+                        <!-- Tab panes -->
+                        <div class="tab-content nopadding noborder">
+                            <div class="tab-pane active" id="profile">
+                                <div class="activity-list">
+                                    <form class="media" action="#" id="formEditUser">
+
+                                        <input type="hidden" class="form-control" name="id" id="id" value="" />
+                                        <input type="hidden" class="form-control" name="active" id="active" value="" />
+
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-xs-12" for="disabled_input_for_id">ID:</label>
+                                            <div class="col-md-8 col-xs-12">
+                                                <input type="text" class="form-control" id="disabled_input_for_id" value="" disabled="" />
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-xs-12" for="username">Логин:</label>
+                                            <div class="col-md-8 col-xs-12">
+                                                <input type="text" class="form-control" name="username" id="username" value="" onkeypress="clearWarningModalEditUser();">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-xs-12" for="firstname">Имя:</label>
+                                            <div class="col-md-8 col-xs-12">
+                                                <input type="text" class="form-control" name="firstname" id="firstname" value="" onkeypress="clearWarningModalEditUser();">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-xs-12" for="secondname">Фамилия:</label>
+                                            <div class="col-md-8 col-xs-12">
+                                                <input type="text" class="form-control" name="secondname" id="secondname" value="" onkeypress="clearWarningModalEditUser();">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-xs-12" for="instagram">Instagram:</label>
+                                            <div class="col-md-8 col-xs-12">
+                                                <input type="text" class="form-control" name="instagram" id="instagram" value="" onkeypress="clearWarningModalEditUser();">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-xs-12" for="date_of_birthday">Дата рождения:</label>
+                                            <div class="col-md-8 col-xs-12">
+                                                <input type="date" class="form-control" name="date_of_birthday" id="date_of_birthday" value="" onkeypress="clearWarningModalEditUser();">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-xs-12" for="prolongation">Автопродление:</label>
+                                            <div class="col-md-8 col-xs-12">
+                                                <select class="form-control" name="prolongation" id="prolongation" value="" onchange="clearWarningModalEditUser();">
+                                                    <option value="0">Нет</option>
+                                                    <option value="1">Да</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-xs-12" for="is_test">Тестовый режим оплаты:</label>
+                                            <div class="col-md-8 col-xs-12">
+                                                <select class="form-control" name="is_test" id="is_test" value="" onchange="clearWarningModalEditUser();">
+                                                    <option value="0">Нет</option>
+                                                    <option value="1">Да</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-xs-12" for="is_lesson_full_access">Свободный доступ к урокам:</label>
+                                            <div class="col-md-8 col-xs-12">
+                                                <select class="form-control" name="is_lesson_full_access" id="is_lesson_full_access" value="" onchange="clearWarningModalEditUser();">
+                                                    <option value="0">Нет</option>
+                                                    <option value="1">Да</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+
+                                        <div class="media">
+                                            <div class="form-group">
+                                                <label class="control-label col-md-4 col-xs-12" for="new_password">Сменить пароль:</label>
+                                                <div class="col-md-8 col-xs-12">
+                                                    <input type="password" class="form-control" name="new_password" id="new_password" value="" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form><!-- media -->
+
+                                    <p align="right">
+                                        <span id="label_for_warning_about_changes_and_telling_save"></span>
+                                        <button class="btn btn-success" onclick="saveModalEditUser();" id="btnSave">Сохранить</button>
+                                    </p>
+
+
+                                    <script>
+                                        function change_access(value) {
+                                            document.getElementById("active").value = value;
+                                            saveModalEditUser();
+                                        }
+
+
+                                        function saveModalEditUser() {
+                                            var form = new FormData(document.getElementById("formEditUser"));
+                                            /*
+                                            var formAccessesToPanels = new FormData(document.getElementById("formAccessToPanels"));
+                                            for (var pair of formAccessesToPanels.entries()) {
+                                                form.append(pair[0], pair[1]);
+                                            }
+                                            */
+                                            var btn = document.getElementById("btnSave")
+                                            btnDisabled(btn, true);
+
+                                            $.ajax({
+                                                method: 'POST',
+                                                type: "POST",
+                                                url: "/api/user/edit",
+                                                data: form,
+                                                cashe: false,
+                                                processData: false,
+                                                contentType: false,
+                                                beforeSend: function (xhr) {
+                                                    xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+                                                },
+                                                error: function () {
+                                                    alert("Ошибка соединения с сервером");
+                                                    btnDisabled(btn, false);
+                                                },
+                                                success: function (html) {
+                                                    if (html["status"] == "success") {
+                                                        showAlertSuccess();
+                                                        get(form.get("id"));
+                                                    } else if (html["status"] == "error" && html["errors"] == "username_already_exist") {
+                                                        makeWarningModalEditUser("Логин уже используется другим пользователем");
+                                                    } else {
+                                                        makeWarningModalEditUser("Извините, на сервере произошла неизвестная ошибка");
+                                                    }
+                                                    btnDisabled(btn, false);
+                                                }
+                                            });
+					                    }
+
+
+                                        function makeWarningModalEditUser(message) {
+                                            document.getElementById("label_for_warning_about_changes_and_telling_save").innerHTML = message;
+                                        }
+                                        function clearWarningModalEditUser() {
+                                            document.getElementById("label_for_warning_about_changes_and_telling_save").innerHTML = "";
+                                        }
+
+                                    </script>
+
+
+
+
+
+
+
+
+
+
+
+                                </div><!-- activity-list -->
+
+
+                            </div><!-- tab-pane -->
+
+                            <div class="tab-pane" id="followers">
+
+                                <div class="follower-list">
+
+                                    <form class="media" action="#" id="formConnectionsPackgePrivateToUser">
+
+                                        <!--
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-xs-12" for="XXXXXXXXX">Администраторы:</label>
+                                            <div class="col-md-8 col-xs-12">
+                                                <select data-placeholder="Choose One" class="width100p" onchange="change_status_of_access_to_vkladka_for_admin('admin_panel_admins','9',this.value);">
+                                                    <option value="0" style="color:red;">Доступ закрыт</option>
+                                                    <option value="2" style="color:green;" selected="">Доступ открыт</option>
+                                                </select>
+
+                                            </div>
+                                        </div>
+                                        -->
+
+                                    </form>
+                                </div>
+                            </div>
+
+
+
+                            <div class="tab-pane" id="purchases_subscription">
+                                <div class="btn-list text-right">
+                                    <button class="btn btn-success" onclick="modalAddPurchaseSubscription(this)">Добавить</button>
+                                </div>
+                                <div id="div_for_purchases_subscription" class="table-responsive">
+
+                                </div>
+                            </div>
+
+
+
+                            <div class="tab-pane" id="list_of_tovars_of_one_scheta">
+                                <div id="div_for_load_tovars_of_scheta_of_user">
+
+                                </div>
+                            </div>
+
+                            <div class="tab-pane" id="following">
+
+                                <div class="activity-list">
+
+
+                                    <div class="media">
+
+
+
+                                    </div>
+
+
+
+                                </div><!-- activity-list -->
+                            </div><!-- tab-pane -->
+
+
+
+
+
+                            <div class="tab-pane" id="vistavlennie_scheta">
+
+                                <div class="events">
+
+                                    <div class="media" id="div_for_scheta_of_user">
+
+
+
+
+
+
+                                    </div>
+                                </div>
+
+                            </div><!-- tab-pane -->
+
+                        </div><!-- tab-content -->
+
+                    </div><!-- col-sm-9 -->
+                </div><!-- row -->
+                <!--
+                <button class="btn btn-danger" onclick="prepare_delete_user()">Удалить</button>
+                    -->
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-dismiss="modal" data-target="">Закрыть</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+    //ID_OF_USER
+    function listAllPurchaseSubscriptions() {
+        var form = new FormData();
+        form.set("id", ID_OF_USER);
+
+        var div_for_purchases_subscription = document.getElementById("div_for_purchases_subscription");
+        div_for_purchases_subscription.innerHTML = "Идет загрузка...";
+
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == XMLHttpRequest.DONE) {
+                if (xmlhttp.status == 200) {
+                    var html = JSON.parse(xmlhttp.response);
+
+                    if (html["status"] == "success") {
+                        div_for_purchases_subscription.innerHTML = "";
+                        div_for_purchases_subscription.appendChild(_buildPurchasePackageTable(html["purchaseSubscriptions"]));
+                    } else {
+                        div_for_purchases_subscription.innerHTML = "Извините, на сервере произошла неизвестная ошибка";
+                    }
+                }
+            }
+        };
+        xmlhttp.open("POST", "/api/purchase_subscription/user_purchases_subscription", true);
+        xmlhttp.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+        xmlhttp.send(form);
+
+    }
+
+    function _buildPurchasePackageTable(purchasesSubscriptionList) {
+        if (purchasesSubscriptionList.length == 0) {
+            var answerP = document.createElement("p");
+            answerP.innerHTML = "-- Купленных подписок не найдено --";
+            return answerP;
+        }
+        var table = document.createElement("table");
+        table.className = "table table-bordered table-striped table-hover";
+
+        var tHeader = document.createElement("thead");
+        var trHeader = document.createElement("tr");
+
+        var tdHeader;
+        var tdHeaderList = ["id", "Наименование", "Куп", "Акт", "До", ""];
+
+        tdHeaderList.forEach(function (name) {
+            tdHeader = document.createElement("th");
+            tdHeader.innerHTML = name;
+            trHeader.appendChild(tdHeader);
+        });
+        tHeader.appendChild(trHeader);
+        table.appendChild(tHeader);
+
+        var tBody = document.createElement("tbody");
+        var trData, tdData, aData, iData;
+
+        purchasesSubscriptionList.forEach(function (purchaseSubscription) {
+            trData = document.createElement("tr");
+            if (purchaseSubscription["active"] == 0) {
+                trData.className = "not-active";
+            }
+
+            tdData = document.createElement("td");
+            tdData.innerHTML = purchaseSubscription["id"];
+            trData.appendChild(tdData);
+
+            tdData = document.createElement("td");
+            tdData.innerHTML = purchaseSubscription["name"];
+            trData.appendChild(tdData);
+
+            tdData = document.createElement("td");
+            tdData.innerHTML = (purchaseSubscription["dateOfAdd"] != null ? purchaseSubscription["dateOfAdd"] : "Не акт");
+            trData.appendChild(tdData);
+
+            tdData = document.createElement("td");
+            tdData.innerHTML = (purchaseSubscription["dateOfActivation"] != null ? purchaseSubscription["dateOfActivation"] : "Не акт");
+            trData.appendChild(tdData);
+
+            tdData = document.createElement("td");
+            tdData.innerHTML = (purchaseSubscription["dateOfMustBeUsedTo"] != null ? purchaseSubscription["dateOfMustBeUsedTo"] : "Не акт");
+            trData.appendChild(tdData);
+
+            tdData = document.createElement("td");
+            aData = document.createElement("a");
+            aData.onclick = function () {
+                getPurchacaseSubscription(purchaseSubscription["id"]);
+            }
+            iData = document.createElement("i");
+            iData.className = "fa fa-pencil";
+            aData.appendChild(iData);
+            tdData.appendChild(aData);
+
+            trData.appendChild(tdData);
+
+            tBody.appendChild(trData);
+        });
+        table.appendChild(tBody);
+
+        return table;
+    }
+
+
+
+
+
+    var GLOBAL_id_of_purchase_subscription = 0;
+    function getPurchacaseSubscription(id_of_purchase_subscription) {
+        var form = new FormData();
+        form.set("id", id_of_purchase_subscription);
+        GLOBAL_id_of_purchase_subscription = id_of_purchase_subscription;
+
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == XMLHttpRequest.DONE) {
+                if (xmlhttp.status == 200) {
+                    var html = JSON.parse(xmlhttp.response);
+
+                    if (html["status"] == "success" && html["purchaseSubscription"] != null) {
+                        var form = document.getElementById("formEditPurchaseSubscription");
+                        var select_id_of_subscription = document.getElementById("edit_purchase_subscription_id_of_subscription"); select_id_of_subscription.innerHTML = "";
+                        var option_subscription;
+                        html["subscriptions"].forEach(function (subscription) {
+                            option_subscription = document.createElement("option");
+                            option_subscription.value = subscription["id"];
+                            option_subscription.innerHTML = subscription["id"] + " - " + subscription["name"];
+                            if (html["purchaseSubscription"]["id_of_subscription"] == subscription["id"]) option_subscription.selected = true;
+                            select_id_of_subscription.appendChild(option_subscription);
+                        });
+                        document.getElementById("edit_purchase_subscription_active").value = html["purchaseSubscription"]["active"];
+                        document.getElementById("edit_purchase_subscription_days").value = html["purchaseSubscription"]["days"];
+
+                        if (html["purchaseSubscription"]["dateOfAdd"] != null) {
+                            document.getElementById("edit_purchase_subscription_date_buy_day").value = parseInt((html["purchaseSubscription"]["dateOfAdd"]).split("-")[2], 10);
+                            document.getElementById("edit_purchase_subscription_date_buy_month").value = parseInt((html["purchaseSubscription"]["dateOfAdd"]).split("-")[1], 10);
+                            document.getElementById("edit_purchase_subscription_date_buy_year").value = (html["purchaseSubscription"]["dateOfAdd"]).split("-")[0];
+                        }
+                        if (html["purchaseSubscription"]["dateOfActivation"] != null) {
+                            document.getElementById("edit_purchase_subscription_date_active_day").value = parseInt((html["purchaseSubscription"]["dateOfActivation"]).split("-")[2], 10);
+                            document.getElementById("edit_purchase_subscription_date_active_month").value = parseInt((html["purchaseSubscription"]["dateOfActivation"]).split("-")[1], 10);
+                            document.getElementById("edit_purchase_subscription_date_active_year").value = (html["purchaseSubscription"]["dateOfActivation"]).split("-")[0];
+                        }
+                        if (html["purchaseSubscription"]["dateOfMustBeUsedTo"] != null) {
+                            document.getElementById("edit_purchase_subscription_date_must_be_used_to_day").value = parseInt((html["purchaseSubscription"]["dateOfMustBeUsedTo"]).split("-")[2], 10);
+                            document.getElementById("edit_purchase_subscription_date_must_be_used_to_month").value = parseInt((html["purchaseSubscription"]["dateOfMustBeUsedTo"]).split("-")[1], 10);
+                            document.getElementById("edit_purchase_subscription_date_must_be_used_to_year").value = (html["purchaseSubscription"]["dateOfMustBeUsedTo"]).split("-")[0];
+                        }
+
+                        $("#modalEditUser").modal("hide");
+                        $("#modalEditPurchaseSubscription").modal();
+                    } else {
+                        alert("Извините, на сервере произошла неизвестная ошибка");
+                    }
+                }
+            }
+        };
+        xmlhttp.open("POST", "/api/purchase_subscription/user_get", true);
+        xmlhttp.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+        xmlhttp.send(form);
+    }
+    function modalPurchaseSubscriptionReturnToUser() {
+        $("#modalEditPurchaseSubscription").modal("hide");
+        $("#modalEditUser").modal();
+    }
+</script>
+
+
+<div class="modal fade bs-example-modal-lg" id="modalEditPurchaseSubscription" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
+                <h4 class="modal-title">Редактирование подписки</h4>
+            </div>
+            <div class="modal-body">
+                <form id="formEditPurchaseSubscription">
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Подписка</label>
+                        <div class="col-sm-8">
+                            <select class="form-control" name="id_of_subscription" id="edit_purchase_subscription_id_of_subscription">
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Активна?</label>
+                        <div class="col-sm-8">
+                            <select class="form-control" name="active" id="edit_purchase_subscription_active">
+                                <option value="0">Нет</option>
+                                <option value="1">Да</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Количество дней</label>
+                        <div class="col-sm-8">
+                            <input type="number" class="form-control" name="days" id="edit_purchase_subscription_days" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Дата покупки</label>
+                        <div class="col-sm-2">
+                            <select class="form-control" name="date_buy_day" id="edit_purchase_subscription_date_buy_day">
+                                <option value="0">не ук</option>
+                                @for (int i = 1; i < 32; i++)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <select class="form-control" name="date_buy_month" id="edit_purchase_subscription_date_buy_month">
+                                <option value="0">не ук</option>
+                                @for (int i = 1; i < 13; i++)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-4">
+                            <select class="form-control" name="date_buy_year" id="edit_purchase_subscription_date_buy_year">
+                                <option value="0">не ук</option>
+                                @for (int i = DateTime.Now.Year + 1; i > 2020; i--)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Дата активации</label>
+                        <div class="col-sm-2">
+                            <select class="form-control" name="date_active_day" id="edit_purchase_subscription_date_active_day">
+                                <option value="0">не акт</option>
+                                @for (int i = 1; i < 32; i++)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <select class="form-control" name="date_active_month" id="edit_purchase_subscription_date_active_month">
+                                <option value="0">не акт</option>
+                                @for (int i = 1; i < 13; i++)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-4">
+                            <select class="form-control" name="date_active_year" id="edit_purchase_subscription_date_active_year">
+                                <option value="0">не акт</option>
+                                @for (int i = DateTime.Now.Year + 1; i > 2020; i--)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Дата окончания действия</label>
+                        <div class="col-sm-2">
+                            <select class="form-control" name="date_must_be_used_to_day" id="edit_purchase_subscription_date_must_be_used_to_day">
+                                <option value="0">не акт</option>
+                                @for (int i = 1; i < 32; i++)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <select class="form-control" name="date_must_be_used_to_month" id="edit_purchase_subscription_date_must_be_used_to_month">
+                                <option value="0">не акт</option>
+                                @for (int i = 1; i < 13; i++)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-4">
+                            <select class="form-control" name="date_must_be_used_to_year" id="edit_purchase_subscription_date_must_be_used_to_year">
+                                <option value="0">не акт</option>
+                                @for (int i = DateTime.Now.Year + 1; i > 2020; i--)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                </form>
+
+                <button class="btn btn-sm btn-danger" onclick="openModalDeletePurchaseSubscription()">
+                    Удалить
+                </button>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="modalPurchaseSubscriptionReturnToUser()">
+                    Назад в карточку пользователя
+                </button>
+                <button class="btn btn-success" onclick="save_edit_purchase_subscription(this)">
+                    Сохранить
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function save_edit_purchase_subscription(btn) {
+
+        btn.disabled = true;
+
+        var form = new FormData(document.getElementById("formEditPurchaseSubscription"));
+        form.append("id", GLOBAL_id_of_purchase_subscription);
+
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == XMLHttpRequest.DONE) {
+                if (xmlhttp.status == 200) {
+                    var html = JSON.parse(xmlhttp.response);
+
+                    if (html["status"] == "success") {
+                        showAlertSuccess();
+                        listAllPurchaseSubscriptions();
+                    } else {
+                        alert("Извините, на сервере произошла неизвестная ошибка");
+                    }
+                }
+                btn.disabled = false;
+            }
+        };
+        xmlhttp.open("POST", "/api/purchase_subscription/user_save", true);
+        xmlhttp.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+        xmlhttp.send(form);
+    }
+</script>
+
+
+
+
+<script>
+    function modalAddPurchaseSubscription(btn) {
+
+        btn.disabled = true;
+
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == XMLHttpRequest.DONE) {
+                if (xmlhttp.status == 200) {
+                    var html = JSON.parse(xmlhttp.response);
+
+                    if (html["status"] == "success") {
+                        var select_id_of_subscription = document.getElementById("add_purchase_subscription_id_of_subscription");
+                        select_id_of_subscription.innerHTML = "";
+                        var option_subscription = document.createElement("option");
+                        option_subscription.value = 0;
+                        option_subscription.innerHTML = "Не выбрано";
+                        select_id_of_subscription.appendChild(option_subscription);
+                        html["subscriptions"].forEach(function (subscription) {
+                            option_subscription = document.createElement("option");
+                            option_subscription.value = subscription["id"];
+                            option_subscription.innerHTML = subscription["id"] + " - " + subscription["name"];
+                            select_id_of_subscription.appendChild(option_subscription);
+                        });
+
+                        document.getElementById("formAddPurchaseSubscription").reset();
+
+                        $("#modalEditUser").modal("hide");
+                        $("#modalAddPurchaseSubscription").modal();
+
+                    } else {
+                        alert("Извините, на сервере произошла неизвестная ошибка");
+                    }
+                }
+                btn.disabled = false;
+            }
+        };
+        xmlhttp.open("POST", "/api/subscription/list_all", true);
+        xmlhttp.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+        xmlhttp.send();
+    }
+
+    function modalAddPurchaseSubscriptionReturnToUser() {
+        $("#modalAddPurchaseSubscription").modal("hide");
+        $("#modalEditUser").modal();
+    }
+
+    
+</script>
+
+
+<div class="modal fade bs-example-modal-lg" id="modalAddPurchaseSubscription" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
+                <h4 class="modal-title">Добавить подписку</h4>
+            </div>
+            <div class="modal-body">
+                <form id="formAddPurchaseSubscription">
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Подписка</label>
+                        <div class="col-sm-8">
+                            <select class="form-control" name="id_of_subscription" id="add_purchase_subscription_id_of_subscription">
+
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Активна?</label>
+                        <div class="col-sm-8">
+                            <select class="form-control" name="active" id="add_purchase_subscription_active">
+                                <option value="0">Нет</option>
+                                <option value="1" selected>Да</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Количество дней</label>
+                        <div class="col-sm-8">
+                            <input type="number" class="form-control" name="days" id="add_purchase_subscription_days" value="30" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Дата покупки</label>
+                        <div class="col-sm-2">
+                            <select class="form-control" name="date_buy_day" id="add_purchase_subscription_date_buy_day">
+                                <option value="0">не ук</option>
+                                @for (int i = 1; i < 32; i++)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <select class="form-control" name="date_buy_month" id="add_purchase_subscription_date_buy_month">
+                                <option value="0">не ук</option>
+                                @for (int i = 1; i < 13; i++)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-4">
+                            <select class="form-control" name="date_buy_year" id="add_purchase_subscription_date_buy_year">
+                                <option value="0">не ук</option>
+                                @for (int i = DateTime.Now.Year + 1; i > 2020; i--)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Дата активации</label>
+                        <div class="col-sm-2">
+                            <select class="form-control" name="date_active_day" id="add_purchase_subscription_date_active_day">
+                                <option value="0">не акт</option>
+                                @for (int i = 1; i < 32; i++)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <select class="form-control" name="date_active_month" id="add_purchase_subscription_date_active_month">
+                                <option value="0">не акт</option>
+                                @for (int i = 1; i < 13; i++)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-4">
+                            <select class="form-control" name="date_active_year" id="add_purchase_subscription_date_active_year">
+                                <option value="0">не акт</option>
+                                @for (int i = DateTime.Now.Year + 1; i > 2020; i--)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Дата окончания действия</label>
+                        <div class="col-sm-2">
+                            <select class="form-control" name="date_must_be_used_to_day" id="add_purchase_subscription_date_must_be_used_to_day">
+                                <option value="0">не акт</option>
+                                @for (int i = 1; i < 32; i++)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <select class="form-control" name="date_must_be_used_to_month" id="add_purchase_subscription_date_must_be_used_to_month">
+                                <option value="0">не акт</option>
+                                @for (int i = 1; i < 13; i++)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-4">
+                            <select class="form-control" name="date_must_be_used_to_year" id="add_purchase_subscription_date_must_be_used_to_year">
+                                <option value="0">не акт</option>
+                                @for (int i = DateTime.Now.Year + 1; i > 2020; i--)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="modalAddPurchaseSubscriptionReturnToUser()">
+                    Назад в карточку пользователя
+                </button>
+                <button class="btn btn-success" onclick="add_purchase_subscription(this)">
+                    Добавить
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function add_purchase_subscription(btn) {
+        var form = new FormData(document.getElementById("formAddPurchaseSubscription"));
+
+        if (form.get("id_of_subscription") == 0) {
+            alert("Выберите пожалуйста подписку"); return;
+        }
+        form.append("id_of_user", ID_OF_USER);
+
+        btn.disabled = true;
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == XMLHttpRequest.DONE) {
+                if (xmlhttp.status == 200) {
+                    var html = JSON.parse(xmlhttp.response);
+
+                    if (html["status"] == "success") {
+                        showAlertSuccess();
+                        listAllPurchaseSubscriptions();
+                        $("#modalAddPurchaseSubscription").modal("hide");
+                        $("#modalEditUser").modal();
+                    } else {
+                        alert("Извините, на сервере произошла неизвестная ошибка");
+                    }
+                }
+                btn.disabled = false;
+            }
+        };
+        xmlhttp.open("POST", "/api/purchase_subscription/admin_add", true);
+        xmlhttp.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+        xmlhttp.send(form);
+    }
+
+    function openModalDeletePurchaseSubscription() {
+        $("#modalEditPurchaseSubscription").modal("hide");
+        $("#modalDeletePurchaseSubscription").modal();
+    }
+    function modalDeletePurchaseSubscriptionReturnToUser() {
+        $("#modalDeletePurchaseSubscription").modal("hide");
+        $("#modalEditPurchaseSubscription").modal();
+    }
+</script>
+
+
+
+
+
+<div class="modal fade bs-example-modal-lg" id="modalDeletePurchaseSubscription" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
+                <h4 class="modal-title">Удалить подписку</h4>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить подписку?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-warning" onclick="modalDeletePurchaseSubscriptionReturnToUser()">
+                    Назад к редактированию подписки
+                </button>
+                <button class="btn btn-danger" onclick="deletePurchaseSubscription(this)">
+                    Удалить
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function deletePurchaseSubscription(btn) {
+
+        var form = new FormData();
+
+        form.append("id", GLOBAL_id_of_purchase_subscription);
+
+        btn.disabled = true;
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == XMLHttpRequest.DONE) {
+                if (xmlhttp.status == 200) {
+                    var html = JSON.parse(xmlhttp.response);
+
+                    if (html["status"] == "success") {
+                        showAlertSuccess();
+                        listAllPurchaseSubscriptions();
+                        $("#modalDeletePurchaseSubscription").modal("hide");
+                        $("#modalEditUser").modal();
+                    } else {
+                        alert("Извините, на сервере произошла неизвестная ошибка или подписка связана с платежами и не может быть удалена");
+                    }
+                }
+                btn.disabled = false;
+            }
+        };
+        xmlhttp.open("POST", "/api/purchase_subscription/admin_delete", true);
+        xmlhttp.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+        xmlhttp.send(form);
+    }
+</script>
+
+

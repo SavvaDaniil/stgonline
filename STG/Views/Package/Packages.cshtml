@@ -1,0 +1,70 @@
+﻿@using STG.ViewModels.Package;
+@model ListPackagePreviewViewModel;
+
+
+@{
+    ViewData["Title"] = "Мои программы | STG";
+    @using Microsoft.AspNetCore.Antiforgery;
+    @inject IAntiforgery antiforgery
+    var tokenSet = antiforgery.GetAndStoreTokens(Context);
+}
+
+
+<div class="col-1 d-none d-md-block"></div>
+<div class="col-12 col-lg-10 col-md-10 col-sm-12 packages" style="padding:0;">
+
+    <div class="row" id="divListPackages">
+
+        @if (Model.packages.Count() == 0)
+        {
+            <div class="col-12 not-found">
+                - подключенных программ не найдено -
+            </div>
+        }
+
+
+        @foreach (PackagePreviewViewModel package in Model.packages)
+        {
+
+            <div class="col-12 col-lg-4 col-md-6 col-sm-6">
+                <a href="/package/@package.id">
+                    <div class="preview_block">
+
+                        <div class="poster">
+                            
+                                @if (package.active == 0)
+                                {
+                                    <div class="lock single">
+                                        <i class="fa fa-lock" aria-hidden="true"></i>
+                                    </div>
+                                }
+
+                            <img src="@package.posterSrc" class="img-fluid" />
+
+                        </div>
+
+                        <div class="description">
+
+                            <div class="name">
+                                @package.name
+                            </div>
+
+                            @if (package.teacherName != null)
+                            {
+                                <p>Наставник: <span>@package.teacherName</span></p>
+                            }
+
+                            @if (package.lessonsCount != 0)
+                            {
+                                <p>Количество уроков: <span>@package.lessonsCount</span></p>
+                            }
+                        </div>
+
+                        
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+
+</div>

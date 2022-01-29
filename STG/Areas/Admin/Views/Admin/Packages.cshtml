@@ -1,0 +1,282 @@
+﻿
+@using STG.ViewModels.Package;
+@model ListPackageLiteViewModel
+
+@{
+    ViewData["Title"] = "Пакеты | панель администратора";
+    @using Microsoft.AspNetCore.Antiforgery;
+    @inject IAntiforgery antiforgery
+    var tokenSet = antiforgery.GetAndStoreTokens(Context);
+}
+
+
+
+<div id="contents_programs">
+    <div class="pageheader">
+        <div class="media">
+            <div class="pageicon pull-left">
+                <i class="fa fa-list-alt"></i>
+            </div>
+            <div class="media-body">
+                <ul class="breadcrumb">
+                    <li><a href=""><i class="glyphicon glyphicon-list-alt"></i></a></li>
+                    <li>Программы</li>
+                </ul>
+                <h4>Программы</h4>
+            </div>
+        </div><!-- media -->
+    </div><!-- pageheader -->
+
+    <br />
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+
+
+                <div class="col-md-6">
+                    <button class="btn btn-default" data-toggle="modal" data-target="#modal_add">Добавить</button>
+                </div>
+
+                <div class="modal fade" id="modal_add" tabindex="-1" role="dialog">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button aria-hidden="true" data-dismiss="modal" class="close" type="button">&times;</button>
+                                <h4 class="modal-title">Добавить новый пакет уроков</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div class="panel panel-default">
+                                    <form id="formNewProgram">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="form-group">
+                                                    <label class="col-sm-3 control-label" for="name">Наименование <span class="asterisk">*</span></label>
+                                                    <div class="col-sm-9">
+                                                        <input type="text" maxlength="256" name="name" class="form-control" placeholder="Наименование нового пакета уроков" required id="name" onkeypress="function_for_input_for_name_of_new_program();" />
+                                                        <span style="color:red;" id="warningAdd"></span>
+                                                    </div>
+                                                </div><!-- form-group -->
+
+                                            </div><!-- row -->
+                                        </div><!-- panel-body -->
+                                        <div class="panel-footer">
+                                            <div class="row">
+                                                <div class="col-sm-9 col-sm-offset-3">
+                                                    <button class="btn btn-primary mr5" onclick="create(this);">Создать</button>
+                                                    <button type="reset" class="btn btn-dark" onclick="clear_form_modal_of_create_new_program();">Сбросить</button>
+                                                    <button class="btn btn-danger mr5" id="btn_for_close_in_modal_of_create_new_program" data-dismiss="modal">Закрыть</button>
+                                                </div>
+                                            </div>
+                                        </div><!-- panel-footer -->
+                                    </form>
+                                </div><!-- panel -->
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+
+
+                <script>
+                    function create(btn) {
+                        var form = new FormData(document.getElementById("formNewProgram"));
+                        btnAddEndabled(btn, true);
+
+                        if (form.get("name") == "") {
+                            document.getElementById("warningAdd").innerHTML = "Поле обязательно";
+                            btnAddEndabled(btn, false);
+                        } else {
+                            $.ajax({
+                                method: 'POST',
+                                type: "POST",
+                                url:  "/api/package/add",
+                                data: form,
+                                cashe: false,
+                                processData: false,
+                                contentType: false,
+                                beforeSend: function (xhr) {
+                                    xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+                                },
+                                error:function(){
+                                    $("#warningAdd").html("Ошибка соединения с сервером");
+                                    btnAddEndabled(btn, false);
+                                },
+                                success: function(html)
+                                {
+                                    if (html["status"] == "success") {
+                                        location.reload();
+                                    } else {
+                                        $("#warningAdd").html("Извините, на сервере произошла неизвестная ошибка");
+                                        btnAddEndabled(btn, false);
+                                    }
+                                }
+                            });
+
+                        }
+                    }
+                    function btnAddEndabled(btn, v) {
+                        v ? btn.disabled = true : btn.disabled = false;
+                    }
+
+                    function clear_form_modal_of_create_new_program() {
+                        document.getElementById("fio_of_new_program").value = "";
+                        document.getElementById("phone_of_new_program").value = "";
+                        document.getElementById("warningAdd").innerHTML = "";
+
+                    }
+
+                    function function_for_input_for_name_of_new_program() {
+                        var fio_of_new_program = document.getElementById("fio_of_new_program").value.trim();
+                        document.getElementById("warningAdd").innerHTML = "";
+                    }
+                </script>
+
+
+                <div class="modal fade" style="padding-top:20%;" id="modal_delete" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" style="width: 50%;">
+                        <div class="modal-content">
+                            <div class="modal-header" style="background-color: #ffffff">
+                                <button class="close" type="button" data-dismiss="modal">&times;</button>
+                                <h4 align="left" class="modal-title" style="padding-left: 1em"> Вы уверены, что хотите удалить программу?</h4>
+                            </div>
+                            <div class="modal-body">
+
+                                <center>
+                                    <button type="button" class="btn btn-success" data-dismiss="modal" data-target="" onclick="deleteProgram();">Да</button>
+
+                                    <button type="button" class="btn btn-danger" data-dismiss="modal" data-target="">Нет</button>
+                                </center>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <script>
+                    var idOfProgram = 0;
+                    function deleteProgram() {
+                        if (idOfProgram != 0) {
+                            var form = new FormData();
+                            form.append("id_of_package", idOfProgram);
+
+                            $.ajax({
+                                method: 'POST',
+                                type: "POST",
+                                url:  "/api/package/delete",
+                                data: form,
+                                cashe: false,
+                                processData: false,
+                                contentType: false,
+                                beforeSend: function (xhr) {
+                                    xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+                                },
+                                error:function(){
+                                    alert("Ошибка соединения с сервером");
+                                },
+                                success: function(html)
+                                {
+                                    //location.reload();
+                                    if (html["status"] == "success") {
+                                        window.location.reload();
+                                    } else if (html["status"] == "error" && html["errors"] == "purchase_package_active_exist") {
+                                        alert("На программе на данный момент занимаются пользователи, удаление остановлено");
+                                    } else {
+                                        alert("Неизвестная ошибка на сервере");
+                                    }
+                                }
+                            });
+                        } else {
+                            alert("Не указан id");
+                        }
+                    }
+                </script>
+
+
+                <div class="col-md-6">
+                    <p align="right"><button class="btn btn-success btn-rounded" onclick="location.reload();">Обновить страницу</button></p>
+                </div>
+
+                <div class="col-md-12" id="div_for_list_of_programs">
+
+
+                    @if (!@Model.packages.Any())
+                    {
+                        <p class="warningNotFound">Пакетов уроков не найдено</p>
+                    }
+                    else
+                    {
+
+                        <table class="table bootstrap-datatable datatable small-font" border="1">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Наименование</th>
+                                    <th>Статус</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                @foreach (var package in @Model.packages)
+                                {
+                                    <tr>
+                                        <td>@package.id</td>
+                                        <td>@package.name</td>
+
+                                        <td>
+
+                                            @if (@package.active == 1)
+                                            {
+                                                <font class="status-granted">Доступен всем</font>
+
+                                            }
+                                            else if (@package.active == 2)
+                                            {
+
+                                                <font class="status-granted">Индивидуальный</font>
+
+                                            }
+                                            else
+                                            {
+
+                                                <font class="status-denied">Скрыто</font>
+
+                                            }
+
+                                        </td>
+                                        <td>
+                                            <a href="/admin/package/@package.id" target="_blank">
+                                                <i class="fa fa-pencil"></i>
+                                            </a>
+                                            <a href="#" onclick="idOfProgram = '@package.id';" data-toggle="modal" data-target="#modal_delete" style="color:red;">
+                                                <i class="fa fa-ban"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+
+                                }
+
+                            </tbody>
+                        </table>
+                    }
+
+
+                </div>
+
+
+
+            </div><!-- table-responsive -->
+
+
+        </div><!-- col-md-12 -->
+
+
+
+    </div><!-- row -->
+
+
+</div>

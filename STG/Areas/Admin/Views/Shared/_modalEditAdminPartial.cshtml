@@ -1,0 +1,287 @@
+﻿@{
+    @using Microsoft.AspNetCore.Antiforgery;
+    @inject IAntiforgery antiforgery
+    var tokenSet = antiforgery.GetAndStoreTokens(Context);
+}
+
+<div class="modal fade bs-example-modal-lg in" id="modalEditAdmin" tabindex="-1" role="dialog" aria-hidden="false">
+
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button aria-hidden="true" id="button_for_close_modal_info_about_admin" data-dismiss="modal" class="close" type="button">×</button>
+                <h4 class="modal-title">
+                    Данные администратора
+                </h4>
+            </div>
+            <div class="modal-body" id="div_for_info_of_admin">
+
+                <!--<div class="contentpanel">-->
+
+
+
+                <div class="row">
+                    <div class="col-sm-4 col-md-3">
+                        <div class="text-center">
+
+                            <img class="img-circle img-offline img-responsive img-profile" src="images/photos/profile-nophoto.jpg" alt="...">
+
+                            <h4 class="profile-name mb5"></h4>
+
+                            <div>
+                                <p align="center">
+                                    <button type="button" class="btn btn-success" onclick="change_access(0);" id="btnActive">Доступ Открыт</button>
+                                    <br>
+                                    <span style="font-size:80%;">(щелкните, чтобы изменить)</span>
+                                </p>
+                            </div>
+
+                        </div><!-- text-center -->
+
+                    </div><!-- col-sm-4 col-md-3 -->
+
+                    <div class="col-sm-8 col-md-9">
+
+                        <!-- Nav tabs -->
+                        <ul class="nav nav-tabs nav-line">
+                            <li class="active"><a href="#activities" data-toggle="tab"><strong>Профиль</strong></a></li>
+                            <li><a href="#followers" data-toggle="tab"><strong>Доступы к вкладкам</strong></a></li>
+
+                        </ul>
+
+                        <!-- Tab panes -->
+                        <div class="tab-content nopadding noborder">
+                            <div class="tab-pane active" id="activities">
+                                <div class="activity-list">
+                                    <form class="media" action="#" id="formEditAdmin">
+
+                                        <input type="hidden" class="form-control" name="id" id="id" value="" />
+                                        <input type="hidden" class="form-control" name="active" id="active" value="" />
+
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-xs-12" for="disabled_input_for_id">ID:</label>
+                                            <div class="col-md-8 col-xs-12">
+                                                <input type="text" class="form-control" id="disabled_input_for_id" value="" disabled="" />
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-xs-12" for="username">Логин:</label>
+                                            <div class="col-md-8 col-xs-12">
+                                                <input type="text" class="form-control" name="username" id="username" value="" onkeypress="clearWarningModalEditAdmin();">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-xs-12" for="position">Должность:</label>
+                                            <div class="col-md-8 col-xs-12">
+                                                <input type="text" class="form-control" name="position" id="position" value="" onkeypress="clearWarningModalEditAdmin();">
+                                            </div>
+                                        </div>
+
+
+                                        <div class="media">
+                                            <div class="form-group">
+                                                <label class="control-label col-md-4 col-xs-12" for="new_password">Сменить пароль:</label>
+                                                <div class="col-md-8 col-xs-12">
+                                                    <input type="password" class="form-control" name="new_password" id="new_password" value="" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form><!-- media -->
+
+                                    <p align="right">
+                                        <span id="label_for_warning_about_changes_and_telling_save"></span>
+                                        <button class="btn btn-success" onclick="saveModalEditAdmin();" id="btnSave">Сохранить</button>
+                                    </p>
+
+
+                                    <script>
+                                        function change_access(value) {
+                                            document.getElementById("active").value = value;
+                                            saveModalEditAdmin();
+                                        }
+
+                                        function btnDisabled(btn, v) {
+                                            v ? btn.disabled = true : btn.disabled = false;
+                                        }
+
+                                        function saveModalEditAdmin() {
+                                            var form = new FormData(document.getElementById("formEditAdmin"));
+                                            var formAccessesToPanels = new FormData(document.getElementById("formAccessToPanels"));
+                                            for (var pair of formAccessesToPanels.entries()) {
+                                                form.append(pair[0], pair[1]);
+                                            }
+                                            var btn = document.getElementById("btnSave")
+                                            btnDisabled(btn, true);
+
+                                            $.ajax({
+                                                method: 'POST',
+                                                type: "POST",
+                                                url: "/api/admin/edit",
+                                                data: form,
+                                                cashe: false,
+                                                processData: false,
+                                                contentType: false,
+                                                beforeSend: function (xhr) {
+                                                    xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+                                                },
+                                                error: function () {
+                                                    alert("Ошибка соединения с сервером");
+                                                    btnDisabled(btn, false);
+                                                },
+                                                success: function (html) {
+                                                    if (html["status"] == "success") {
+                                                        showAlertSuccess();
+                                                        get(form.get("id"));
+                                                    } else if (html["status"] == "error" && html["errors"] == "username_already_exist") {
+                                                        makeWarningModalEditAdmin("Логин уже используется другим админом");
+                                                    } else {
+                                                        makeWarningModalEditAdmin("Извините, на сервере произошла неизвестная ошибка");
+                                                    }
+                                                    btnDisabled(btn, false);
+                                                }
+                                            });
+					                    }
+
+
+                                        function makeWarningModalEditAdmin(message) {
+                                            document.getElementById("label_for_warning_about_changes_and_telling_save").innerHTML = message;
+                                        }
+                                        function clearWarningModalEditAdmin() {
+                                            document.getElementById("label_for_warning_about_changes_and_telling_save").innerHTML = "";
+                                        }
+
+                                    </script>
+
+
+
+
+
+
+
+
+
+
+
+                                </div><!-- activity-list -->
+
+
+                            </div><!-- tab-pane -->
+
+                            <div class="tab-pane" id="followers">
+
+                                <div class="follower-list">
+
+                                    <form class="media" action="#" id="formAccessToPanels">
+
+                                        <!--
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-xs-12" for="XXXXXXXXX">Администраторы:</label>
+                                            <div class="col-md-8 col-xs-12">
+                                                <select data-placeholder="Choose One" class="width100p" onchange="change_status_of_access_to_vkladka_for_admin('admin_panel_admins','9',this.value);">
+                                                    <option value="0" style="color:red;">Доступ закрыт</option>
+                                                    <option value="2" style="color:green;" selected="">Доступ открыт</option>
+                                                </select>
+
+                                            </div>
+                                        </div>
+                                        -->
+
+                                    </form>
+
+
+
+
+
+
+                                </div><!--follower-list -->
+                            </div><!-- tab-pane -->
+
+
+
+
+                            <div class="tab-pane" id="list_of_tovars_of_one_scheta">
+                                <div id="div_for_load_tovars_of_scheta_of_user">
+
+                                </div>
+                            </div>
+
+                            <div class="tab-pane" id="following">
+
+                                <div class="activity-list">
+
+
+                                    <div class="media">
+
+
+
+                                    </div>
+
+
+
+                                </div><!-- activity-list -->
+                            </div><!-- tab-pane -->
+
+
+
+
+
+                            <div class="tab-pane" id="vistavlennie_scheta">
+
+                                <div class="events">
+
+                                    <div class="media" id="div_for_scheta_of_user">
+
+
+
+
+
+
+                                    </div>
+                                </div>
+
+                            </div><!-- tab-pane -->
+
+                        </div><!-- tab-content -->
+
+                    </div><!-- col-sm-9 -->
+                </div><!-- row -->
+
+
+
+                <button class="btn btn-danger" onclick="prepare_delete_admin()">Удалить</button>
+
+                <script>
+                    function change_status_of_access_to_vkladka_for_admin(id_of_vkladka, id_of_admin, value) {
+                        $.ajax({
+                            type: "POST",
+                            url: "scripts/script_for_change_status_of_access_to_panels_for_admins.php",
+                            data: { "id_of_admin": id_of_admin, "id_of_vkladka": id_of_vkladka, "value": value },
+                            cashe: false,
+                            error: function () {
+                                alert("Произошла ошибка, проверьте пожалуйста интернет соединение!");
+                            },
+                            success: function (html) {
+                                var answer = html;
+                                if (answer != '1') {
+                                    //то произошла ошибка
+                                    alert("Ошибка операции, или статус уже был изменён другим админом. Пожалуйста, обновите страницу.");
+                                } else {
+
+                                }
+
+                            }
+                        });
+
+                    }
+                </script>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-dismiss="modal" data-target="">Закрыть</button>
+            </div>
+
+        </div>
+    </div>
+</div>

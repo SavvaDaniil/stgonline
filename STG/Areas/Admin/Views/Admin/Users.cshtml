@@ -1,0 +1,563 @@
+﻿
+
+@{
+    ViewData["Title"] = "Пользователи";
+    @using Microsoft.AspNetCore.Antiforgery;
+    @inject IAntiforgery antiforgery
+    var tokenSet = antiforgery.GetAndStoreTokens(Context);
+}
+
+
+
+<div class="pageheader">
+    <div class="media">
+        <div class="pageicon pull-left">
+            <i class="fa fa-users"></i>
+        </div>
+        <div class="media-body">
+            <ul class="breadcrumb">
+                <li><a href=""><i class="glyphicon glyphicon-users"></i></a></li>
+                <li>Ученики</li>
+            </ul>
+            <h4>Ученики</h4>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="contentpanel users">
+
+    <div class="row">
+        <div class="col-sm-3">
+
+            <h5 class="md-title">Contacts</h5>
+            <ul class="nav nav-pills nav-stacked nav-contacts">
+                <li class="active">
+                    <a href="#">
+                        Все
+                        <span class="badge pull-right" id="print_off_all_users"></span>
+                    </a>
+                </li>
+            </ul>
+
+            <br />
+
+            <!--
+            <button class="btn btn-default" data-toggle="modal" data-target="#modal_add_new_client">
+                <img src="~/images/plus.png" height="18px"> Добавить
+            </button>
+            -->
+
+        </div><!-- col-sm-3 -->
+        <div class="col-sm-9">
+
+            <div class="well mt10">
+                <form id="formSearch" class="row">
+                    <div class="col-sm-9">
+                        <input type="text" placeholder="Поиск" name="queryString" class="form-control" />
+                    </div>
+                    <div class="col-sm-3">
+                        <button class="btn btn-success" onclick="searchStartAgain()">Найти</button>
+                    </div>
+                    <div class="col-sm-12">
+                        <p class="warning"></p>
+                    </div>
+
+                </form>
+            </div><!-- well -->
+
+            <script>
+                window.onload = function () {
+                    search();
+                }
+
+                function searchStartAgain() {
+                    PAGE = 1;
+                    search();
+                }
+
+                var PAGE = 1;
+                function search() {
+                    var btn = document.getElementById("formSearch").getElementsByTagName("button")[0];
+                    var form = new FormData(document.getElementById("formSearch"));
+                    form.set("page", PAGE);
+                    btnDisabled(btn, true);
+                    $("#user_list").html("<p>Идет загрузка...</p>");
+
+                    $.ajax({
+                        method: 'POST',
+                        type: "POST",
+                        url: "/api/user/search",
+                        data: form,
+                        cashe: false,
+                        processData: false,
+                        contentType: false,
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+                        },
+                        error: function () {
+                            makeWarning("Ошибка соединения с сервером");
+                            btnDisabled(btn, false);
+                            $("#user_list").empty();
+                        },
+                        success: function (html) {
+                            if (html["status"] == "success") {
+                                _buildPagination(html["result"]["count"]);
+                                userListBuild(html["result"]["users"]);
+                            } else {
+                                makeWarning("Извините, на сервере произошла неизвестная ошибка");
+                            }
+                            btnDisabled(btn, false);
+                        }
+                    });
+                }
+                function searchNext() {
+                    PAGE++;
+                    search();
+                }
+                function searchPrev() {
+                    PAGE--;
+                    search();
+                }
+
+                function clearWarning() {
+                    document.getElementsByClassName("warning")[0].innerHTML = "";
+                }
+                function makeWarning(message) {
+                    document.getElementsByClassName("warning")[0].innerHTML = message;
+                }
+
+                function btnDisabled(btn, v) {
+                    v ? btn.disabled = true : btn.disabled = false;
+                }
+            </script>
+
+            <br />
+
+            <div class="pull-right" id="searchPagination">
+                <!--
+                <ul class="pagination pagination-split pagination-sm pagination-contact">
+                    <li class="disabled"><a href="#"><i class="fa fa-angle-left"></i></a></li>
+                    <li class="active"><a href="#">1</a></li>
+                    <li><a href="#">2</a></li>
+                    <li><a href="#">3</a></li>
+                    <li><a href="#">4</a></li>
+                    <li><a href="#">5</a></li>
+                    <li><a href="#"><i class="fa fa-angle-right"></i></a></li>
+                </ul>
+                    -->
+            </div>
+
+            <script>
+                function _buildPagination(count) {
+                    if (document.getElementById("print_off_all_users").innerHTML == "") {
+                        document.getElementById("print_off_all_users").innerHTML = count;
+                    }
+
+                    document.getElementById("searchPagination").innerHTML = "";
+
+                    var ul = document.createElement("ul");
+                    ul.className = "pagination pagination-split pagination-sm pagination-contact";
+
+                    var li0 = document.createElement("li");
+                    li0.className = (PAGE > 1 ? "" : "disabled");
+                    var a0 = document.createElement("a");
+                    a0.href = "#";
+                    if (PAGE > 1) {
+                        a0.onclick = function () {
+                            searchPrev();
+                        }
+                    }
+                    var i1 = document.createElement("i");
+                    i1.className = "fa fa-angle-left";
+                    a0.appendChild(i1);
+                    li0.appendChild(a0);
+
+
+                    var liActive = document.createElement("li");
+                    liActive.className = "active";
+                    var a1 = document.createElement("a");
+                    a1.href = "#";
+                    a1.innerHTML = PAGE;
+                    liActive.appendChild(a1);
+
+                    var li2 = document.createElement("li");
+                    li2.className = (PAGE * 30 < count ? "" : "disabled");
+                    var a2 = document.createElement("a");
+                    a2.href = "#";
+                    if (PAGE * 30 < count) {
+                        a2.onclick = function () {
+                            searchNext();
+                        }
+                    }
+                    var i2 = document.createElement("i");
+                    i2.className = "fa fa-angle-right";
+                    a2.appendChild(i2);
+                    li2.appendChild(a2);
+
+                    ul.appendChild(li0);
+                    ul.appendChild(liActive);
+                    ul.appendChild(li2);
+
+                    document.getElementById("searchPagination").appendChild(ul);
+                }
+            </script>
+
+
+            <h3 class="xlg-title">Найденное:</h3>
+
+            <div class="list-group contact-group" id="user_list">
+
+                <!--
+                <a href="#" class="list-group-item">
+                    <div class="media">
+                        <div class="pull-left">
+                            <img class="img-circle img-online" src="~/admin_style/images/photos/user1.png" alt="...">
+                        </div>
+                        <div class="media-body">
+                            <h4 class="media-heading">Weno Carasbong <small>Software Engineer at Apple, Inc.</small></h4>
+                            <div class="media-content">
+                                <i class="fa fa-map-marker"></i> Cebu Business Park, Cebu City, Philippines
+                                <ul class="list-unstyled">
+                                    <li><i class="fa fa-envelope-o"></i> weno.carasbong@email.com</li>
+                                    <li><i class="fa fa-instagram"></i> weno.carasbong</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                -->
+
+
+            </div>
+
+
+
+
+        </div>
+    </div>
+
+
+</div>
+
+
+<script>
+    function userListBuild(users) {
+        _clearListUser();
+        if (users.length == 0) {
+            document.getElementById("user_list").innerHTML = "<p>- ничего не найдено -</p>";
+            return;
+        }
+        for (var i = 0; i < users.length; i++) {
+            document.getElementById("user_list").appendChild(_buildAUserpreview(users[i]));
+        }
+    }
+
+    function _clearListUser() {
+        $("#user_list").empty();
+    }
+
+
+
+    function _buildAUserpreview(userdata) {
+        var aBlock = document.createElement("a");
+        aBlock.className = "list-group-item";
+        var divMedia = document.createElement("div");
+        divMedia.className = "media";
+
+        divMedia.appendChild(_buildPhoto(userdata));
+        divMedia.appendChild(_buildSecondnameAndFirstname(userdata));
+        divMedia.appendChild(_buildSecondaryInfo(userdata));
+
+        aBlock.appendChild(divMedia);
+        aBlock.onclick = function () {
+            get(userdata["id"]);
+        }
+
+        return aBlock;
+    }
+
+
+    function _buildPhoto(userdata) {
+        var divMediaContent = document.createElement("div");
+        divMediaContent.className = "pull-left";
+        var img = document.createElement("img");
+        img.className = "img-circle img-online";
+        img.src = "/admin_style/images/photos/user1.png";
+        img.alt = "...";
+        divMediaContent.appendChild(img);
+        return divMediaContent;
+    }
+    function _buildSecondnameAndFirstname(userdata) {
+        var h4MediaHeading = document.createElement("h4");
+        h4MediaHeading.className = "media-heading";
+        h4MediaHeading.innerHTML =
+            (userdata["secondname"] != null ? userdata["secondname"] : "")
+            + " "
+            + (userdata["firstname"] != null ? userdata["firstname"] : "");
+        return h4MediaHeading;
+    }
+    function _buildSecondaryInfo(userdata) {
+        var divMediaContent = document.createElement("div");
+        divMediaContent.className = "media-content";
+
+        var iRegion = document.createElement("i");
+        iRegion.className = "fa fa-map-marker";
+        if (userdata["region_name"] != null) {
+            iRegion.innerHTML = userdata["region_name"];
+        } else {
+            iRegion.innerHTML = "-";
+        }
+
+        var ul = document.createElement("ul");
+        ul.className = "list-unstyled";
+
+        var li = document.createElement("li");
+        var i = document.createElement("i");
+        i.className = "fa fa-envelope-o";
+        li.appendChild(i);
+        li.innerHTML += userdata["username"];
+        ul.appendChild(li);
+
+        if (typeof (userdata["instagram"]) != "undefined" && userdata["instagram"] != null) {
+            var li = document.createElement("li");
+            var i = document.createElement("i");
+            i.className = "fa fa-instagram";
+            li.appendChild(i);
+            li.innerHTML += userdata["instagram"];
+            ul.appendChild(li);
+        }
+
+        divMediaContent.appendChild(iRegion);
+        divMediaContent.appendChild(ul);
+        return divMediaContent;
+    }
+</script>
+
+
+@{await Html.RenderPartialAsync("_modalEditUserPartial"); }
+
+<script>
+    var ID_OF_USER = 0;
+    function get(id) {
+        ID_OF_USER = id;
+        var form = new FormData();
+        form.set("id", id);
+        //var btn = document.getElementById("formSearch").getElementsByTagName("button")[0];
+        //var btnSave = document.getElementById("btnSave");
+        //btnDisabled(btn, true);
+        //btnDisabled(btnSave, true);
+
+        $.ajax({
+            method: 'POST',
+            type: "POST",
+            url: "/api/user/get",
+            data: form,
+            cashe: false,
+            processData: false,
+            contentType: false,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+            },
+            error: function () {
+                alert("Ошибка соединения с сервером");
+                //btnDisabled(btn, false);
+                //btnDisabled(btnSave, false);
+            },
+            success: function (html) {
+                if (html["status"] == "success") {
+                    modalEditUserInit(html["userdata"]);
+                    listAllPurchaseSubscriptions();
+                } else {
+                    alert("Извините, на сервере произошла неизвестная ошибка");
+                }
+                //btnDisabled(btn, false);
+                //btnDisabled(btnSave, false);
+            }
+        });
+    }
+</script>
+
+
+<script>
+    function modalEditUserInit(userdata) {
+
+        document.getElementById("id").value = userdata["id"];
+        document.getElementById("active").value = userdata["active"];
+        document.getElementById("disabled_input_for_id").value = userdata["id"];
+        document.getElementById("username").value = userdata["username"];
+        document.getElementById("firstname").value = userdata["firstname"];
+        document.getElementById("secondname").value = userdata["secondname"];
+        document.getElementById("instagram").value = userdata["instagram"];
+        document.getElementById("date_of_birthday").value = userdata["date_of_birthday"];
+        document.getElementById("prolongation").value = userdata["prolongation"];
+        document.getElementById("is_test").value = userdata["is_test"];
+        document.getElementById("is_lesson_full_access").value = userdata["is_lesson_full_access"];
+
+        document.getElementById("new_password").value = "";
+        document.getElementById("label_for_warning_about_changes_and_telling_save").innerHTML = "";
+
+        var btnActive = document.getElementById("btnActive");
+        btnActive.classList.add("divHide");
+        if (userdata["active"] == 1) {
+            btnActive.className = "btn btn-success";
+            btnActive.innerHTML = "Доступ открыт";
+            btnActive.onclick = function () {
+                change_access(0);
+            }
+            btnActive.classList.remove("divHide");
+        } else {
+            btnActive.className = "btn btn-danger";
+            btnActive.innerHTML = "Доступ закрыт";
+            btnActive.onclick = function () {
+                change_access(1);
+            }
+            btnActive.classList.remove("divHide");
+        }
+
+        $("#formConnectionsPackgePrivateToUser").empty();
+        for (var i = 0; i < userdata["private_packages"].length; i++) {
+            document.getElementById("formConnectionsPackgePrivateToUser").appendChild(_buildPackagePrivateConnectionModalEditUser(userdata["private_packages"][i]));
+        }
+
+        $("#modalEditUser").modal();
+    }
+
+    function _buildPackagePrivateConnectionModalEditUser(private_package) {
+
+        var option0 = document.createElement("option");
+        option0.value = 0;
+        option0.innerHTML = "Доступ закрыт";
+        if (private_package["active"] == 1) option0.selected = true;
+
+        //var option1 = document.createElement("option");
+        var option1 = document.createElement("option");
+        option1.value = 1;
+        option1.innerHTML = "Доступ открыт";
+        if (private_package["active"] == 1) option1.selected = true;
+
+        var select = document.createElement("select");
+        select.className = "form-control";
+        //select.name = access_to_panels["item1"];
+        select.onchange = function () {
+            changeConnectionPackagePrivateToUser(private_package["id"], this.value);
+        }
+        select.appendChild(option0);
+        select.appendChild(option1);
+
+        var divSelect = document.createElement("div");
+        divSelect.className = "col-md-8 col-xs-12";
+        divSelect.appendChild(select);
+
+        var label = document.createElement("label");
+        label.className = "control-label col-md-4 col-xs-12";
+        //label.htmlFor = private_package["private_package_"];
+        label.innerHTML = "id"+private_package["id"] + " " + private_package["name"];
+
+        var div = document.createElement("div");
+        div.className = "form-group";
+        div.appendChild(label);
+        div.appendChild(divSelect);
+
+        return div;
+    }
+
+
+    function changeConnectionPackagePrivateToUser(id_of_package, active) {
+        var form = new FormData();
+        form.set("id_of_user", ID_OF_USER);
+        form.set("id_of_package", id_of_package);
+        form.set("active", active);
+        //var btn = document.getElementById("formSearch").getElementsByTagName("button")[0];
+        //var btnSave = document.getElementById("btnSave");
+        //btnDisabled(btn, true);
+        //btnDisabled(btnSave, true);
+
+        $.ajax({
+            method: 'POST',
+            type: "POST",
+            url: "/api/connection_user_to_private_package/update",
+            data: form,
+            cashe: false,
+            processData: false,
+            contentType: false,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+            },
+            error: function () {
+                alert("Ошибка соединения с сервером");
+                //btnDisabled(btn, false);
+                //btnDisabled(btnSave, false);
+            },
+            success: function (html) {
+                if (html["status"] == "success") {
+                    showAlertSuccess();
+                    get(ID_OF_USER);
+                } else {
+                    alert("Извините, на сервере произошла неизвестная ошибка");
+                }
+                //btnDisabled(btn, false);
+                //btnDisabled(btnSave, false);
+            }
+        });
+    }
+</script>
+
+
+<script>
+    function prepare_delete_user() {
+        $("#modalEditUser").modal("hide");
+        $("#modal_window_for_delete_user").modal();
+    }
+    function delete_user() {
+        var form = new FormData(document.getElementById("formSearch"));
+        form.set("id", ID_OF_USER);
+
+        $.ajax({
+            method: 'POST',
+            type: "POST",
+            url: "/api/user/delete",
+            data: form,
+            cashe: false,
+            processData: false,
+            contentType: false,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+            },
+            error: function () {
+                alert("Ошибка соединения с сервером");
+            },
+            success: function (html) {
+                if (html["status"] == "success") {
+                    $("#modal_window_for_delete_user").modal("hide");
+                    searchStartAgain();
+                } else {
+                    alert("Извините, на сервере произошла неизвестная ошибка");
+                }
+            }
+        });
+
+    }
+</script>
+
+<!--
+<div class="modal fade bs-example-modal-sm" id="modal_window_for_delete_user" tabindex="-1" role="dialog" style="padding-top:20%;">
+
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button aria-hidden="true" data-dismiss="modal" class="close" type="button">&times;</button>
+                <h4 class="modal-title">Вы уверены, что хотите удалить пользователя из базы данных?</h4>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="delete_admin();">Да</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal" data-target="">Нет</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+-->

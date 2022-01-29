@@ -1,0 +1,172 @@
+﻿@using STG.ViewModels.Lesson;
+
+@model LessonBuyViewModel;
+
+@{
+    ViewData["Title"] = "Покупка доступа к уроку | STG";
+    @using Microsoft.AspNetCore.Antiforgery
+    @inject IAntiforgery antiforgery
+    var tokenSet = antiforgery.GetAndStoreTokens(Context);
+    var first_id_of_subscription = 0;
+}
+
+
+
+<div class="col-12 row payment-new">
+    <div class="col-1 col-lg-4 col-md-4 col-sm-1"></div>
+
+    <div class="col-10 col-lg-4 col-md-4 col-sm-10 row">
+        <div class="block col-12 row">
+            <div class="col-12">
+                <h5>
+                    Оплата доступа к уроку@(Model.lesson != null ? ": " + Model.lesson.shortName : "")
+                </h5>
+            </div>
+
+            @for(int key = 0; key < Model.subscriptions.Count; key++)
+            {
+                   @if (key == 0) { first_id_of_subscription = Model.subscriptions[key].id; }
+
+                <div class="col-12 row abonement-info @(key == 0 ? " active" : "") >
+                    "
+                    onclick="change_prolongation(@key, @Model.subscriptions[key].id)"
+                    >
+                    <div class="col-8">
+                        @Model.subscriptions[key].name
+                    </div>
+                    <div class="col-4">
+                        <p>@Model.subscriptions[key].price руб.</p>
+                    </div>
+                </div>
+
+                }
+
+                <div class="col-12">
+                    <hr />
+                </div>
+
+                <div class="col-12 row lesson-price-info" onclick="choose_single_pay()">
+                    <div class="col-8">
+                        Разовая оплата на<br />@Model.lesson.days дней
+                    </div>
+                    <div class="col-4">
+                        <p>@Model.lesson.price руб.</p>
+                    </div>
+                </div>
+                
+
+                <form action="#" class="col-12">
+                    <div class="form-check prolongation-div">
+                        <input class="form-check-input" type="checkbox" value="" id="prolongation" checked />
+                        <label class="form-check-label" for="prolongation">
+                            Автопродление
+                        </label>
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="agreement" onchange="enableForm()" />
+                        <label class="form-check-label" for="agreement">
+                            Я принимаю <a href="/agreement" target="_blank">пользовательское соглашение</a>
+                        </label>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="button" class="btn" disabled id="btnPayment" onclick="buy(this)">
+                            Приступить к оплате
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+<script>
+    var ID_OF_SUBSCRIPTION = @first_id_of_subscription;
+    function change_prolongation(value, id_of_subscription) {
+        remove_single_pay();
+        var els = document.getElementsByClassName("abonement-info");
+        for (var i = 0; i < els.length; i++) {
+            els[i].classList.remove("active");
+        }
+        ID_OF_SUBSCRIPTION = id_of_subscription;
+        document.getElementsByClassName("abonement-info")[value].classList.add("active");
+    }
+
+    var SINGLE = 0;
+    function choose_single_pay() {
+        var els = document.getElementsByClassName("abonement-info");
+        for (var i = 0; i < els.length; i++) {
+            els[i].classList.remove("active");
+        }
+        SINGLE = 1;
+        document.getElementsByClassName("lesson-price-info")[0].classList.add("active");
+        if (document.getElementById("prolongation").checked) {
+            document.getElementById("prolongation").checked = false;
+        }
+        document.getElementById("prolongation").disabled = true;
+    }
+    function remove_single_pay() {
+        SINGLE = 0;
+        document.getElementsByClassName("lesson-price-info")[0].classList.remove("active");
+        document.getElementById("prolongation").disabled = false;
+    }
+
+
+    function enableForm() {
+        var btn = document.getElementById("btnPayment");
+        if (document.getElementById("agreement").checked) {
+            btn.disabled = false;
+        } else {
+            btn.disabled = true;
+        }
+    }
+
+    function buy(btn) {
+        var form = new FormData();
+
+        var is_prolongation = (document.getElementById("prolongation").checked ? 1 : 0);
+
+        form.append("is_prolongation", is_prolongation);
+        form.append("id_of_lesson", "@Model.lesson.id");
+        form.append("id_of_subscription", ID_OF_SUBSCRIPTION);
+        form.append("single", SINGLE);
+        btnEnabled(btn, true);
+
+        $.ajax({
+            method: 'POST',
+            type: "POST",
+            url:  "/api/payment/new",
+            data: form,
+            cashe: false,
+            processData: false,
+            contentType: false,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+            },
+            error:function(){
+                alert("Ошибка соединения с сервером");
+                btnEnabled(btn, false);
+            },
+            success: function(html)
+            {
+                if (html["status"] == "success") {
+                    //window.location.reload();
+                    //window.location.href = "/fake/lesson/" + html["payment"]["id"];
+                    if (html["payment"]["status"] == true && html["payment"]["paymentURL"] != null && typeof (html["payment"]["paymentURL"]) != "undefined") {
+                        window.location.href = html["payment"]["paymentURL"];
+                    } else {
+                        alert("Извините, на сервере произошла ошибка связи с банком");
+                        btnEnabled(btn, false);
+                    }
+                }  else {
+                    alert("Извините, на сервере произошла неизвестная ошибка");
+                    btnEnabled(btn, false);
+                }
+            }
+        });
+    }
+    function btnEnabled(btn, v) {
+        v ? btn.disabled = true : btn.disabled = false;
+    }
+</script>

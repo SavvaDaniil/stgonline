@@ -1,0 +1,100 @@
+﻿
+@{
+    ViewData["Title"] = "Вход";
+    @using Microsoft.AspNetCore.Antiforgery
+    @inject IAntiforgery antiforgery
+    var tokenSet = antiforgery.GetAndStoreTokens(Context);
+}
+
+
+
+
+
+<div class="col-12 row">
+    <div class="d-none d-md-block col-4"></div>
+    <div class="col-12 col-lg-4 col-md-4 col-sm-12 login">
+        <div class="block">
+            <h2>Вход</h2>
+            <hr />
+            <form action="#" id="loginForm">
+                <input type="text" name="username" class="form-control" placeholder="Электронная почта" onkeypress="clearWarning()" />
+                <input type="password" name="password" class="form-control" placeholder="Пароль" onkeypress="clearWarning()" />
+                <input type="hidden" name="<?=Yii::$app->request->csrfParam; ?>" value="<?=Yii::$app->request->getCsrfToken(); ?>" />
+
+                <p>
+                    <a href="/forget">
+                        Забыли пароль?
+                    </a>
+                </p>
+                <button class="btn" type="button" onclick="login(this)">
+                    Войти
+                </button>
+                <p id="warning"></p>
+            </form>
+            <p>
+                У вас нет аккаунта? <a href="/registration">Зарегистрироваться</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+    function login(btn) {
+        clearWarning();
+
+        btnEndabled(btn, true);
+        var form = new FormData(document.getElementById("loginForm"));
+
+        if (form.get("username") == "") {
+            $("#warning").html("Не указана почта");
+            btnEndabled(btn, false);
+            return;
+        }
+        if (form.get("password") == "") {
+            $("#warning").html("Не указан пароль");
+            btnEndabled(btn, false);
+            return;
+        }
+
+        $.ajax({
+            method: 'POST',
+            type: "POST",
+            url: "/api/user/login",
+            data: form,
+            cashe: false,
+            processData: false,
+            contentType: false,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+            },
+            error: function () {
+                $("#warning").html("Ошибка соединения с сервером");
+                btnEndabled(btn, false);
+            },
+            success: function (html) {
+                if (html["status"] == "success") {
+                    window.location.href = "/lessons";
+                } else if (html["status"] == "error" && html["errors"] == "wrong") {
+                    $("#warning").html("Неправильно введены логин или пароль");
+                    btnEndabled(btn, false);
+                } else {
+                    $("#warning").html("Извините, на сервере произошла неизвестная ошибка");
+                    btnEndabled(btn, false);
+                }
+            }
+        });
+
+    }
+    function clearWarning() {
+        $("#warning").html("");
+    }
+    function btnEndabled(btn, v) {
+        v ? btn.disabled = true : btn.disabled = false;
+    }
+    function removeNotFilled(id) {
+        $("#" + id).removeClass("not_filled");
+        clearWarning();
+    }
+</script>
+
+

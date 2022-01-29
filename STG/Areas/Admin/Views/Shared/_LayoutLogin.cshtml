@@ -1,0 +1,51 @@
+﻿
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Аутентификация | Панель администратора - STG</title>
+
+    <link rel="icon" href="~/images/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="~/images/favicon.ico" type="image/x-icon" />
+    <link href="~/admin_style/css/style.default.css" rel="stylesheet">
+    <link href="~/admin_style/css/morris.css" rel="stylesheet">
+    <link href="~/admin_style/css/select2.css" rel="stylesheet" />
+    <link href="~/admin_style/custom.css" rel="stylesheet" />
+
+</head>
+<body class="signin">
+
+
+
+    @RenderBody()
+
+    <script src="~/admin/js/jquery-1.11.1.min.js"></script>
+    <script src="~/admin/js/jquery-migrate-1.2.1.min.js"></script>
+    <script src="~/admin/js/bootstrap.min.js"></script>
+    <script src="~/admin/js/modernizr.min.js"></script>
+    <script src="~/admin/js/pace.min.js"></script>
+    <script src="~/admin/js/retina.min.js"></script>
+    <!--<script src="~/admin/js/jquery.cookies.js"></script>-->
+
+    <script src="~/admin/js/flot/jquery.flot.min.js"></script>
+    <script src="~/admin/js/flot/jquery.flot.resize.min.js"></script>
+    <script src="~/admin/js/flot/jquery.flot.spline.min.js"></script>
+    <script src="~/admin/js/jquery.sparkline.min.js"></script>
+    <script src="~/admin/js/morris.min.js"></script>
+    <script src="~/admin/js/raphael-2.1.0.min.js"></script>
+    <script src="~/admin/js/bootstrap-wizard.min.js"></script>
+    <script src="~/admin/js/select2.min.js"></script>
+    <script src="~/admin/js/custom.js"></script>
+    <script src="~/admin/js/dashboard.js"></script>
+    @RenderSection("Scripts", required: false)
+
+
+</body>
+</html>
+

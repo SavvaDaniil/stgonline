@@ -1,0 +1,243 @@
+﻿@using STG.ViewModels.User
+@using STG.ViewModels.TeacherViewModel;
+@model RegistrationViewModel;
+
+
+@{
+    ViewData["Title"] = "Регистрация | STG";
+    @using Microsoft.AspNetCore.Antiforgery
+    @inject IAntiforgery antiforgery
+    var tokenSet = antiforgery.GetAndStoreTokens(Context);
+}
+
+
+
+<div class="col-12 row">
+    <div class="d-none d-md-block col-4"></div>
+    <div class="col-12 col-lg-4 col-md-8 col-sm-12 registration">
+        <div class="block">
+            <h2>Регистрация</h2>
+            <hr />
+            <form id="regForm">
+
+                <div class="form-group">
+                    <label>Личная информация</label>
+                    <input type="text" class="form-control" placeholder="Ваше имя" name="firstname" id="firstname" onkeypress="removeNotFilled(this)" />
+                    <input type="text" class="form-control" placeholder="Ваша фамилия" name="secondname" id="secondname" onkeypress="removeNotFilled(this)" />
+                    <input type="text" class="form-control" placeholder="Электронная почта" name="username" id="username" onkeypress="removeNotFilled(this)" />
+
+                    <select class="form-control" name="id_of_region" id="id_of_region" onchange="removeNotFilled(this)">
+                        <option value="0">Регион</option>
+
+                        @foreach (var region in Model.regionEnum)
+                        {
+                            <option value="@region.id">@region.name</option>
+                        }
+                    </select>
+                    <input type="text" class="form-control" placeholder="Ссылка на ваш instagram" name="instagram" id="instagram" onkeypress="removeNotFilled(this)" />
+
+                    <label>Дата рождения</label>
+                    <input type="date" class="form-control" placeholder="Дата рождения" name="date_of_birthday" id="date_of_birthday" onkeypress="removeNotFilled(this)" />
+                </div>
+
+                <div class="form-group">
+                    <input type="password" class="form-control" placeholder="Придумайте пароль" name="password" id="password" onkeypress="removeNotFilled(this)" />
+                </div>
+
+                <div class="form-group">
+                    <input type="password" class="form-control" placeholder="Подтвердить пароль" name="password_again" id="password_again" onkeypress="removeNotFilled(this)" />
+                </div>
+
+
+
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="privacy" onchange="enableForm()" />
+                    <label class="form-check-label" for="privacy">
+                        Я принимаю <a href="/privacy" target="_blank">политику конфиденциальности</a>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <button type="button" id="btnReg" class="btn btn-block" onclick="registration(this)" disabled>
+                        Зарегистрироваться
+                    </button>
+                    <p id="warning"></p>
+                </div>
+            </form>
+            <p>
+                У вас есть аккаунта? <a href="/login">Войти</a>
+            </p>
+
+            <script>
+                function enableForm() {
+                    var btn = document.getElementById("btnReg");
+                    if (document.getElementById("privacy").checked) {
+                        btn.disabled = false;
+                    } else {
+                        btn.disabled = true;
+                    }
+                }
+
+                function registration(btn) {
+
+                    var inputs = document.getElementById("regForm").getElementsByTagName("input");
+                    for (let i = 0; i < inputs.length; i++) {
+                        inputs[i].classList.remove("not_filled");
+                    }
+                    clearWarning();
+
+                    btnEnabled(btn, true);
+                    var form = new FormData(document.getElementById("regForm"));
+                    if (form.get("is_need_curator") == 0) {
+                        $("#warning").html("Укажите пожалуйста, необходим ли вам куратор");
+                        $("#is_need_curator").addClass("not_filled");
+                        btnEnabled(btn, false);
+                        return;
+                    }
+
+                    if (form.get("is_need_curator") > 1) {
+                        var curators = [];
+                        var inputsCurator = document.getElementsByClassName("curator-checkbox");
+                        for (var i = 0; i < inputsCurator.length; i++) {
+                            if (inputsCurator[i].checked) curators.push(inputsCurator[i].value);
+                        }
+                        if (curators.length < 2) {
+                            $("#warning").html("Укажите пожалуйста, минимум 2-ух желаемых наставников");
+                            return;
+                        }
+                    }
+                    form.append("curators", curators);
+
+                    if (form.get("is_need_curator") == 2 || form.get("is_need_curator") == 3) {
+                        var isNoVideo = false;
+                        if (form.get("link1") == "") {
+                            $("#warning").html("Введите пожалуйста ссылку на ваше видео"); $("#link1").addClass("not_filled"); isNoVideo = true;
+                        }
+                        if (form.get("link2") == "") {
+                            $("#warning").html("Введите пожалуйста ссылку на ваше видео"); $("#link2").addClass("not_filled"); isNoVideo = true;
+                        }
+                        if (form.get("link3") == "") {
+                            $("#warning").html("Введите пожалуйста ссылку на ваше видео"); $("#link3").addClass("not_filled"); isNoVideo = true;
+                        }
+                        if (isNoVideo) {
+                            btnEnabled(btn, false);
+                            return;
+                        }
+                    }
+
+                    if (form.get("firstname") == "") {
+                        $("#warning").html("Не указано имя");
+                        $("#firstname").addClass("not_filled");
+                        btnEnabled(btn, false);
+                        return;
+                    }
+                    if (form.get("secondname") == "") {
+                        $("#warning").html("Не указана фамилия");
+                        $("#secondname").addClass("not_filled");
+                        btnEnabled(btn, false);
+                        return;
+                    }
+                    if (form.get("username") == "") {
+                        $("#warning").html("Не указана электронная почта");
+                        $("#username").addClass("not_filled");
+                        btnEnabled(btn, false);
+                        return;
+                    }
+                    if (!isValidateEmail(form.get("username"))) {
+                        $("#warning").html("Электронная почта введена некорректно");
+                        $("#username").addClass("not_filled");
+                        btnEnabled(btn, false);
+                        return;
+                    }
+                    if (form.get("date_of_birthday") != "" && !isValidDate(form.get("date_of_birthday"))) {
+                        $("#warning").html("Введена некоррентная дата рождения");
+                        $("#date_of_birthday").addClass("not_filled");
+                        btnEnabled(btn, false);
+                        return;
+                    }
+                    if (form.get("id_of_region") == 0) {
+                        $("#warning").html("Не указан регион");
+                        $("#id_of_region").addClass("not_filled");
+                        btnEnabled(btn, false);
+                        return;
+                    }
+                    if (form.get("password") == "") {
+                        $("#warning").html("Не указан пароль");
+                        $("#password").addClass("not_filled");
+                        btnEnabled(btn, false);
+                        return;
+                    }
+                    if (form.get("password_again") == "") {
+                        $("#warning").html("Не указан пароль еще раз");
+                        $("#password_again").addClass("not_filled");
+                        btnEnabled(btn, false);
+                        return;
+                    }
+                    if (form.get("password_again") != form.get("password")) {
+                        $("#warning").html("Пароли не совпадают");
+                        $("#password_again").addClass("not_filled");
+                        btnEnabled(btn, false);
+                        return;
+                    }
+
+
+                    $.ajax({
+                        method: 'POST',
+                        type: "POST",
+                        url: "/api/user/registration",
+                        data: form,
+                        cashe: false,
+                        processData: false,
+                        contentType: false,
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader('@tokenSet.HeaderName', '@tokenSet.RequestToken');
+                        },
+                        error: function () {
+                            $("#warning").html("Ошибка соединения с сервером");
+                            btnEnabled(btn, false);
+                        },
+                        success: function (html) {
+
+                            if (html["status"] == "success") {
+                                if (form.get("is_need_curator") > 1 && html["payment"]["paymentURL"] != null && typeof (html["payment"]["paymentURL"]) != "undefined") {
+                                    window.location.href = html["payment"]["paymentURL"];
+                                } else {
+                                    window.location.href = "/lessons";
+                                }
+                            } else if (html["status"] == "error" && html["errors"] == "username_already_exist") {
+                                $("#warning").html("Указанный email уже зарегистрирован в базе");
+                            } else if (html["status"] == "error" && html["errors"] == "no_data") {
+                                $("#warning").html("Извините, произошла ошибка на сервере");
+                            } else if (html["status"] == "error") {
+                                $("#warning").html("Извините, неизвестная ошибка на сервере");
+                            }
+                            btnEnabled(btn, false);
+                        }
+                    });
+                }
+                function clearWarning() {
+                    $("#warning").html("");
+                }
+                function btnEnabled(btn, v) {
+                    v ? btn.disabled = true : btn.disabled = false;
+                }
+                function removeNotFilled(el) {
+                    el.classList.remove("not_filled");
+                    clearWarning();
+                }
+                function curatorControl(value) {
+                    (value == 0 || value == 1) ? $("#for_need_curator").hide() : $("#for_need_curator").show();
+                }
+
+                function registrationAppointment(btn, form) {
+
+                }
+
+            </script>
+        </div>
+    </div>
+</div>
+
+
+

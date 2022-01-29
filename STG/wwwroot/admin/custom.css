@@ -1,0 +1,75 @@
+
+.warningNotFound {
+    text-align: center;
+    font-size: 12px;
+}
+.status-granted {
+    color:green;
+}
+.status-denied {
+    color: red;
+    font-weight:700;
+}
+table i {
+    font-size:18px;
+}
+
+.btn-save-right {
+    text-align:right;
+    margin-top:12px;
+}
+.btn-delete {
+    display:block;
+}
+.input-hide {
+    display:none;
+}
+.img-circle {
+    border-radius:50%;
+}
+
+.form-teacher img {
+    max-height: 200px;
+    margin: 12px 0;
+}
+.form-teacher .btn {
+    margin:12px 0;
+}
+
+.form-video img {
+    max-height: 200px;
+    margin: 12px 0;
+    border-radius:4px;
+}
+.form-video .btn {
+    margin: 12px 0;
+}
+
+.form-lesson img {
+    max-height: 200px;
+    margin: 12px 0;
+    border-radius: 4px;
+}
+
+.form-lesson .btn {
+    margin: 12px 0;
+}
+.form-lesson video {
+    max-width:500px;
+}
+
+.dropper-progress {
+    display:none;
+    font-weight:700;
+    text-align:center;
+}
+.dropper-progress.active {
+    display:block;
+}
+
+.player-preview {
+    margin:15px 0;
+}
+.player-preview .btn {
+    margin:15px 0;
+}
