@@ -20,7 +20,7 @@ namespace STG.Service
             this._dbc = dbc;
         }
 
-        public async Task<Admin> add(string username)
+        public Admin add(string username)
         {
             Admin admin = new Admin();
             admin.Username = username;
@@ -28,18 +28,18 @@ namespace STG.Service
             admin.Password = BCrypt.Net.BCrypt.HashPassword(RandomComponent.RandomString(6));
             admin.AuthKey = RandomComponent.RandomString(32);
 
-            await _dbc.Admins.AddAsync(admin);
-            await _dbc.SaveChangesAsync();
+            _dbc.Admins.Add(admin);
+            _dbc.SaveChanges();
 
             return admin;
         }
 
-        public async Task<bool> delete(int id)
+        public bool delete(int id)
         {
-            Admin admin = await findById(id);
+            Admin admin = findById(id);
             if (admin == null) return false;
             _dbc.Admins.Remove(admin);
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
         }
 
@@ -61,16 +61,16 @@ namespace STG.Service
             return false;
         }
 
-        public async Task<Admin> findByUsername(string username)
+        public Admin findByUsername(string username)
         {
-            return await _dbc.Admins.FirstOrDefaultAsync(p => p.Username == username);
+            return _dbc.Admins.FirstOrDefault(p => p.Username == username);
         }
-        public async Task<Admin> findById(int id)
+        public Admin findById(int id)
         {
-            return await _dbc.Admins.FirstOrDefaultAsync(p => p.Id == id);
+            return _dbc.Admins.FirstOrDefault(p => p.Id == id);
         }
         
-        public async Task<JsonAnswerViewModel> update(Admin admin, AdminDTO adminDTO)
+        public JsonAnswerViewModel update(Admin admin, AdminDTO adminDTO)
         {
             bool isNeedRelogin = false;
             admin.position = adminDTO.position;
@@ -93,15 +93,15 @@ namespace STG.Service
                 admin.AuthKey = RandomComponent.RandomString(32);
                 isNeedRelogin = true;
             }
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
 
             return new JsonAnswerViewModel("success", null, admin, isNeedRelogin);
         }
 
 
-        public async Task<JsonAnswerStatus> update(AdminEditDTO adminEditDTO)
+        public JsonAnswerStatus update(AdminEditDTO adminEditDTO)
         {
-            Admin admin = await findById(adminEditDTO.id);
+            Admin admin = findById(adminEditDTO.id);
             if (admin == null) return new JsonAnswerStatus("error", "not_found");
 
             admin.position = adminEditDTO.position;
@@ -132,16 +132,17 @@ namespace STG.Service
             admin.panel_teachers = adminEditDTO.panel_teachers;
             admin.panel_users = adminEditDTO.panel_users;
             admin.panel_videos = adminEditDTO.panel_videos;
+            admin.panel_analytics = adminEditDTO.panel_analytics;
 
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
 
             return new JsonAnswerStatus("success", null);
         }
 
 
-        public async Task checkBasicExist()
+        public void checkBasicExist()
         {
-            if (await this.findByUsername("admin2") == null)
+            if (this.findByUsername("admin2") == null)
             {
                 Admin admin = new Admin();
                 admin.Username = "admin2";
@@ -150,12 +151,12 @@ namespace STG.Service
                 admin.AuthKey = RandomComponent.RandomString(32);
 
                 _dbc.Admins.Add(admin);
-                await _dbc.SaveChangesAsync();
+                _dbc.SaveChanges();
             }
         }
 
 
-        public async Task<List<Admin>> searchAdmins(AdminSearchDTO adminSearchDTO)
+        public List<Admin> searchAdmins(AdminSearchDTO adminSearchDTO)
         {
             adminSearchDTO.page--;
             IQueryable<Admin> q = _dbc.Admins.OrderByDescending(p => p.Id);
@@ -172,7 +173,7 @@ namespace STG.Service
                     || p.position.Contains(adminSearchDTO.queryString)
                 );
             }
-            return await q.ToListAsync();
+            return q.ToList();
         }
 
         public int searchCount(AdminSearchDTO adminSearchDTO)

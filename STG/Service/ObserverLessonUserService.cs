@@ -16,37 +16,37 @@ namespace STG.Service
             this._dbc = dbc;
         }
 
-        public async Task<ObserverLessonUser> findById(int id)
+        public ObserverLessonUser findById(int id)
         {
-            return await this._dbc.ObserversLessonUser
+            return this._dbc.ObserversLessonUser
                 .Include(p => p.lesson)
                 .Include(p => p.user)
-                .FirstOrDefaultAsync(p => p.id == id);
+                .FirstOrDefault(p => p.id == id);
         }
-        public async Task<ObserverLessonUser> findByIdUserAndLesson(User user, Lesson lesson)
+        public ObserverLessonUser findByIdUserAndLesson(User user, Lesson lesson)
         {
-            return await this._dbc.ObserversLessonUser
+            return this._dbc.ObserversLessonUser
                 .Include(p => p.lesson)
                 .Include(p => p.user)
-                .FirstOrDefaultAsync(p => p.user == user && p.lesson == lesson);
+                .FirstOrDefault(p => p.user == user && p.lesson == lesson);
         }
-        public async Task<ObserverLessonUser> findWithoutInnerByIdUserAndLesson(User user, Lesson lesson)
+        public ObserverLessonUser findWithoutInnerByIdUserAndLesson(User user, Lesson lesson)
         {
-            return await _dbc.ObserversLessonUser
-                .FirstOrDefaultAsync(p => p.user == user && p.lesson == lesson);
+            return _dbc.ObserversLessonUser
+                .FirstOrDefault(p => p.user == user && p.lesson == lesson);
         }
 
-        public async Task<bool> isAny(User user, Lesson lesson)
+        public bool isAny(User user, Lesson lesson)
         {
-            return await _dbc.ObserversLessonUser
+            return _dbc.ObserversLessonUser
                 .Where(p => p.user == user && p.lesson == lesson)
-                .AnyAsync();
+                .Any();
         }
 
-        public async Task<ObserverLessonUser> update(User user, Lesson lesson, int currentTime, int length)
+        public ObserverLessonUser update(User user, Lesson lesson, int currentTime, int length)
         {
             bool isAdded = false;
-            ObserverLessonUser observerLessonUser = await findByIdUserAndLesson(user, lesson);
+            ObserverLessonUser observerLessonUser = findByIdUserAndLesson(user, lesson);
             if(observerLessonUser == null)
             {
                 observerLessonUser = new ObserverLessonUser();
@@ -65,28 +65,28 @@ namespace STG.Service
             observerLessonUser.length = length;
             observerLessonUser.date_of_update = DateTime.Now;
 
-            if(isAdded) await _dbc.ObserversLessonUser.AddAsync(observerLessonUser);
-            await _dbc.SaveChangesAsync();
+            if(isAdded) _dbc.ObserversLessonUser.Add(observerLessonUser);
+            _dbc.SaveChanges();
 
             return observerLessonUser;
         }
 
-        public async Task<List<ObserverLessonUser>> listAllByUser(User user)
+        public List<ObserverLessonUser> listAllByUser(User user)
         {
-            return await this._dbc.ObserversLessonUser
+            return this._dbc.ObserversLessonUser
                 .Include(p => p.lesson)
                 .Include(p => p.user)
                 .Where(p => p.user == user)
                 .OrderByDescending(p => p.id)
-                .ToListAsync();
+                .ToList();
         }
 
-        public async Task<bool> delete(int id)
+        public bool delete(int id)
         {
-            ObserverLessonUser observerLessonUser = await findById(id);
+            ObserverLessonUser observerLessonUser = findById(id);
             if (observerLessonUser == null) return false;
             this._dbc.ObserversLessonUser.Remove(observerLessonUser);
-            await this._dbc.SaveChangesAsync();
+            this._dbc.SaveChanges();
             return true;
         }
     }

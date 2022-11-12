@@ -16,48 +16,48 @@ namespace STG.Service
             this._dbc = dbc;
         }
 
-        public async Task<VideoSection> findById(int id)
+        public VideoSection findById(int id)
         {
-            return await _dbc.VideoSections.FirstOrDefaultAsync(p => p.id == id);
+            return _dbc.VideoSections.FirstOrDefault(p => p.id == id);
         }
 
-        public async Task<bool> add(VideoSectionNewDTO videoSectionNewDTO, Video video)
+        public bool add(VideoSectionNewDTO videoSectionNewDTO, Video video)
         {
             VideoSection videoSection = new VideoSection();
             videoSection.video = video;
             videoSection.name = videoSectionNewDTO.name;
 
-            await _dbc.VideoSections.AddAsync(videoSection);
-            await _dbc.SaveChangesAsync();
+            _dbc.VideoSections.Add(videoSection);
+            _dbc.SaveChanges();
             videoSection.orderInList = videoSection.id;
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
         }
 
-        public async Task<List<VideoSection>> listAllByVideo(Video video)
+        public List<VideoSection> listAllByVideo(Video video)
         {
-            return await this._dbc.VideoSections
+            return this._dbc.VideoSections
                 .Where(p => p.video == video)
                 .OrderBy(p => p.orderInList)
-                .ToListAsync();
+                .ToList();
         }
 
-        public async Task<bool> delete(int id)
+        public bool delete(int id)
         {
-            VideoSection videoSection = await findById(id);
+            VideoSection videoSection = findById(id);
             if (videoSection == null) return false;
             _dbc.VideoSections.Remove(videoSection);
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
         }
 
-        public async Task<bool> update(VideoSectionDTO videoSectionDTO)
+        public bool update(VideoSectionDTO videoSectionDTO)
         {
-            VideoSection videoSection = await findById(videoSectionDTO.id);
+            VideoSection videoSection = findById(videoSectionDTO.id);
             if (videoSection == null) return false;
 
             videoSection.name = videoSectionDTO.name;
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
         }
 

@@ -17,113 +17,113 @@ namespace STG.Service
             this._dbc = dbc;
         }
 
-        public async Task<PackageLesson> findById(int id)
+        public PackageLesson findById(int id)
         {
-            return await _dbc.PackageLessons
+            return _dbc.PackageLessons
                 .Include(p => p.package)
                 .Include(p => p.lesson)
-                .FirstOrDefaultAsync(p => p.id == id);
+                .FirstOrDefault(p => p.id == id);
         }
 
-        public async Task<PackageLesson> find(Package package, Lesson lesson)
+        public PackageLesson find(Package package, Lesson lesson)
         {
-            return await _dbc.PackageLessons
+            return _dbc.PackageLessons
                 .OrderByDescending(p => p.id)
-                .FirstOrDefaultAsync(p => p.package == package && p.lesson == lesson);
+                .FirstOrDefault(p => p.package == package && p.lesson == lesson);
         }
 
-        public async Task<List<PackageLesson>> listAllByLesson(Lesson lesson)
+        public List<PackageLesson> listAllByLesson(Lesson lesson)
         {
-            return await _dbc.PackageLessons
+            return _dbc.PackageLessons
                 .Include(p => p.package)
                 .Where(p => p.lesson == lesson)
                 .OrderBy(p => p.orderInList)
-                .ToListAsync();
+                .ToList();
         }
-        public async Task<List<PackageLesson>> listAllByPackage(Package package)
+        public List<PackageLesson> listAllByPackage(Package package)
         {
-            return await _dbc.PackageLessons
+            return _dbc.PackageLessons
                 .Include(p => p.lesson)
                 .Where(p => p.package == package)
                 .OrderBy(p => p.orderInList)
-                .ToListAsync();
+                .ToList();
         }
-        public async Task<List<PackageLesson>> listAllByPackageWithHomeworks(Package package)
+        public List<PackageLesson> listAllByPackageWithHomeworks(Package package)
         {
-            return await _dbc.PackageLessons
+            return _dbc.PackageLessons
                 .Where(p => p.package == package && p.homeworkStatus > 0)
                 .Include(p => p.lesson)
                 .OrderBy(p => p.orderInList)
-                .ToListAsync();
+                .ToList();
         }
 
-        public async Task<int> countAllByPackage(Package package)
+        public int countAllByPackage(Package package)
         {
-            return await _dbc.PackageLessons.CountAsync(p => p.package == package);
+            return _dbc.PackageLessons.Count(p => p.package == package);
         }
 
-        public async Task<List<PackageLesson>> listAllByPackageDay(PackageDay packageDay)
+        public List<PackageLesson> listAllByPackageDay(PackageDay packageDay)
         {
-            return await _dbc.PackageLessons.Where(p => p.packageDay == packageDay).ToListAsync();
+            return _dbc.PackageLessons.Where(p => p.packageDay == packageDay).ToList();
         }
 
-        public async Task<bool> add(Package package, PackageDay packageDay)
+        public bool add(Package package, PackageDay packageDay)
         {
             PackageLesson packageLesson = new PackageLesson();
             packageLesson.package = package;
             packageLesson.packageDay = packageDay;
             packageLesson.dateOfAdd = DateTime.Now;
 
-            await _dbc.PackageLessons.AddAsync(packageLesson);
-            await _dbc.SaveChangesAsync();
+            _dbc.PackageLessons.Add(packageLesson);
+            _dbc.SaveChanges();
             packageLesson.orderInList = packageLesson.id;
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
         }
 
-        public async Task<bool> update(PackageLessonDTO packageLessonDTO, Lesson lesson)
+        public bool update(PackageLessonDTO packageLessonDTO, Lesson lesson)
         {
-            PackageLesson packageLesson = await findById(packageLessonDTO.id);
+            PackageLesson packageLesson = findById(packageLessonDTO.id);
             if (packageLesson == null) return false;
 
             packageLesson.homeworkStatus = packageLessonDTO.homework_status;
             packageLesson.homeworkText = packageLessonDTO.homework_text;
             if (lesson != null && packageLesson.lesson != lesson) packageLesson.lesson = lesson;
 
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
 
             return true;
         }
 
-        public async Task<bool> delete(int id)
+        public bool delete(int id)
         {
-            PackageLesson packageLesson = await findById(id);
+            PackageLesson packageLesson = findById(id);
             if (packageLesson == null) return false;
             _dbc.PackageLessons.Remove(packageLesson);
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
         }
 
-        public async Task<bool> deleteAllByPackageDay(PackageDay packageDay)
+        public bool deleteAllByPackageDay(PackageDay packageDay)
         {
-            List<PackageLesson> packageLessons = await listAllByPackageDay(packageDay);
+            List<PackageLesson> packageLessons = listAllByPackageDay(packageDay);
             foreach (PackageLesson packageLesson in packageLessons)
             {
                 _dbc.PackageLessons.Remove(packageLesson);
             }
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
 
             return true;
         }
 
-        public async Task<bool> deleteAllByPackage(Package package)
+        public bool deleteAllByPackage(Package package)
         {
-            List<PackageLesson> packageLessons = await _dbc.PackageLessons.Where(p => p.package == package).ToListAsync();
+            List<PackageLesson> packageLessons = _dbc.PackageLessons.Where(p => p.package == package).ToList();
             foreach (PackageLesson packageLesson in packageLessons)
             {
                 _dbc.PackageLessons.Remove(packageLesson);
             }
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
 
             return true;
         }

@@ -17,23 +17,23 @@ namespace STG.Service
             this._dbc = dbc;
         }
 
-        public async Task<Region> findById(int id)
+        public Region findById(int id)
         {
-            return await this._dbc.Regions.SingleOrDefaultAsync(p => p.id == id);
+            return this._dbc.Regions.SingleOrDefault(p => p.id == id);
         }
 
-        public async Task<Region> find(User user)
+        public Region find(User user)
         {
             if (user.region == null) return null;
-            return await _dbc.Regions.FirstOrDefaultAsync(p => p.id == user.region.id);
+            return _dbc.Regions.FirstOrDefault(p => p.id == user.region.id);
         }
 
-        public async Task<List<Region>> listAll()
+        public List<Region> listAll()
         {
-            return await this._dbc.Regions
+            return this._dbc.Regions
                 .OrderByDescending(p => p.orderInList)
                 .ThenBy(p => p.name)
-                .ToListAsync();
+                .ToList();
         }
     }
 }

@@ -19,52 +19,52 @@ namespace STG.Service
         {
             this._dbc = dbc;
         }
-        public async Task<IEnumerable<Style>> listAll()
+        public IEnumerable<Style> listAll()
         {
-            return await this._dbc.Styles.OrderByDescending(p => p.id).ToListAsync();
+            return this._dbc.Styles.OrderByDescending(p => p.id).ToList();
         }
 
-        public async Task<List<Style>> listAllActive()
+        public List<Style> listAllActive()
         {
-            return await this._dbc.Styles.Where(p => p.active == 1).OrderByDescending(p => p.id).ToListAsync();
+            return this._dbc.Styles.Where(p => p.active == 1).OrderByDescending(p => p.id).ToList();
         }
 
-        public async Task<Style> findById(int id)
+        public Style findById(int id)
         {
-            return await this._dbc.Styles.FirstOrDefaultAsync(p => p.id == id);
+            return this._dbc.Styles.FirstOrDefault(p => p.id == id);
         }
 
-        public async Task<Style> add(StyleNewDTO styleNewDTO)
+        public Style add(StyleNewDTO styleNewDTO)
         {
             Style style = new Style();
             style.name = styleNewDTO.name;
 
             this._dbc.Styles.Add(style);
 
-            await this._dbc.SaveChangesAsync();
+            this._dbc.SaveChanges();
 
             return style;
         }
 
-        public async Task<bool> update(StyleDTO styleDTO)
+        public bool update(StyleDTO styleDTO)
         {
-            Style style = await findById(styleDTO.id);
+            Style style = findById(styleDTO.id);
 
             if (style == null) return false;
 
             style.name = styleDTO.name;
             style.active = styleDTO.active;
 
-            await this._dbc.SaveChangesAsync();
+            this._dbc.SaveChanges();
 
             return true;
         }
 
-        public async Task<bool> delete(int id)
+        public bool delete(int id)
         {
-            Style style = await findById(id);
+            Style style = findById(id);
             this._dbc.Styles.Remove(style);
-            await this._dbc.SaveChangesAsync();
+            this._dbc.SaveChanges();
             return true;
         }
     }

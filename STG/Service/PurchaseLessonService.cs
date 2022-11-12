@@ -18,32 +18,32 @@ namespace STG.Service
             this._dbc = dbc;
         }
 
-        public async Task<List<PurchaseLesson>> listAllActive()
+        public List<PurchaseLesson> listAllActive()
         {
-            return await _dbc.PurchaseLessons.Where(p => p.active == 1).ToListAsync();
+            return _dbc.PurchaseLessons.Where(p => p.active == 1).ToList();
         }
 
-        public async Task<List<PurchaseLesson>> listAllActiveByUser(User user)
+        public List<PurchaseLesson> listAllActiveByUser(User user)
         {
-            return await _dbc.PurchaseLessons.Where(p => p.user == user && p.active == 1 && (p.dateOfActivation == null || p.dateOfMustBeUsedTo > DateTime.Now.Date)).ToListAsync();
+            return _dbc.PurchaseLessons.Where(p => p.user == user && p.active == 1 && (p.dateOfActivation == null || p.dateOfMustBeUsedTo > DateTime.Now.Date)).ToList();
         }
-        public async Task<IEnumerable<PurchaseLesson>> enumAllActiveByUser(User user)
+        public IEnumerable<PurchaseLesson> enumAllActiveByUser(User user)
         {
-            return await _dbc.PurchaseLessons
+            return _dbc.PurchaseLessons
                 .Include(p => p.lesson)
                 .Where(p => p.user == user && p.active == 1 && (p.dateOfActivation == null || p.dateOfMustBeUsedTo > DateTime.Now.Date))
-                .ToListAsync();
+                .ToList();
         }
 
-        public async Task<PurchaseLesson> firstActive(User user, Lesson lesson)
+        public PurchaseLesson firstActive(User user, Lesson lesson)
         {
-            return await _dbc.PurchaseLessons
+            return _dbc.PurchaseLessons
                 .Where(p => p.user == user && p.lesson == lesson && p.active == 1 && (p.dateOfActivation == null || p.dateOfMustBeUsedTo > DateTime.Now.Date))
                 .OrderBy(p => p.id)
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
         }
 
-        public async Task<PurchaseLesson> add(Payment payment, User user, Lesson lesson)
+        public PurchaseLesson add(Payment payment, User user, Lesson lesson)
         {
             PurchaseLesson purchaseLesson = new PurchaseLesson();
             purchaseLesson.user = user;
@@ -54,42 +54,50 @@ namespace STG.Service
             purchaseLesson.active = 1;
             purchaseLesson.days = lesson.days;
 
-            await _dbc.PurchaseLessons.AddAsync(purchaseLesson);
-            await _dbc.SaveChangesAsync();
+            _dbc.PurchaseLessons.Add(purchaseLesson);
+            _dbc.SaveChanges();
             purchaseLesson.orderInList = purchaseLesson.id;
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
 
             return purchaseLesson;
         }
 
-        public async Task<PurchaseLesson> isAlreadyExist(User user, Lesson lesson)
+        public PurchaseLesson isAlreadyExist(User user, Lesson lesson)
         {
-            return await _dbc.PurchaseLessons.Where(p => p.user == user && p.lesson == lesson && p.active == 1).OrderBy(p => p.id).FirstOrDefaultAsync();
+            return _dbc.PurchaseLessons.Where(p => p.user == user && p.lesson == lesson && p.active == 1).OrderBy(p => p.id).FirstOrDefault();
         }
 
-        public async Task activate(PurchaseLesson purchaseLesson)
+        public void activate(PurchaseLesson purchaseLesson)
         {
             purchaseLesson.dateOfActivation = DateTime.Now.Date;
             if (purchaseLesson.days != 0)
             {
                 purchaseLesson.dateOfMustBeUsedTo = DateTime.Now.Date.AddDays(purchaseLesson.days);
             }
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
         }
 
-        public async Task<bool> setCanselByPayment(Payment payment)
+        public bool setCanselByPayment(Payment payment)
         {
-            List<PurchaseLesson> purchaseLessons = await _dbc.PurchaseLessons
+            List<PurchaseLesson> purchaseLessons = _dbc.PurchaseLessons
                 .Where(p => p.payment == payment)
-                .ToListAsync();
+                .ToList();
             foreach (PurchaseLesson purchaseLesson in purchaseLessons)
             {
                 purchaseLesson.active = 0;
                 purchaseLesson.dateOfActivation = null;
                 purchaseLesson.dateOfMustBeUsedTo = null;
-                await _dbc.SaveChangesAsync();
+                _dbc.SaveChanges();
             }
             return true;
+        }
+
+        public List<PurchaseLesson> listAllPayedByDates(DateTime dateFrom, DateTime dateTo)
+        {
+            return _dbc.PurchaseLessons
+                .Where(p => p.isPayed == 1 && p.active == 1 && p.dateOfAdd >= dateFrom && p.dateOfAdd <= dateTo)
+                .OrderByDescending(p => p.id)
+                .ToList();
         }
     }
 }

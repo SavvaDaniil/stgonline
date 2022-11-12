@@ -40,7 +40,7 @@ namespace STG.Controllers
 
 
 
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
             /*
             System.Diagnostics.Debug.WriteLine("Роль: " + HttpContext.User.FindFirstValue(ClaimTypes.Role));
@@ -54,8 +54,8 @@ namespace STG.Controllers
             if (!is_checked_extends)
             {
                 if (_httpContextAccessor.HttpContext.Request.Host.Value == "stgonline.pro") {
-                    ExtendFacade extendFacade = new ExtendFacade(_dbc, _serviceScopeFactory);
-                    await extendFacade.checkExtendsAndLaunch(_httpContextAccessor.HttpContext.Request.Host.Value);
+                    //ExtendFacade extendFacade = new ExtendFacade(_dbc, _serviceScopeFactory);
+                    //await extendFacade.checkExtendsAndLaunch(_httpContextAccessor.HttpContext.Request.Host.Value);
                 }
 
                 is_checked_extends = true;
@@ -73,10 +73,10 @@ namespace STG.Controllers
 
             FirstViewModel firstViewModel = new FirstViewModel(
                 l,
-                await teacherFacade.listAllLiteForIndexActive(),
-                await teacherFacade.listAllCurator(),
-                await subscriptionFacade.listAllActiveForAnyLesson(null),
-                await regionService.listAll()
+                null,//await teacherFacade.listAllLiteForIndexActive(),
+                teacherFacade.listAllCurator(),
+                subscriptionFacade.listAllActiveForAnyLesson(null),
+                regionService.listAll()
             );
             teacherFacade = null;
 
@@ -89,7 +89,7 @@ namespace STG.Controllers
         }
 
 
-        public async Task<IActionResult> Index2()
+        public IActionResult Index2()
         {
             TeacherFacade teacherFacade = new TeacherFacade(_dbc);
 
@@ -103,10 +103,10 @@ namespace STG.Controllers
 
             FirstViewModel firstViewModel = new FirstViewModel(
                 l,
-                await teacherFacade.listAllLiteForIndexActive(),
-                await teacherFacade.listAllCurator(),
-                await subscriptionFacade.listAllActiveForAnyLesson(null),
-                await regionService.listAll()
+                teacherFacade.listAllLiteForIndexActive(),
+                teacherFacade.listAllCurator(),
+                subscriptionFacade.listAllActiveForAnyLesson(null),
+                regionService.listAll()
             );
 
             ViewData["idMenuActive"] = 1;
@@ -119,7 +119,7 @@ namespace STG.Controllers
 
 
 
-        public async Task<IActionResult> Lessons()
+        public IActionResult Lessons()
         {
             string path = Directory.GetCurrentDirectory();
             string uploadsForFiles = path + "/wwwroot/uploads";
@@ -132,7 +132,7 @@ namespace STG.Controllers
             //System.Diagnostics.Debug.WriteLine("lessons = " + lessons);
             //List<Level> levelList = await LevelService.listAll(this._dbc);
             LevelService levelService = new LevelService(this._dbc);
-            ViewData["levelList"] = await levelService.listAll();
+            ViewData["levelList"] = levelService.listAll();
 
             return View();
         }
@@ -160,7 +160,7 @@ namespace STG.Controllers
             return View();
         }
 
-        public async Task<IActionResult> Registration()
+        public IActionResult Registration()
         {
             if (HttpContext.User.Identity.IsAuthenticated)
             {
@@ -170,8 +170,8 @@ namespace STG.Controllers
             RegionService regionService = new RegionService(_dbc);
             TeacherFacade teacherFacade = new TeacherFacade(_dbc);
             RegistrationViewModel registrationViewModel = new RegistrationViewModel(
-                await regionService.listAll(),
-                await teacherFacade.listAllCurator()
+                regionService.listAll(),
+                teacherFacade.listAllCurator()
              );
 
 
@@ -230,14 +230,14 @@ namespace STG.Controllers
         }
 
         [Authorize(AuthenticationSchemes = "UserCookie")]
-        public async Task<IActionResult> Profile()
+        public IActionResult Profile()
         {
             ViewData["idMenuActive"] = 0;
             UserFacade userFacade = new UserFacade(this._dbc);
-            UserProfileViewModel userProfileViewModel = await userFacade.getUserProfile(HttpContext);
+            UserProfileViewModel userProfileViewModel = userFacade.getUserProfile(HttpContext);
             if(userProfileViewModel == null)
             {
-                await HttpContext.SignOutAsync();
+                HttpContext.SignOutAsync();
                 return Redirect("/");
             }
 
@@ -257,7 +257,7 @@ namespace STG.Controllers
         }
 
 
-        public async Task<IActionResult> Test()
+        public IActionResult Test()
         {
             ViewData["idMenuActive"] = 0;
             System.Diagnostics.Debug.WriteLine("action test");

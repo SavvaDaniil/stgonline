@@ -27,11 +27,11 @@ namespace STG.Controllers
 
         [HttpGet]
         [Route("success/{id_of_payment}")]
-        public async Task<IActionResult> Success(int id_of_payment)
+        public IActionResult Success(int id_of_payment)
         {
             ViewData["idMenuActive"] = 0;
             PaymentFacade paymentFacade = new PaymentFacade(_dbc);
-            PaymentLiteViewModel paymentLiteViewModel = await paymentFacade.findPayed(id_of_payment);
+            PaymentLiteViewModel paymentLiteViewModel = paymentFacade.findPayed(id_of_payment);
             if (paymentLiteViewModel == null) return Redirect("error");
 
             return View(paymentLiteViewModel);
@@ -39,11 +39,11 @@ namespace STG.Controllers
 
         
         [Route("robokassa/success")]
-        public async Task<IActionResult> robokassaSuccess([FromForm] RobokassaSuccessResponse robokassaSuccessResponse)
+        public IActionResult robokassaSuccess([FromForm] RobokassaSuccessResponse robokassaSuccessResponse)
         {
             ViewData["idMenuActive"] = 0;
             PaymentFacade paymentFacade = new PaymentFacade(_dbc);
-            PaymentLiteViewModel paymentLiteViewModel = await paymentFacade.findPayed(robokassaSuccessResponse.InvId);
+            PaymentLiteViewModel paymentLiteViewModel = paymentFacade.findPayed(robokassaSuccessResponse.InvId);
             if (paymentLiteViewModel == null) return Redirect("/payment/error");
 
             return View("success", paymentLiteViewModel);

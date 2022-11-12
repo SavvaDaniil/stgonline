@@ -15,17 +15,18 @@ namespace STG.Service
             this._dbc = dbc;
         }
 
-        public async Task<PreUserWithAppointment> findById(int id)
+        public PreUserWithAppointment findById(int id)
         {
-            return await _dbc.PreUserWithAppointments
+            return _dbc.PreUserWithAppointments
                 .Include(p => p.region)
-                .Where(p => p.id == id).FirstOrDefaultAsync();
+                .Where(p => p.id == id).FirstOrDefault();
         }
 
-        public async Task<PreUserWithAppointment> add(
+        public PreUserWithAppointment add(
             string username,
             string firstname,
             string secondname,
+            string phone,
             string instagram,
             DateTime? date_of_birthday,
             string password,
@@ -44,6 +45,7 @@ namespace STG.Service
             preUserWithAppointment.username = username;
             preUserWithAppointment.firstname = firstname;
             preUserWithAppointment.secondname = secondname;
+            preUserWithAppointment.phone = phone;
             preUserWithAppointment.instagram = instagram;
             preUserWithAppointment.date_of_birthday = date_of_birthday;
             preUserWithAppointment.password = password;
@@ -59,29 +61,29 @@ namespace STG.Service
             preUserWithAppointment.listOfTeachers = listOfTeachers;
             preUserWithAppointment.dateOfAdd = DateTime.Now;
 
-            await _dbc.PreUserWithAppointments.AddAsync(preUserWithAppointment);
-            await _dbc.SaveChangesAsync();
+            _dbc.PreUserWithAppointments.Add(preUserWithAppointment);
+            _dbc.SaveChanges();
 
             return preUserWithAppointment;
         }
 
 
 
-        public async Task<bool> remove(int id)
+        public bool remove(int id)
         {
-            PreUserWithAppointment preUserWithAppointment = await findById(id);
+            PreUserWithAppointment preUserWithAppointment = findById(id);
             if (preUserWithAppointment == null) return false;
 
             _dbc.PreUserWithAppointments.Remove(preUserWithAppointment);
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
         }
 
-        public async Task<bool> setActive(PreUserWithAppointment preUserWithAppointment)
+        public bool setActive(PreUserWithAppointment preUserWithAppointment)
         {
             preUserWithAppointment.status = 1;
             preUserWithAppointment.dateOfRegistration = DateTime.Now;
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
         }
     }

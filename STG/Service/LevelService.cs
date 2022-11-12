@@ -18,14 +18,14 @@ namespace STG.Service
             this._dbc = dbc;
         }
 
-        public async Task<Level> findById(int id)
+        public Level findById(int id)
         {
-            return await this._dbc.Levels.SingleOrDefaultAsync(p => p.Id == id);
+            return this._dbc.Levels.SingleOrDefault(p => p.Id == id);
         }
 
-        public async Task<List<Level>> listAll()
+        public List<Level> listAll()
         {
-            return await this._dbc.Levels.OrderBy(p => p.orderInList).ToListAsync();
+            return this._dbc.Levels.OrderBy(p => p.orderInList).ToList();
         }
     }
 }

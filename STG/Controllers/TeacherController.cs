@@ -20,11 +20,11 @@ namespace STG.Controllers
 
         [HttpGet]
         [Route("/teacher/{id}")]
-        public async Task<IActionResult> Teacher(int id)
+        public IActionResult Teacher(int id)
         {
             ViewData["idMenuActive"] = 0;
             TeacherFacade teacherFacade = new TeacherFacade(_dbc);
-            TeacherLiteViewModel teacherLiteViewModel = await teacherFacade.get(id);
+            TeacherLiteViewModel teacherLiteViewModel = teacherFacade.get(id);
             if (teacherLiteViewModel == null) return RedirectToAction("Teachers");
             teacherFacade = null;
 
@@ -33,13 +33,13 @@ namespace STG.Controllers
 
         [HttpGet]
         [Route("/teachers")]
-        public async Task<IActionResult> Teachers()
+        public IActionResult Teachers()
         {
             ViewData["idMenuActive"] = 4;
             TeacherFacade teacherFacade = new TeacherFacade(_dbc);
 
             ListTeacherLiteViewModels listTeacherLiteViewModels = new ListTeacherLiteViewModels(
-                await teacherFacade.listAllActive()
+                teacherFacade.listAllActive()
             );
 
             return View(listTeacherLiteViewModels);

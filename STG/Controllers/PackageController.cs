@@ -22,12 +22,13 @@ namespace STG.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         [Route("/package/{id}")]
-        public async Task<IActionResult> Index(int id)
+        public IActionResult Index(int id)
         {
             ViewData["idMenuActive"] = 0;
             PackageFacade packageFacade = new PackageFacade(_dbc);
-            PackageInfoViewModel packageInfoViewModel = await packageFacade.getFullInfoForUser(HttpContext, id);
+            PackageInfoViewModel packageInfoViewModel = packageFacade.getFullInfoForUser(HttpContext, id);
             if (packageInfoViewModel == null) return Redirect("/packages");
 
             return View(packageInfoViewModel);
@@ -35,37 +36,41 @@ namespace STG.Controllers
 
         [HttpGet]
         [Route("/package/chat/{id}")]
-        public async Task<IActionResult> Chat(int id)
+        public IActionResult Chat(int id)
         {
             ViewData["idMenuActive"] = 0;
             PackageFacade packageFacade = new PackageFacade(_dbc);
 
-            UserPassingPackageViewModel userPassingPackageViewModel = await packageFacade.getUserPassingPackageForUser(HttpContext, id);
+            UserPassingPackageViewModel userPassingPackageViewModel = packageFacade.getUserPassingPackageForUser(HttpContext, id);
 
             if (userPassingPackageViewModel == null) return Redirect("/packages");
 
             return View(userPassingPackageViewModel);
         }
 
-        public async Task<IActionResult> Packages()
+        //[AllowAnonymous]
+        public IActionResult Packages()
         {
             ViewData["idMenuActive"] = 3;
+            /*
             PackageFacade packageFacade = new PackageFacade(_dbc);
             ListPackagePreviewViewModel listPackagePreviewViewModel = new ListPackagePreviewViewModel(
-                await packageFacade.listAllPrivatePreview(HttpContext)
+                packageFacade.listAllPrivatePreview(HttpContext)
             );
+            */
 
-            return View(listPackagePreviewViewModel);
+            return View();
         }
 
         [HttpGet]
         [Route("/package/buy/{id}")]
-        public async Task<IActionResult> Buy(int id)
+        public IActionResult Buy(int id)
         {
             ViewData["idMenuActive"] = 0;
 
             PackageFacade packageFacade = new PackageFacade(_dbc);
-            PackageBuyViewModel packageBuyViewModel = await packageFacade.getInfoForBuying(id);
+            PackageBuyViewModel packageBuyViewModel = packageFacade.getInfoForBuying(id);
+            if (packageBuyViewModel == null) return Redirect("/packages");
 
             return View(packageBuyViewModel);
         }

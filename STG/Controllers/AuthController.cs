@@ -30,17 +30,17 @@ namespace STG.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Route("Login")]
-        public async Task<IActionResult> Login([FromForm]UserLoginDTO userLoginDTO)
+        public IActionResult Login([FromForm]UserLoginDTO userLoginDTO)
         {
             if (ModelState.IsValid)
             {
                 UserFacade userFacade = new UserFacade(_dbc);
 
-                JsonAnswerViewModel jsonAnswer = await userFacade.login(userLoginDTO);
+                JsonAnswerViewModel jsonAnswer = userFacade.login(userLoginDTO);
 
                 if (jsonAnswer.user != null)
                 {
-                    await signIn(jsonAnswer.user);
+                    signIn(jsonAnswer.user);
                     jsonAnswer.user = null;
                 }
                 userFacade = null;
@@ -54,19 +54,20 @@ namespace STG.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Route("Registration")]
-        public async Task<IActionResult> Registration([FromForm]UserNewDTO userNewDTO)
+        public IActionResult Registration([FromForm]UserNewDTO userNewDTO)
         {
             if (ModelState.IsValid)
             {
-                UserFactory userFactory = new UserFactory(_dbc);
-                JsonAnswerStatus jsonAnswer = await userFactory.createByRegistration(userNewDTO);
+                //UserFactory userFactory = new UserFactory(_dbc);
+                //JsonAnswerStatus jsonAnswer = userFactory.createByRegistration(userNewDTO);
+                UserFacade userFacade = new UserFacade(_dbc);
+                JsonAnswerStatus jsonAnswer = userFacade.addByRegistration(userNewDTO);
 
                 if (jsonAnswer.user != null)
                 {
-                    await signIn(jsonAnswer.user);
+                    signIn(jsonAnswer.user);
                     jsonAnswer.user = null;
                 }
-                userFactory = null;
 
                 return Ok(jsonAnswer);
             }
@@ -74,7 +75,7 @@ namespace STG.Controllers
             return Ok("Success request");
         }
 
-        private async Task signIn(User user)
+        private void signIn(User user)
         {
             var claims = new List<Claim>()
             {
@@ -85,14 +86,14 @@ namespace STG.Controllers
             ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "UserCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
             ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-            await HttpContext.SignInAsync("UserCookie", claimsPrincipal);
+            HttpContext.SignInAsync("UserCookie", claimsPrincipal);
         }
 
         [HttpGet]
         [Route("Logout")]
-        public async Task<IActionResult> Logout()
+        public IActionResult Logout()
         {
-            await HttpContext.SignOutAsync();
+            HttpContext.SignOutAsync();
             return Ok();
         }
     }

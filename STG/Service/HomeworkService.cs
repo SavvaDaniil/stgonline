@@ -18,83 +18,83 @@ namespace STG.Service
             this._dbc = dbc;
         }
 
-        public async Task<Homework> findById(int id)
+        public Homework findById(int id)
         {
-            return await _dbc.Homeworks
+            return _dbc.Homeworks
                 .Include(p => p.packageLesson)
                 .Include(p => p.user)
                 .Where(p => p.id == id)
                 .OrderByDescending(p => p.id)
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
         }
 
-        public async Task<Homework> find(User user, PackageLesson packageLesson)
+        public Homework find(User user, PackageLesson packageLesson)
         {
-            return await _dbc.Homeworks
+            return _dbc.Homeworks
                 .Where(p => p.user == user && p.packageLesson == packageLesson)
                 .OrderByDescending(p => p.id)
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
         }
 
-        public async Task<bool> isAnySend(User user, PackageLesson packageLesson)
+        public bool isAnySend(User user, PackageLesson packageLesson)
         {
-            return await _dbc.Homeworks
+            return _dbc.Homeworks
                 .Where(p => p.user == user && p.packageLesson == packageLesson && p.statusOfUpload == 1 && p.status == 1)
                 .OrderByDescending(p => p.id)
-                .AnyAsync();
+                .Any();
         }
 
-        public async Task<int> getCountNotReaded(User user)
+        public int getCountNotReaded(User user)
         {
-            return await _dbc.Homeworks
+            return _dbc.Homeworks
                 .Where(p => p.user == user && p.answer_from_teacher != null && p.status_of_seen_of_message_from_teacher == 0)
                 .OrderByDescending(p => p.id)
-                .CountAsync();
+                .Count();
         }
 
-        public async Task<int> getCountNotReadedByTeacher(Teacher teacher)
+        public int getCountNotReadedByTeacher(Teacher teacher)
         {
-            return await _dbc.Homeworks
+            return _dbc.Homeworks
                 .Where(p => p.statusOfSeen == 0 && p.packageLesson.package.teacher == teacher)
                 .OrderByDescending(p => p.id)
-                .CountAsync();
+                .Count();
         }
 
-        public async Task<int> getCountAllNotReadedByAnyTeacher()
+        public int getCountAllNotReadedByAnyTeacher()
         {
-            return await _dbc.Homeworks
+            return _dbc.Homeworks
                 .Where(p => p.statusOfSeen == 0)
                 .OrderByDescending(p => p.id)
-                .CountAsync();
+                .Count();
         }
 
 
-        public async Task<List<Homework>> listAllByUser(User user)
+        public List<Homework> listAllByUser(User user)
         {
-            return await _dbc.Homeworks
+            return _dbc.Homeworks
                 .Include(p => p.packageLesson)
                 .Where(p => p.user == user)
                 .OrderBy(p => p.date_of_add)
-                .ToListAsync();
+                .ToList();
         }
 
-        public async Task<List<Homework>> listAllByUserAndPackageLesson(User user, PackageLesson packageLesson)
+        public List<Homework> listAllByUserAndPackageLesson(User user, PackageLesson packageLesson)
         {
-            return await _dbc.Homeworks
+            return _dbc.Homeworks
                 .Where(p => p.user == user && p.packageLesson == packageLesson)
                 .OrderByDescending(p => p.id)
-                .ToListAsync();
+                .ToList();
         }
 
-        public async Task<List<Homework>> listAllByUserAndPackage(User user, Package package)
+        public List<Homework> listAllByUserAndPackage(User user, Package package)
         {
-            return await _dbc.Homeworks
+            return _dbc.Homeworks
                 .Where(p => p.user == user && p.packageLesson.package == package)
                 .OrderByDescending(p => p.id)
-                .ToListAsync();
+                .ToList();
         }
 
-        public async Task<Homework> add(User user, PackageLesson packageLesson)
+        public Homework add(User user, PackageLesson packageLesson)
         {
             Homework homework = new Homework();
             homework.user = user;
@@ -103,38 +103,38 @@ namespace STG.Service
 
             homework.date_of_add = DateTime.Now;
 
-            await _dbc.Homeworks.AddAsync(homework);
-            await _dbc.SaveChangesAsync();
+            _dbc.Homeworks.Add(homework);
+            _dbc.SaveChanges();
 
             return homework;
         }
 
-        public async Task<bool> isAnyUnreadForAdmin(User user, Package package)
+        public bool isAnyUnreadForAdmin(User user, Package package)
         {
-            return await _dbc.Homeworks
+            return _dbc.Homeworks
                 .Where(p => p.user == user && p.packageLesson.package == package && p.statusOfSeen == 0)
-                .AnyAsync();
+                .Any();
         }
 
-        public async Task<bool> isAnyUnreadForUser(User user, PackageLesson packageLesson)
+        public bool isAnyUnreadForUser(User user, PackageLesson packageLesson)
         {
-            return await _dbc.Homeworks
+            return _dbc.Homeworks
                 .Where(p => p.user == user && p.packageLesson == packageLesson && p.statusOfSeen == 0)
-                .AnyAsync();
+                .Any();
         }
 
 
-        public async Task<Homework> updateRenew(Homework homework)
+        public Homework updateRenew(Homework homework)
         {
             homework.date_of_update = DateTime.Now;
             homework.status = 1;
             homework.statusOfSeen = 0;
             homework.statusOfUpload = 0;
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return homework;
         }
 
-        public async Task<Homework> update(Homework homework, string comment)
+        public Homework update(Homework homework, string comment)
         {
             homework.comment = comment;
             homework.date_of_update = DateTime.Now;
@@ -142,41 +142,41 @@ namespace STG.Service
             homework.statusOfSeen = 0;
             homework.statusOfUpload = 1;
             homework.date_of_seen_by_admin = null;
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return homework;
         }
 
-        public async Task<Homework> newAnswerFromAdmin(Homework homework, string answer)
+        public Homework newAnswerFromAdmin(Homework homework, string answer)
         {
             homework.answer_from_teacher = answer;
             homework.status_of_seen_of_message_from_teacher = 0;
             //homework.date_of_update_of_teacher = DateTime.Now;
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return homework;
         }
 
-        public async Task<bool> setSeenByAdmin(Homework homework)
+        public bool setSeenByAdmin(Homework homework)
         {
             homework.statusOfSeen = 1;
             homework.date_of_seen_by_admin = DateTime.Now;
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
         }
 
-        public async Task<bool> setSeenByUser(Homework homework)
+        public bool setSeenByUser(Homework homework)
         {
             homework.date_of_update_of_teacher = DateTime.Now;
             homework.status_of_seen_of_message_from_teacher = 1;
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
         }
 
-        public async Task<bool> delete(int id)
+        public bool delete(int id)
         {
-            Homework homework = await findById(id);
+            Homework homework = findById(id);
             if (homework == null) return false;
             this._dbc.Homeworks.Remove(homework);
-            await this._dbc.SaveChangesAsync();
+            this._dbc.SaveChanges();
             return true;
         }
 

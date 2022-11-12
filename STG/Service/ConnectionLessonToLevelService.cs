@@ -16,87 +16,87 @@ namespace STG.Service
             this._dbc = dbc;
         }
 
-        public async Task<ConnectionLessonToLevel> findById(int id)
+        public ConnectionLessonToLevel findById(int id)
         {
-            return await _dbc.ConnectionsLessonToLevel
+            return _dbc.ConnectionsLessonToLevel
                 .Where(p => p.id == id)
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
         }
 
-        public async Task<ConnectionLessonToLevel> find(Level level, Lesson lesson)
+        public ConnectionLessonToLevel find(Level level, Lesson lesson)
         {
-            return await _dbc.ConnectionsLessonToLevel
+            return _dbc.ConnectionsLessonToLevel
                 .Where(p => p.level == level && p.lesson == lesson)
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
         }
 
-        public async Task<ConnectionLessonToLevel> add(Level level, Lesson lesson)
+        public ConnectionLessonToLevel add(Level level, Lesson lesson)
         {
-            ConnectionLessonToLevel connectionLessonToLevel = await find(level, lesson);
+            ConnectionLessonToLevel connectionLessonToLevel = find(level, lesson);
             if (connectionLessonToLevel != null) return connectionLessonToLevel;
             connectionLessonToLevel = new ConnectionLessonToLevel();
             connectionLessonToLevel.level = level;
             connectionLessonToLevel.lesson = lesson;
             connectionLessonToLevel.dateOfAdd = DateTime.Now;
 
-            await _dbc.ConnectionsLessonToLevel.AddAsync(connectionLessonToLevel);
-            await _dbc.SaveChangesAsync();
+            _dbc.ConnectionsLessonToLevel.Add(connectionLessonToLevel);
+            _dbc.SaveChanges();
 
             return connectionLessonToLevel;
         }
 
-        public async Task<bool> deleteAll(Lesson lesson)
+        public bool deleteAll(Lesson lesson)
         {
-            List<ConnectionLessonToLevel> connectionLessonToLevels = await listAllByLesson(lesson);
+            List<ConnectionLessonToLevel> connectionLessonToLevels = listAllByLesson(lesson);
             foreach (ConnectionLessonToLevel connectionLessonToLevel in connectionLessonToLevels)
             {
                 this._dbc.ConnectionsLessonToLevel.Remove(connectionLessonToLevel);
-                await this._dbc.SaveChangesAsync();
+                this._dbc.SaveChanges();
             }
             return true;
         }
 
-        public async Task<bool> delete(Level level, Lesson lesson)
+        public bool delete(Level level, Lesson lesson)
         {
-            ConnectionLessonToLevel connectionLessonToLevel = await find(level, lesson);
+            ConnectionLessonToLevel connectionLessonToLevel = find(level, lesson);
             if (connectionLessonToLevel == null) return false;
             this._dbc.ConnectionsLessonToLevel.Remove(connectionLessonToLevel);
-            await this._dbc.SaveChangesAsync();
+            this._dbc.SaveChanges();
             return true;
         }
 
-        public async Task<bool> delete(int id)
+        public bool delete(int id)
         {
-            ConnectionLessonToLevel connectionLessonToLevel = await findById(id);
+            ConnectionLessonToLevel connectionLessonToLevel = findById(id);
             if (connectionLessonToLevel == null) return false;
             this._dbc.ConnectionsLessonToLevel.Remove(connectionLessonToLevel);
-            await this._dbc.SaveChangesAsync();
+            this._dbc.SaveChanges();
             return true;
         }
-        public async Task<bool> delete(ConnectionLessonToLevel connectionLessonToLevel)
+        public bool delete(ConnectionLessonToLevel connectionLessonToLevel)
         {
             this._dbc.ConnectionsLessonToLevel.Remove(connectionLessonToLevel);
-            await this._dbc.SaveChangesAsync();
+            this._dbc.SaveChanges();
             return true;
         }
 
-        public async Task<List<ConnectionLessonToLevel>> listAllByLesson(Lesson lesson)
+        public List<ConnectionLessonToLevel> listAllByLesson(Lesson lesson)
         {
-            return await _dbc.ConnectionsLessonToLevel
+            return _dbc.ConnectionsLessonToLevel
                 .Include(p => p.level)
                 .Where(p => p.lesson == lesson)
-                .ToListAsync();
+                .ToList();
         }
 
-        public async Task<List<ConnectionLessonToLevel>> listAll()
+        public List<ConnectionLessonToLevel> listAll()
         {
-            return await _dbc.ConnectionsLessonToLevel
-                .ToListAsync();
+            return _dbc.ConnectionsLessonToLevel
+                .ToList();
         }
 
-        public async Task<string[]> arrayOfLevelName(Lesson lesson)
+        public string[] arrayOfLevelName(Lesson lesson)
         {
-            List<ConnectionLessonToLevel> connectionLessonToLevels = await listAllByLesson(lesson);
+            List<ConnectionLessonToLevel> connectionLessonToLevels = listAllByLesson(lesson);
             List<string> levelNames = new List<string>();
             foreach (ConnectionLessonToLevel connectionLessonToLevel in connectionLessonToLevels)
             {

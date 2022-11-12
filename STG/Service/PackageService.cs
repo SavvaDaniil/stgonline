@@ -17,139 +17,169 @@ namespace STG.Service
             this._dbc = dbc;
         }
 
-        public async Task<Package> findById(int id)
+        public Package findById(int id)
         {
-            return await _dbc.Packages
+            return _dbc.Packages
                 .Include(p => p.level)
                 .Include(p => p.style)
                 .Include(p => p.teacher)
                 .Include(p => p.tariff)
-                .FirstOrDefaultAsync(p => p.id == id);
+                .FirstOrDefault(p => p.id == id);
         }
-        public async Task<Package> findActiveById(int id)
+        public Package findActiveById(int id)
         {
-            return await _dbc.Packages
+            return _dbc.Packages
                 .Where(p => p.active == 1)
-                .FirstOrDefaultAsync(p => p.id == id);
+                .FirstOrDefault(p => p.id == id);
         }
 
-        public async Task<IEnumerable<Package>> listAll()
+        public IEnumerable<Package> listAll()
         {
-            return await _dbc.Packages
+            return _dbc.Packages
                 .OrderByDescending(p => p.orderInList)
                 .Include(p => p.level)
                 .Include(p => p.style)
                 .Include(p => p.teacher)
                 .Include(p => p.tariff)
-                .ToListAsync();
+                .ToList();
         }
 
-        public async Task<IEnumerable<Package>> listAllPrivateActive()
+        public IEnumerable<Package> listAllOnlyPrivateActive(int skip, int take)
         {
-            return await _dbc.Packages
+            if (skip < 0) skip = 0;
+            if (take < 0) take = 18;
+            return _dbc.Packages
                 .Include(p => p.level)
                 .Include(p => p.style)
                 .Include(p => p.teacher)
                 .Include(p => p.tariff)
                 .Where(p => p.active == 2)
+                .Skip(skip)
+                .Take(take)
                 .OrderByDescending(p => p.orderInList)
-                .ToListAsync();
+                .ToList();
         }
 
-        public async Task<IEnumerable<Package>> listAllActive()
+        public IEnumerable<Package> listAllOnlyPublicActive(int skip, int take)
         {
-            return await _dbc.Packages
+            if (skip < 0) skip = 0;
+            if (take < 0) take = 18;
+            return _dbc.Packages
+                .Include(p => p.level)
+                .Include(p => p.style)
+                .Include(p => p.teacher)
+                .Include(p => p.tariff)
                 .Where(p => p.active == 1)
+                .Skip(skip)
+                .Take(take)
                 .OrderByDescending(p => p.orderInList)
-                .ToListAsync();
+                .ToList();
         }
 
-        public async Task<IEnumerable<Package>> listAllActivePrivate()
+        public IEnumerable<Package> listAllActive(int skip, int take)
         {
-            return await _dbc.Packages.Where(p => p.active == 2).OrderByDescending(p => p.orderInList).ToListAsync();
+            if (skip < 0) skip = 0;
+            if (take < 0) take = 18;
+            return _dbc.Packages
+                .Include(p => p.level)
+                .Include(p => p.style)
+                .Include(p => p.teacher)
+                .Include(p => p.tariff)
+                .Where(p => p.active >= 1)
+                .Skip(skip)
+                .Take(take)
+                .OrderByDescending(p => p.orderInList)
+                .ToList();
         }
 
-        public async Task<IEnumerable<Package>> listAllCuratorActive()
+        public IEnumerable<Package> listAllActivePrivate()
         {
-            return await _dbc.Packages.Where(p => p.active == 1).OrderByDescending(p => p.orderInList).ToListAsync();
+            return _dbc.Packages.Where(p => p.active == 2).OrderByDescending(p => p.orderInList).ToList();
         }
 
-        public async Task<bool> add(PackageNewDTO packageNewDTO)
+        public IEnumerable<Package> listAllCuratorActive()
+        {
+            return _dbc.Packages.Where(p => p.active == 1).OrderByDescending(p => p.orderInList).ToList();
+        }
+
+        public bool add(PackageNewDTO packageNewDTO)
         {
             Package package = new Package();
             package.name = packageNewDTO.name;
             package.days = 90;
-            await _dbc.Packages.AddAsync(package);
-            await _dbc.SaveChangesAsync();
+            _dbc.Packages.Add(package);
+            _dbc.SaveChanges();
 
             package.orderInList = package.id;
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
 
 
             return true;
         }
 
-        public async Task<bool> delete(int id)
+        public bool delete(int id)
         {
-            Package package = await _dbc.Packages.Where(p => p.id == id).FirstOrDefaultAsync();
+            Package package = _dbc.Packages.Where(p => p.id == id).FirstOrDefault();
             if (package == null) return false;
             this._dbc.Packages.Remove(package);
-            await this._dbc.SaveChangesAsync();
+            this._dbc.SaveChanges();
             return true;
         }
 
-        public async Task<bool> delete(Package package)
+        public bool delete(Package package)
         {
             this._dbc.Packages.Remove(package);
-            await this._dbc.SaveChangesAsync();
+            this._dbc.SaveChanges();
             return true;
         }
 
-        public async Task<bool> update(PackageDTO packageDTO, Level level, Style style, Teacher teacher, Tariff tariff)
+        public bool update(PackageDTO packageDTO, Level level, Style style, Teacher teacher, Tariff tariff)
         {
-            Package package = await findById(packageDTO.id);
+            Package package = findById(packageDTO.id);
             if (package == null) return false;
             package.name = packageDTO.name;
             package.active = packageDTO.active;
 
-            if(packageDTO.active == 2)
+            if(package.priceWithChat == 0 && packageDTO.active == 2 && teacher != null)
             {
-                if (teacher != null)
+                int price_from_teacher = 0;
+                switch (packageDTO.id_of_tariff)
                 {
-                    int price_from_teacher = 0;
-                    switch (packageDTO.id_of_tariff)
-                    {
-                        case 1:
-                            price_from_teacher = (teacher != null ? (teacher.priceTariff1 - 1000) : 0);
-                            break;
-                        case 2:
-                            price_from_teacher = (teacher != null ? (teacher.priceTariff2 - 1000) : 0);
-                            break;
-                        case 3:
-                            price_from_teacher = (teacher != null ? (teacher.priceTariff3 - 1000) : 0);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (price_from_teacher < 0) price_from_teacher = 0;
-                    package.price = price_from_teacher;
+                    case 1:
+                        price_from_teacher = (teacher != null ? (teacher.priceTariff1 - 1000) : 0);
+                        break;
+                    case 2:
+                        price_from_teacher = (teacher != null ? (teacher.priceTariff2 - 1000) : 0);
+                        break;
+                    case 3:
+                        price_from_teacher = (teacher != null ? (teacher.priceTariff3 - 1000) : 0);
+                        break;
+                    default:
+                        break;
                 }
+
+                if (price_from_teacher < 0) price_from_teacher = 0;
+                if (package.priceWithChat == 0) package.priceWithChat = price_from_teacher;
+                
             } else
             {
-                package.price = packageDTO.price;
+                package.priceWithChat = packageDTO.priceWithChat;
             }
 
+
+            package.price = packageDTO.price;
+            package.priceFake = packageDTO.priceFake;
+            package.priceWithChatFake = packageDTO.priceWithChatFake;
             package.days = packageDTO.days;
             package.description = packageDTO.description;
-            package.statusOfChatNone0Homework1AndChat2 = packageDTO.statusOfChatNone0Homework1AndChat2;
+            package.statusOfCouldBePurchasedBlank0OnlyChat2BlankOrChat3 = packageDTO.statusOfCouldBePurchasedBlank0OnlyChat2BlankOrChat3;
 
             if (package.level != level) package.level = level;
             if (package.style != style) package.style = style;
             if (package.teacher != teacher) package.teacher = teacher;
             if (package.tariff != tariff) package.tariff = tariff;
 
-            await this._dbc.SaveChangesAsync();
+            this._dbc.SaveChanges();
 
             return true;
         }

@@ -18,16 +18,16 @@ namespace STG.Service
             this._dbc = dbc;
         }
 
-        public async Task<Statement> findById(int id)
+        public Statement findById(int id)
         {
-            return await _dbc.Statements
+            return _dbc.Statements
                 .Include(p => p.user)
                 .Include(p => p.teacher)
                 .Where(p => p.id == id)
-                .OrderByDescending(p => p.id).FirstOrDefaultAsync();
+                .OrderByDescending(p => p.id).FirstOrDefault();
         }
 
-        public async Task<Statement> add(User user, PreUserWithAppointment preUserWithAppointment, int status = 0)
+        public Statement add(User user, PreUserWithAppointment preUserWithAppointment, int status = 0)
         {
             Statement statement = new Statement();
             statement.user = user;
@@ -46,13 +46,13 @@ namespace STG.Service
             statement.date_of_add = DateTime.Now;
             statement.date_of_payed = DateTime.Now;
 
-            await _dbc.Statements.AddAsync(statement);
-            await _dbc.SaveChangesAsync();
+            _dbc.Statements.Add(statement);
+            _dbc.SaveChanges();
 
             return statement;
         }
 
-        public async Task<Statement> add(User user, StatementNewDTO statementNewDTO)
+        public Statement add(User user, StatementNewDTO statementNewDTO)
         {
             Statement statement = new Statement();
             statement.user = user;
@@ -71,22 +71,22 @@ namespace STG.Service
             statement.date_of_add = DateTime.Now;
             //statement.date_of_payed = DateTime.Now;
 
-            await _dbc.Statements.AddAsync(statement);
-            await _dbc.SaveChangesAsync();
+            _dbc.Statements.Add(statement);
+            _dbc.SaveChanges();
 
             return statement;
         }
 
-        public async Task<Statement> updateAfterSuccessfullPayment(Statement statement)
+        public Statement updateAfterSuccessfullPayment(Statement statement)
         {
             //statement.status = 1;
             statement.is_payed = 1;
             statement.date_of_payed = DateTime.Now;
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return statement;
         }
 
-        public async Task<bool> setCurator(Statement statement, Teacher teacher)
+        public bool setCurator(Statement statement, Teacher teacher)
         {
             if(teacher == null)
             {
@@ -100,14 +100,14 @@ namespace STG.Service
                 statement.date_of_active = DateTime.Now;
             }
 
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
         }
 
 
 
 
-        public async Task<List<Statement>> search(StatementSearchDTO statementSearchDTO)
+        public List<Statement> search(StatementSearchDTO statementSearchDTO)
         {
             statementSearchDTO.page--;
             IQueryable<Statement> q = _dbc.Statements
@@ -125,14 +125,14 @@ namespace STG.Service
                     || p.idols.Contains(statementSearchDTO.queryString)
                 );
             }
-            return await q.ToListAsync();
+            return q.ToList();
         }
 
-        public async Task<int> getCountAllInactived()
+        public int getCountAllInactived()
         {
-            return await _dbc.Statements
+            return _dbc.Statements
                 .Where(p => p.status == 0 && p.is_payed == 1)
-                .CountAsync();
+                .Count();
         }
 
         public int searchCount(StatementSearchDTO statementSearchDTO)

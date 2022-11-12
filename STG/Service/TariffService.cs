@@ -17,25 +17,25 @@ namespace STG.Service
             this._dbc = dbc;
         }
 
-        public async Task<Tariff> findById(int id)
+        public Tariff findById(int id)
         {
-            return await _dbc.Tariffs
+            return _dbc.Tariffs
                 .OrderByDescending(p => p.orderInList)
-                .FirstOrDefaultAsync(p => p.id == id);
+                .FirstOrDefault(p => p.id == id);
         }
 
-        public async Task<List<Tariff>> listAll()
+        public List<Tariff> listAll()
         {
-            return await _dbc.Tariffs
+            return _dbc.Tariffs
                 .OrderByDescending(p => p.orderInList)
-                .ToListAsync();
+                .ToList();
         }
 
-        public async Task<IEnumerable<Tariff>> enumAll()
+        public IEnumerable<Tariff> enumAll()
         {
-            return await _dbc.Tariffs
+            return _dbc.Tariffs
                 .OrderByDescending(p => p.orderInList)
-                .ToListAsync();
+                .ToList();
         }
     }
 }

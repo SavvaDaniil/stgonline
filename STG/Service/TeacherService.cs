@@ -18,7 +18,7 @@ namespace STG.Service
             this._dbc = dbc;
         }
 
-        public async Task<Teacher> add(TeacherNewDTO teacherNewDTO)
+        public Teacher add(TeacherNewDTO teacherNewDTO)
         {
             Teacher teacher = new Teacher();
             teacher.name = teacherNewDTO.fio;
@@ -26,21 +26,21 @@ namespace STG.Service
 
             this._dbc.Teachers.Add(teacher);
 
-            await this._dbc.SaveChangesAsync();
+            this._dbc.SaveChanges();
             teacher.orderInList = teacher.id;
-            await this._dbc.SaveChangesAsync();
+            this._dbc.SaveChanges();
 
             return teacher;
         }
 
-        public async Task<Teacher> findById(int id)
+        public Teacher findById(int id)
         {
-            return await this._dbc.Teachers.FirstOrDefaultAsync(p => p.id == id);
+            return this._dbc.Teachers.FirstOrDefault(p => p.id == id);
         }
 
-        public async Task<Teacher> save(TeacherDTO teacherDTO)
+        public Teacher save(TeacherDTO teacherDTO)
         {
-            Teacher teacher = await findById(teacherDTO.id);
+            Teacher teacher = findById(teacherDTO.id);
 
             if (teacher == null) return null;
 
@@ -58,16 +58,16 @@ namespace STG.Service
             teacher.priceTariff2 = teacherDTO.price_tariff_2;
             teacher.priceTariff3 = teacherDTO.price_tariff_3;
 
-            await this._dbc.SaveChangesAsync();
+            this._dbc.SaveChanges();
 
             return teacher;
         }
 
-        public async Task<bool> delete(int id)
+        public bool delete(int id)
         {
-            Teacher teacher = await findById(id);
+            Teacher teacher = findById(id);
             this._dbc.Teachers.Remove(teacher);
-            await this._dbc.SaveChangesAsync();
+            this._dbc.SaveChanges();
             return true;
         }
 
@@ -76,27 +76,35 @@ namespace STG.Service
             return this._dbc.Teachers.FirstOrDefault(p => p.id == id);
         }
 
-        public async Task<List<Teacher>> listAll()
+        public List<Teacher> listAll()
         {
-            return await this._dbc.Teachers
+            return this._dbc.Teachers
                 .OrderByDescending(p => p.orderInList)
-                .ToListAsync();
+                .ToList();
         }
 
-        public async Task<List<Teacher>> listAllActive()
+        public List<Teacher> listAllActive()
         {
-            return await this._dbc.Teachers.Where(p => p.active == 1)
+            return this._dbc.Teachers.Where(p => p.active == 1)
                 .OrderByDescending(p => p.orderInList)
-                .ToListAsync();
+                .ToList();
         }
 
-        public async Task<IEnumerable<Teacher>> listAllActiveCurator()
+        public IEnumerable<Teacher> listAllActiveCurator()
         {
-            return await this._dbc.Teachers.Where(p => p.active == 1 && p.isCurator == 1)
-                .OrderByDescending(p => p.orderInList).ToListAsync();
+            return this._dbc.Teachers
+                .Where(p => p.active == 1 && p.isCurator == 1)
+                .OrderByDescending(p => p.orderInList).ToList();
         }
 
-        public async Task<List<Teacher>> listAllByListString(string listOfIdOfTeacher)
+        public IEnumerable<Teacher> listAllActiveNotCurator()
+        {
+            return this._dbc.Teachers
+                .Where(p => p.active == 1 && p.isCurator == 0)
+                .OrderByDescending(p => p.orderInList).ToList();
+        }
+
+        public List<Teacher> listAllByListString(string listOfIdOfTeacher)
         {
             List<Teacher> listOfTeachers = new List<Teacher>();
             Teacher teacher;
@@ -104,7 +112,7 @@ namespace STG.Service
             {
                 try
                 {
-                    teacher = await findById(int.Parse(id_of_teacher));
+                    teacher = findById(int.Parse(id_of_teacher));
                     if (teacher != null) listOfTeachers.Add(teacher);
                 }
                 catch { }
@@ -113,35 +121,35 @@ namespace STG.Service
             return listOfTeachers;
         }
 
-        public async Task<Teacher> findPrevOfById(int id_of_current, int order_of_current)
+        public Teacher findPrevOfById(int id_of_current, int order_of_current)
         {
-            return await _dbc.Teachers
+            return _dbc.Teachers
                 .Where(p => p.id != id_of_current)
                 .Where(p => p.orderInList < order_of_current)
                 .OrderByDescending(p => p.orderInList)
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
         }
-        public async Task<Teacher> findNextOfById(int id_of_current, int order_of_current)
+        public Teacher findNextOfById(int id_of_current, int order_of_current)
         {
-            return await _dbc.Teachers
+            return _dbc.Teachers
                 .Where(p => p.id != id_of_current)
                 .Where(p => p.orderInList > order_of_current)
                 .OrderBy(p => p.orderInList)
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
         }
 
-        public async Task<bool> changeOrder(TeacherOrderDTO teacherOrderDTO)
+        public bool changeOrder(TeacherOrderDTO teacherOrderDTO)
         {
-            Teacher teacherCurrent = await findById(teacherOrderDTO.id_of_teacher);
+            Teacher teacherCurrent = findById(teacherOrderDTO.id_of_teacher);
 
             Teacher lessonForChangingOrderInList = new Teacher();
             switch (teacherOrderDTO.change_order_to_0_down_1_up)
             {
                 case 0:
-                    lessonForChangingOrderInList = await findPrevOfById(teacherCurrent.id, teacherCurrent.orderInList);
+                    lessonForChangingOrderInList = findPrevOfById(teacherCurrent.id, teacherCurrent.orderInList);
                     break;
                 case 1:
-                    lessonForChangingOrderInList = await findNextOfById(teacherCurrent.id, teacherCurrent.orderInList);
+                    lessonForChangingOrderInList = findNextOfById(teacherCurrent.id, teacherCurrent.orderInList);
                     break;
                 default:
                     break;
@@ -153,7 +161,7 @@ namespace STG.Service
                 teacherCurrent,
                 lessonForChangingOrderInList
             );
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
 
             return true;
         }

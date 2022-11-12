@@ -30,34 +30,36 @@ namespace STG.Service
             return false;
         }
 
-        public async Task<bool> isAlreadyExistByUsernameExceptId(int id, string username)
+        public bool isAlreadyExistByUsernameExceptId(int id, string username)
         {
-            if (await _dbc.Users
+            if (_dbc.Users
                 .Where(p => p.Username == username && p.Id != id)
-                .AnyAsync())
+                .Any())
             {
                 return true;
             }
             return false;
         }
 
-        public async Task<User> findByUsername(string username)
+        public User findByUsername(string username)
         {
-            return await _dbc.Users.FirstOrDefaultAsync(p=> p.Username == username);
-        }
-        public async Task<User> findById(int id_of_user)
-        {
-            return await _dbc.Users
-                .Include(p => p.region)
-                .FirstOrDefaultAsync(p => p.Id == id_of_user);
+            return _dbc.Users.FirstOrDefault(p=> p.Username == username);
         }
 
-        public async Task<User> add(UserNewDTO userNewDTO)
+        public User findById(int id_of_user)
+        {
+            return _dbc.Users
+                .Include(p => p.region)
+                .FirstOrDefault(p => p.Id == id_of_user);
+        }
+
+        public User add(UserNewDTO userNewDTO)
         {
             User user = new User();
             user.Username = userNewDTO.username;
             user.firstname = userNewDTO.firstname;
             user.secondname = userNewDTO.secondname;
+            user.phone = userNewDTO.phone;
             user.instagram = userNewDTO.instagram;
             user.date_of_birthday = userNewDTO.date_of_birthday;
 
@@ -68,17 +70,18 @@ namespace STG.Service
 
             _dbc.Users.Add(user);
 
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
 
             return user;
         }
 
-        public async Task<User> add(PreUserWithAppointment preUserWithAppointment)
+        public User add(PreUserWithAppointment preUserWithAppointment)
         {
             User user = new User();
             user.Username = preUserWithAppointment.username;
             user.firstname = preUserWithAppointment.firstname;
             user.secondname = preUserWithAppointment.secondname;
+            user.phone = preUserWithAppointment.phone;
             user.instagram = preUserWithAppointment.instagram;
             user.date_of_birthday = preUserWithAppointment.date_of_birthday;
             user.region = preUserWithAppointment.region;
@@ -91,15 +94,16 @@ namespace STG.Service
 
             _dbc.Users.Add(user);
 
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
 
             return user;
         }
 
-        public async Task<JsonAnswerViewModel> save(User user, UserProfileDTO userProfileDTO)
+        public JsonAnswerViewModel save(User user, UserProfileDTO userProfileDTO)
         {
             user.firstname = userProfileDTO.firstname;
             user.secondname = userProfileDTO.secondname;
+            user.phone = userProfileDTO.phone;
             user.instagram = userProfileDTO.instagram;
             user.prolongation = userProfileDTO.prolongation;
             user.date_of_birthday = userProfileDTO.date_of_birthday;
@@ -116,23 +120,25 @@ namespace STG.Service
                 user.Username = userProfileDTO.username;
             }
 
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
 
             return (isNeedReSign) ? new JsonAnswerViewModel("success",null, user) : new JsonAnswerViewModel("success", null);
         }
 
-        public async Task<JsonAnswerStatus> update(UserEditDTO userEditDTO)
+        public JsonAnswerStatus update(UserEditDTO userEditDTO)
         {
-            User user = await findById(userEditDTO.id);
+            User user = findById(userEditDTO.id);
             if (user == null) return null;
 
             user.firstname = userEditDTO.firstname;
             user.secondname = userEditDTO.secondname;
+            user.phone = userEditDTO.phone;
             user.instagram = userEditDTO.instagram;
             user.prolongation = userEditDTO.prolongation;
             user.date_of_birthday = userEditDTO.date_of_birthday;
             user.isTest = userEditDTO.is_test;
             user.isLessonFullAccess = userEditDTO.is_lesson_full_access;
+            user.isPublicPackageFullAccess = userEditDTO.is_public_package_full_access;
             user.active = userEditDTO.active;
 
             if (userEditDTO.new_password != null)
@@ -143,27 +149,27 @@ namespace STG.Service
 
             if (userEditDTO.username != user.Username)
             {
-                if(await isAlreadyExistByUsernameExceptId(user.Id, userEditDTO.username))
+                if(isAlreadyExistByUsernameExceptId(user.Id, userEditDTO.username))
                 {
                     return new JsonAnswerStatus("error", "username_already_exist");
                 } 
                 user.Username = userEditDTO.username;
             }
 
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
 
             return new JsonAnswerStatus("success", null);
         }
 
-        public async Task<bool> setProngationTrue(User user)
+        public bool setProngationTrue(User user)
         {
             user.prolongation = 1;
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
         }
 
 
-        public async Task<bool> updateUserForgetCode(User user, string code)
+        public bool updateUserForgetCode(User user, string code)
         {
             user.forget_code = code;
             if(user.forgetDateOfLastTry.Value.AddMinutes(20) < DateTime.Now)
@@ -174,43 +180,43 @@ namespace STG.Service
                 user.forget_count++;
             }
 
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
         }
 
-        public async Task<bool> forgetUpdateCount(User user, int count)
+        public bool forgetUpdateCount(User user, int count)
         {
             user.forget_count = count;
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
         }
 
-        public async Task<bool> forgetCheckCode(int id, string code)
+        public bool forgetCheckCode(int id, string code)
         {
-            User user = await findById(id);
+            User user = findById(id);
             if (user == null) return false;
             if (user.forget_code != code) return false;
             return true;
         }
 
-        public async Task<string> setRandomPassword(User user)
+        public string setRandomPassword(User user)
         {
             string randomPassword = RandomComponent.RandomString(6);
             user.Password = BCrypt.Net.BCrypt.HashPassword(randomPassword);
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return randomPassword;
         }
 
 
-        public async Task<bool> updateUserIdInAmoCRM(User user, int id_in_amocrm)
+        public bool updateUserIdInAmoCRM(User user, int id_in_amocrm)
         {
             user.id_in_amocrm = id_in_amocrm;
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
         }
 
 
-        public async Task<List<User>> searchUsers(UserSearchDTO userSearchDTO)
+        public List<User> searchUsers(UserSearchDTO userSearchDTO)
         {
             userSearchDTO.page--;
             int take = 30;
@@ -218,8 +224,8 @@ namespace STG.Service
             if (!string.IsNullOrEmpty(userSearchDTO.queryString))
             {
                 //, take.ToString(), skip.ToString()
-                return await _dbc.Users.FromSql("SELECT * FROM user WHERE Username LIKE {0} OR firstname LIKE {0} OR secondname LIKE {0} OR instagram LIKE {0} ORDER BY Id DESC LIMIT {1}, {2}", "%"+userSearchDTO.queryString+"%", skip, take)
-                    .ToListAsync();
+                return _dbc.Users.FromSql("SELECT * FROM user WHERE Username LIKE {0} OR firstname LIKE {0} OR secondname LIKE {0} OR instagram LIKE {0} ORDER BY Id DESC LIMIT {1}, {2}", "%"+userSearchDTO.queryString+"%", skip, take)
+                    .ToList();
             } else
             {
                 IQueryable<User> q = _dbc.Users.OrderByDescending(p => p.Id);
@@ -235,24 +241,34 @@ namespace STG.Service
                     || p.Username.Contains(userSearchDTO.queryString)
                 );
                 */
-                return await q.ToListAsync();
+                return q.ToList();
             }
         }
 
-        public async Task<int> searchCount(UserSearchDTO userSearchDTO)
+        public int searchCount(UserSearchDTO userSearchDTO)
         {
             if (!string.IsNullOrEmpty(userSearchDTO.queryString))
             {
                 //, take.ToString(), skip.ToString()
-                return await _dbc.Users.FromSql("SELECT * FROM user WHERE Username LIKE {0}", "%" + userSearchDTO.queryString + "%")
-                    .CountAsync();
+                return _dbc.Users.FromSql("SELECT * FROM user WHERE Username LIKE {0}", "%" + userSearchDTO.queryString + "%")
+                    .Count();
             }
             else
             {
                 IQueryable<User> q = _dbc.Users.OrderByDescending(p => p.Id);
-                return await q.CountAsync();
+                return q.Count();
             }
         }
+
+
+        public List<User> listAllWithoutIdOfAmocrm()
+        {
+            return _dbc.Users
+                .Where(p => p.id_in_amocrm == 0)
+                .OrderByDescending(p => p.Id)
+                .ToList();
+        }
+
     }
 
 }

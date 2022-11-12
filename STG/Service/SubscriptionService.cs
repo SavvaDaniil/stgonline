@@ -16,29 +16,31 @@ namespace STG.Service
             this._dbc = dbc;
         }
 
-        public async Task<Subscription> findById(int id)
+        public Subscription findById(int id)
         {
-            return await this._dbc.Subscriptions
-                .FirstOrDefaultAsync(p => p.id == id);
+            return this._dbc.Subscriptions
+                .FirstOrDefault(p => p.id == id);
         }
-        public async Task<Subscription> findActiveById(int id)
+        public Subscription findActiveById(int id)
         {
-            return await this._dbc.Subscriptions
+            return this._dbc.Subscriptions
                 .Where(p => p.active == 1)
-                .FirstOrDefaultAsync(p => p.id == id);
+                .FirstOrDefault(p => p.id == id);
         }
 
-        public async Task<List<Subscription>> listAll()
+        public List<Subscription> listAll()
         {
-            return await _dbc.Subscriptions
+            return _dbc.Subscriptions
                 .OrderByDescending(p => p.orderInList)
-                .ToListAsync();
+                .ToList();
         }
 
-        public async Task<List<Subscription>> listAllActive()
+        public List<Subscription> listAllActive()
         {
-            return await _dbc.Subscriptions
-                .Where(p => p.active == 1).ToListAsync();
+            return _dbc.Subscriptions
+                .Where(p => p.active == 1)
+                .OrderByDescending(p => p.orderInList)
+                .ToList();
         }
 
 

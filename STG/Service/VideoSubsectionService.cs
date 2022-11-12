@@ -21,32 +21,32 @@ namespace STG.Service
             return _dbc.VideoSubsections.FirstOrDefault(p => p.id == id);
         }
 
-        public async Task<List<VideoSubsection>> listAllByVideo(Video video)
+        public List<VideoSubsection> listAllByVideo(Video video)
         {
-            return await _dbc.VideoSubsections
+            return _dbc.VideoSubsections
                 .Where(p => p.video == video)
                 .OrderBy(p => p.orderInList)
-                .ToListAsync();
+                .ToList();
         }
 
-        public async Task<List<VideoSubsection>> listAllByVideoSection(VideoSection videoSection)
+        public List<VideoSubsection> listAllByVideoSection(VideoSection videoSection)
         {
-            return await _dbc.VideoSubsections
+            return _dbc.VideoSubsections
                 .Where(p => p.videoSection == videoSection)
                 .OrderBy(p => p.orderInList)
-                .ToListAsync();
+                .ToList();
         }
 
-        public async Task<List<VideoSubsection>> listAllByVideoAndVideoSection(Video video, VideoSection videoSection)
+        public List<VideoSubsection> listAllByVideoAndVideoSection(Video video, VideoSection videoSection)
         {
-            return await _dbc.VideoSubsections
+            return _dbc.VideoSubsections
                 .Where(p => p.video == video)
                 .Where(p => p.videoSection == videoSection)
                 .OrderBy(p => p.orderInList)
-                .ToListAsync();
+                .ToList();
         }
 
-        public async Task<bool> add(VideosubsectionNewDTO videosubsectionNewDTO, Video video, VideoSection videoSection)
+        public bool add(VideosubsectionNewDTO videosubsectionNewDTO, Video video, VideoSection videoSection)
         {
             VideoSubsection videoSubsection = new VideoSubsection();
 
@@ -54,25 +54,25 @@ namespace STG.Service
             videoSubsection.videoSection = videoSection;
             videoSubsection.name = videosubsectionNewDTO.name;
 
-            await _dbc.VideoSubsections.AddAsync(videoSubsection);
-            await _dbc.SaveChangesAsync();
+            _dbc.VideoSubsections.Add(videoSubsection);
+            _dbc.SaveChanges();
             videoSubsection.orderInList = videoSubsection.id;
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
         }
 
-        public async Task<bool> delete(int id)
+        public bool delete(int id)
         {
             VideoSubsection videoSubsection = findById(id);
             if (videoSubsection == null) return false;
             _dbc.VideoSubsections.Remove(videoSubsection);
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
         }
 
-        public async Task<bool> deleteAllByVideoSection(VideoSection videoSection)
+        public bool deleteAllByVideoSection(VideoSection videoSection)
         {
-            List<VideoSubsection> videoSubsections = await listAllByVideoSection(videoSection);
+            List<VideoSubsection> videoSubsections = listAllByVideoSection(videoSection);
             foreach(VideoSubsection videoSubsection in videoSubsections)
             {
                 _dbc.VideoSubsections.Remove(videoSubsection);
@@ -81,7 +81,7 @@ namespace STG.Service
             return false;
         }
 
-        public async Task<bool> update(VideoSubsectionDTO videoSubsectionDTO)
+        public bool update(VideoSubsectionDTO videoSubsectionDTO)
         {
             VideoSubsection videoSubsection = findById(videoSubsectionDTO.id);
             if (videoSubsection == null) return false;
@@ -98,7 +98,7 @@ namespace STG.Service
                 default:
                     return false;
             }
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
 
             return true;
         }

@@ -17,60 +17,60 @@ namespace STG.Service
             this._dbc = dbc;
         }
 
-        public async Task<PackageDay> findById(int id)
+        public PackageDay findById(int id)
         {
-            return await _dbc.PackageDays.FirstOrDefaultAsync(p => p.id == id);
+            return _dbc.PackageDays.FirstOrDefault(p => p.id == id);
         }
 
-        public async Task<bool> add(PackageDayNewDTO packageDayNewDTO, Package package)
+        public bool add(PackageDayNewDTO packageDayNewDTO, Package package)
         {
             PackageDay packageDay = new PackageDay();
             packageDay.package = package;
             packageDay.name = packageDayNewDTO.name;
 
-            await _dbc.PackageDays.AddAsync(packageDay);
-            await _dbc.SaveChangesAsync();
+            _dbc.PackageDays.Add(packageDay);
+            _dbc.SaveChanges();
             packageDay.orderInList = packageDay.id;
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
         }
 
-        public async Task<List<PackageDay>> listAllByPackage(Package package)
+        public List<PackageDay> listAllByPackage(Package package)
         {
-            return await this._dbc.PackageDays
+            return this._dbc.PackageDays
                 .Where(p => p.package == package)
                 .OrderBy(p => p.orderInList)
-                .ToListAsync();
+                .ToList();
         }
 
-        public async Task<bool> delete(int id)
+        public bool delete(int id)
         {
-            PackageDay packageDay = await findById(id);
+            PackageDay packageDay = findById(id);
             if (packageDay == null) return false;
             _dbc.PackageDays.Remove(packageDay);
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
         }
 
-        public async Task<bool> deleteAllByPackage(Package package)
+        public bool deleteAllByPackage(Package package)
         {
-            List<PackageDay> packageDays = await _dbc.PackageDays.Where(p => p.package == package).ToListAsync();
+            List<PackageDay> packageDays = _dbc.PackageDays.Where(p => p.package == package).ToList();
             foreach (PackageDay packageDay in packageDays)
             {
                 _dbc.PackageDays.Remove(packageDay);
             }
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
 
             return true;
         }
 
-        public async Task<bool> update(PackageDayDTO packageDayDTO)
+        public bool update(PackageDayDTO packageDayDTO)
         {
-            PackageDay packageDay = await findById(packageDayDTO.id);
+            PackageDay packageDay = findById(packageDayDTO.id);
             if (packageDay == null) return false;
 
             packageDay.name = packageDayDTO.name;
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
         }
     }

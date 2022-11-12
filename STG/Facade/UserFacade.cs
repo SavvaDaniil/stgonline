@@ -33,16 +33,37 @@ namespace STG.Facade
             throw new NotImplementedException();
         }
 
-        public async Task<User> registrationAfterPayedStatement(PreUserWithAppointment preUserWithAppointment)
+        public JsonAnswerStatus addByRegistration(UserNewDTO userNewDTO)
         {
             UserService userService = new UserService(_dbc);
-            return await userService.add(preUserWithAppointment);
+
+            if (userService.isAlreadyExistByUsername(userNewDTO.username))
+            {
+                return new JsonAnswerStatus("error", "username_already_exist");
+            }
+
+            User user = userService.add(userNewDTO);
+            if (user == null)
+            {
+                return new JsonAnswerStatus("error", "unknown_error");
+            }
+
+
+            return new JsonAnswerStatus("success", null, user);
         }
 
-        public async Task<JsonAnswerViewModel> login(UserLoginDTO userLoginDTO)
+        public User registrationAfterPayedStatement(PreUserWithAppointment preUserWithAppointment)
         {
             UserService userService = new UserService(_dbc);
-            User user = await userService.findByUsername(userLoginDTO.Username);
+            User user = userService.add(preUserWithAppointment);
+
+            return user;
+        }
+
+        public JsonAnswerViewModel login(UserLoginDTO userLoginDTO)
+        {
+            UserService userService = new UserService(_dbc);
+            User user = userService.findByUsername(userLoginDTO.Username);
 
             if (user != null && BCrypt.Net.BCrypt.Verify(userLoginDTO.Password, user.Password))
             {
@@ -52,10 +73,10 @@ namespace STG.Facade
             return new JsonAnswerViewModel("error", "wrong", null);
         }
 
-        public async Task<UserProfileViewModel> getUserProfile(HttpContext httpContext)
+        public UserProfileViewModel getUserProfile(HttpContext httpContext)
         {
             UserService userService = new UserService(this._dbc);
-            User user = await userService.findById(int.Parse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier).ToString()));
+            User user = userService.findById(int.Parse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier).ToString()));
             if (user == null) return null;
             userService = null;
             GC.Collect();
@@ -72,16 +93,17 @@ namespace STG.Facade
                 user.firstname,
                 user.secondname,
                 user.Username,
+                user.phone,
                 user.sex,
                 user.instagram,
                 date_of_birthday_str,
                 user.prolongation);
         }
 
-        public async Task<UserEditViewModel> get(int id)
+        public UserEditViewModel get(int id)
         {
             UserService userService = new UserService(this._dbc);
-            User user = await userService.findById(id);
+            User user = userService.findById(id);
             if (user == null) return null;
 
 
@@ -93,13 +115,13 @@ namespace STG.Facade
             }
 
             RegionService regionService = new RegionService(_dbc);
-            List<Region> regions = await regionService.listAll();
+            List<Region> regions = regionService.listAll();
 
             PackageService packageService = new PackageService(_dbc);
-            IEnumerable<Package> privatePackages = await packageService.listAll();
+            IEnumerable<Package> privatePackages = packageService.listAllActivePrivate();
 
             ConnectionUserToPrivatePackageService connectionUserToPrivatePackageService = new ConnectionUserToPrivatePackageService(_dbc);
-            List<int> listIdConnectedPrivatePackesToUser = await connectionUserToPrivatePackageService.listIdAllByUser(user);
+            List<int> listIdConnectedPrivatePackesToUser = connectionUserToPrivatePackageService.listIdAllByUser(user);
 
             List<PackagePrivateConnectionToUser> packagePrivateConnectionToUsers = new List<PackagePrivateConnectionToUser>();
 
@@ -121,10 +143,12 @@ namespace STG.Facade
                 user.active,
                 user.firstname,
                 user.secondname,
+                user.phone,
                 user.instagram,
                 date_of_birthday_str,
                 user.isTest,
                 user.isLessonFullAccess,
+                user.isPublicPackageFullAccess,
                 user.region,
                 regions,
                 user.prolongation,
@@ -132,11 +156,11 @@ namespace STG.Facade
             );
         }
 
-        public async Task<JsonAnswerViewModel> save(HttpContext httpContext, UserProfileDTO userProfileDTO)
+        public JsonAnswerViewModel save(HttpContext httpContext, UserProfileDTO userProfileDTO)
         {
             UserService userService = new UserService(_dbc);
             int id_of_user = int.Parse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier).ToString());
-            User user = await userService.findById(id_of_user);
+            User user = userService.findById(id_of_user);
             if (user == null) return null;
 
             if (user.Username != userProfileDTO.username)
@@ -149,7 +173,7 @@ namespace STG.Facade
                 {
                     return new JsonAnswerViewModel("error", "wrong");
                 }
-                if (await userService.isAlreadyExistByUsernameExceptId(id_of_user, userProfileDTO.username)) {
+                if (userService.isAlreadyExistByUsernameExceptId(id_of_user, userProfileDTO.username)) {
                     return new JsonAnswerViewModel("error", "username_already_exist");
                 }
             }
@@ -161,59 +185,42 @@ namespace STG.Facade
                     return new JsonAnswerViewModel("error", "wrong");
                 }
             }
-            return await userService.save(user, userProfileDTO);
+            return userService.save(user, userProfileDTO);
 
-            /*
-                {
-                    user = await userService.save(user, userProfileDTO);
-                    await userService.save(user, userProfileDTO);
-                    userService = null;
-                    GC.Collect();
-                    return (user != null) ? new JsonAnswer("success", null, user) : new JsonAnswer("error", null);
-                }
-            } else
-            {
-                user = await userService.save(user, userProfileDTO);
-                await userService.save(user, userProfileDTO);
-                userService = null;
-                GC.Collect();
-                return (user != null) ? new JsonAnswer("success", null) : new JsonAnswer("error", null);
-            }
-            */
         }
 
 
-        public async Task<JsonAnswerStatus> edit(UserEditDTO userEditDTO)
+        public JsonAnswerStatus edit(UserEditDTO userEditDTO)
         {
             UserService userService = new UserService(this._dbc);
-            return await userService.update(userEditDTO);
+            return userService.update(userEditDTO);
         }
 
-        public async Task<bool> updateUserIdInAmoCRM(User user, int id_in_amocrm)
+        public bool updateUserIdInAmoCRM(User user, int id_in_amocrm)
         {
             UserService userService = new UserService(this._dbc);
-            return await userService.updateUserIdInAmoCRM(user, id_in_amocrm);
+            return userService.updateUserIdInAmoCRM(user, id_in_amocrm);
         }
 
-        public async Task<User> getCurrentOrNull(HttpContext httpContext)
+        public User getCurrentOrNull(HttpContext httpContext)
         {
             UserService userService = new UserService(this._dbc);
             if (!httpContext.User.IsInRole("User")) return null;
             if (httpContext.User.FindFirstValue(ClaimTypes.Role).ToString() != "User") return null;
 
-            User user = await userService.findById(int.Parse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier).ToString()));
+            User user = userService.findById(int.Parse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier).ToString()));
             if (user == null) return null;
             return user;
         }
 
 
-        public async Task<JsonAnswerStatus> forget(UserForgetDTO userForgetDTO)
+        public JsonAnswerStatus forget(UserForgetDTO userForgetDTO)
         {
             UserService userService = new UserService(_dbc);
 
             if (userForgetDTO.step == 0) {
                 if (userForgetDTO.username == null) return new JsonAnswerStatus("error", "no_username");
-                User user = await userService.findByUsername(userForgetDTO.username);
+                User user = userService.findByUsername(userForgetDTO.username);
                 if (user == null) return new JsonAnswerStatus("error", "not_found");
                 if (user.forgetDateOfLastTry == null) user.forgetDateOfLastTry = DateTime.Now;
                 if (user.forgetDateOfLastTry.Value.AddMinutes(20) > DateTime.Now)
@@ -221,7 +228,7 @@ namespace STG.Facade
                     if (user.forget_count > 2) return new JsonAnswerStatus("error", "max_limit_try");
                 }
                 string code = RandomComponent.RandomIntAsString(6);
-                await userService.updateUserForgetCode(user, code);
+                userService.updateUserForgetCode(user, code);
 
                 UserForgetObserver userForgetObserver = new UserForgetObserver();
                 userForgetObserver.sendCodeToUser(user.Username, code);
@@ -229,7 +236,7 @@ namespace STG.Facade
                 return new JsonAnswerStatus("success", null, user.Id);
             } else if(userForgetDTO.step == 1) { 
                 if(userForgetDTO.code == null || userForgetDTO.forget_id == 0) return new JsonAnswerStatus("error", "no_data");
-                User user = await userService.findById(userForgetDTO.forget_id);
+                User user = userService.findById(userForgetDTO.forget_id);
                 if (user == null) return new JsonAnswerStatus("error", "not_found");
 
                 if(user.forget_code != userForgetDTO.code)
@@ -239,19 +246,19 @@ namespace STG.Facade
                         return new JsonAnswerStatus("error", "wrong_max_limit");
                     } else if(user.forget_count > 1)
                     {
-                        await userService.forgetUpdateCount(user, 3);
+                        userService.forgetUpdateCount(user, 3);
                         return new JsonAnswerStatus("error", "wrong_2");
                     } else if(user.forget_count > 0)
                     {
-                        await userService.forgetUpdateCount(user, 2);
+                        userService.forgetUpdateCount(user, 2);
                         return new JsonAnswerStatus("error", "wrong_1");
                     } else
                     {
-                        await userService.forgetUpdateCount(user, 1);
+                        userService.forgetUpdateCount(user, 1);
                         return new JsonAnswerStatus("error", "wrong");
                     }
                 }
-                string newPassword = await userService.setRandomPassword(user);
+                string newPassword = userService.setRandomPassword(user);
                 //отправляем письмо с новым паролем
                 UserForgetObserver userForgetObserver = new UserForgetObserver();
                 userForgetObserver.sendNewPasswodToUser(user.Username, newPassword);
@@ -263,11 +270,11 @@ namespace STG.Facade
         }
 
 
-        public async Task<JsonAnswerStatus> search(UserSearchDTO userSearchDTO)
+        public JsonAnswerStatus search(UserSearchDTO userSearchDTO)
         {
             UserService userService = new UserService(_dbc);
-            List<User> usersSearchResult = await userService.searchUsers(userSearchDTO);
-            int searchCount = await userService.searchCount(userSearchDTO);
+            List<User> usersSearchResult = userService.searchUsers(userSearchDTO);
+            int searchCount = userService.searchCount(userSearchDTO);
 
             List<UserSearchPreviewViewModel> userSearchPreviewViewModels = new List<UserSearchPreviewViewModel>();
             foreach (User user in usersSearchResult)
@@ -288,13 +295,13 @@ namespace STG.Facade
 
 
 
-        public async Task<JsonAnswerStatus> checkCountActivePackages(HttpContext httpContext)
+        public JsonAnswerStatus checkCountActivePackages(HttpContext httpContext)
         {
-            User user = await getCurrentOrNull(httpContext);
+            User user = getCurrentOrNull(httpContext);
             if (user == null) return new JsonAnswerStatus("error", "no_user");
 
             PurchasePackageService purchasePackageService = new PurchasePackageService(_dbc);
-            int countAllActivePackages = await purchasePackageService.countAllActive(user);
+            int countAllActivePackages = purchasePackageService.countAllActive(user);
 
             return (
                 countAllActivePackages < 4
@@ -303,6 +310,30 @@ namespace STG.Facade
             );
         }
 
+
+        public List<UserAmoCRMData> checkUsersForIdOfAmocrm()
+        {
+            UserService userService = new UserService(_dbc);
+            List<User> usersWithoutIdOfAmocrm = userService.listAllWithoutIdOfAmocrm();
+            List<UserAmoCRMData> userAmoCRMDatas = new List<UserAmoCRMData>();
+            AmoCRMFacade amoCRMFacade = new AmoCRMFacade(_dbc);
+
+
+            foreach (User user in usersWithoutIdOfAmocrm)
+            {
+                userAmoCRMDatas.Add(
+                    new UserAmoCRMData(
+                        user.Id,
+                        user.Username,
+                        user.id_in_amocrm,
+                        user.dateOfAdd
+                    )
+                );
+
+            }
+
+            return userAmoCRMDatas;
+        }
 
     }
 }

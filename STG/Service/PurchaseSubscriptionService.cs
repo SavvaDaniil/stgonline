@@ -17,63 +17,63 @@ namespace STG.Service
             this._dbc = dbc;
         }
 
-        public async Task<PurchaseSubscription> findById(int id)
+        public PurchaseSubscription findById(int id)
         {
-            return await _dbc.PurchaseSubscriptions
+            return _dbc.PurchaseSubscriptions
                 .Include(p => p.subscription)
                 .Include(p => p.payment)
                 .Include(p => p.user)
                 .Where(p => p.id == id)
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
         }
 
-        public async Task<bool> isAnyBuyedBeforeByUser(User user)
+        public bool isAnyBuyedBeforeByUser(User user)
         {
-            return await _dbc.PurchaseSubscriptions
+            return _dbc.PurchaseSubscriptions
                 .Where(p => p.user == user && p.active == 1)
                 .OrderBy(p => p.id)
-                .AnyAsync();
+                .Any();
         }
 
-        public async Task<List<PurchaseSubscription>> listAllByUser(User user)
+        public List<PurchaseSubscription> listAllByUser(User user)
         {
-            return await _dbc.PurchaseSubscriptions
+            return _dbc.PurchaseSubscriptions
                 .Include(p => p.subscription)
                 .Include(p => p.payment)
-                .Where(p => p.user == user && p.active == 1).ToListAsync();
+                .Where(p => p.user == user && p.active == 1).ToList();
         }
 
-        public async Task<List<PurchaseSubscription>> listAllAnyByUser(User user)
+        public List<PurchaseSubscription> listAllAnyByUser(User user)
         {
-            return await _dbc.PurchaseSubscriptions
+            return _dbc.PurchaseSubscriptions
                 .Include(p => p.subscription)
                 .Include(p => p.payment)
                 .Where(p => p.user == user)
                 .OrderByDescending(p => p.id)
-                .ToListAsync();
+                .ToList();
         }
 
-        public async Task<List<PurchaseSubscription>> first2Active(User user)
+        public List<PurchaseSubscription> first2Active(User user)
         {
-            return await _dbc.PurchaseSubscriptions
+            return _dbc.PurchaseSubscriptions
                 .Where(p => p.user == user && p.active == 1 && (p.dateOfActivation == null || p.dateOfMustBeUsedTo > DateTime.Now.Date))
                 .Include(p => p.user)
                 .Include(p => p.subscription)
                 .Include(p => p.payment)
                 .OrderBy(p => p.id)
                 .Take(2)
-                .ToListAsync();
+                .ToList();
         }
 
-        public async Task<bool> isAnyActive(User user)
+        public bool isAnyActive(User user)
         {
-            return await _dbc.PurchaseSubscriptions
+            return _dbc.PurchaseSubscriptions
                 .Where(p => p.user == user && p.active == 1 && (p.dateOfActivation == null || p.dateOfMustBeUsedTo > DateTime.Now.Date))
                 .OrderBy(p => p.id)
-                .AnyAsync();
+                .Any();
         }
 
-        public async Task<PurchaseSubscription> add(Payment payment)
+        public PurchaseSubscription add(Payment payment)
         {
             PurchaseSubscription purchaseSubscription = new PurchaseSubscription();
             purchaseSubscription.user = payment.user;
@@ -85,33 +85,33 @@ namespace STG.Service
             purchaseSubscription.isProlongation = payment.isProlongation;
             purchaseSubscription.days = payment.subscription.days;
 
-            await _dbc.PurchaseSubscriptions.AddAsync(purchaseSubscription);
-            await _dbc.SaveChangesAsync();
+            _dbc.PurchaseSubscriptions.AddAsync(purchaseSubscription);
+            _dbc.SaveChanges();
             purchaseSubscription.orderInList = purchaseSubscription.id;
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
 
             return purchaseSubscription;
         }
 
-        public async Task activate(PurchaseSubscription purchaseSubscription)
+        public void activate(PurchaseSubscription purchaseSubscription)
         {
             purchaseSubscription.dateOfActivation = DateTime.Now.Date;
             if (purchaseSubscription.days != 0)
             {
                 purchaseSubscription.dateOfMustBeUsedTo = DateTime.Now.Date.AddDays(purchaseSubscription.days);
             }
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
         }
 
 
-        public async Task<bool> canselProlongation(PurchaseSubscription purchaseSubscription)
+        public bool canselProlongation(PurchaseSubscription purchaseSubscription)
         {
             purchaseSubscription.isProlongation = 0;
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
         }
 
-        public async Task<bool> extendForDaysSelf(PurchaseSubscription purchaseSubscription)
+        public bool extendForDaysSelf(PurchaseSubscription purchaseSubscription)
         {
             if (purchaseSubscription.days == 0 || purchaseSubscription.dateOfActivation == null) return false;
 
@@ -119,27 +119,27 @@ namespace STG.Service
 
             purchaseSubscription.dateOfMustBeUsedTo = date_must_be_used.AddDays(purchaseSubscription.days);
 
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
         }
 
-        public async Task<bool> setCanselByPayment(Payment payment)
+        public bool setCanselByPayment(Payment payment)
         {
-            List<PurchaseSubscription> purchaseSubscriptions = await _dbc.PurchaseSubscriptions
+            List<PurchaseSubscription> purchaseSubscriptions = _dbc.PurchaseSubscriptions
                 .Where(p => p.payment == payment)
-                .ToListAsync();
+                .ToList();
             foreach (PurchaseSubscription purchase in purchaseSubscriptions)
             {
                 purchase.active = 0;
                 purchase.dateOfActivation = null;
                 purchase.dateOfMustBeUsedTo = null;
-                await _dbc.SaveChangesAsync();
+                _dbc.SaveChanges();
             }
             return true;
         }
 
 
-        public async Task<bool> edit(PurchaseSubscription purchaseSubscription, PurchaseSubscriptionDTO purchaseSubscriptionDTO, Subscription subscription)
+        public bool edit(PurchaseSubscription purchaseSubscription, PurchaseSubscriptionDTO purchaseSubscriptionDTO, Subscription subscription)
         {
             if (purchaseSubscriptionDTO.days < 0) purchaseSubscriptionDTO.days = 1;
 
@@ -176,13 +176,13 @@ namespace STG.Service
                 purchaseSubscription.dateOfMustBeUsedTo = null;
             }
 
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
 
             return true;
         }
 
 
-        public async Task<bool> addByAdmin(PurchaseSubscriptionNewByAdminDTO purchaseSubscriptionNewByAdminDTO, User user, Subscription subscription)
+        public bool addByAdmin(PurchaseSubscriptionNewByAdminDTO purchaseSubscriptionNewByAdminDTO, User user, Subscription subscription)
         {
             PurchaseSubscription purchaseSubscription = new PurchaseSubscription();
             if (purchaseSubscriptionNewByAdminDTO.days < 0) purchaseSubscriptionNewByAdminDTO.days = 1;
@@ -230,19 +230,27 @@ namespace STG.Service
                 purchaseSubscription.dateOfMustBeUsedTo = null;
             }
 
-            await _dbc.PurchaseSubscriptions.AddAsync(purchaseSubscription);
-            await _dbc.SaveChangesAsync();
+            _dbc.PurchaseSubscriptions.AddAsync(purchaseSubscription);
+            _dbc.SaveChanges();
             purchaseSubscription.orderInList = purchaseSubscription.id;
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
         }
 
 
-        public async Task<bool> delete(PurchaseSubscription purchaseSubscription)
+        public bool delete(PurchaseSubscription purchaseSubscription)
         {
             _dbc.PurchaseSubscriptions.Remove(purchaseSubscription);
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
+        }
+
+        public List<PurchaseSubscription> listAllPayedByDates(DateTime dateFrom, DateTime dateTo)
+        {
+            return _dbc.PurchaseSubscriptions
+                .Where(p => p.isPayed == 1 && p.active == 1 && p.dateOfAdd >= dateFrom && p.dateOfAdd <= dateTo)
+                .OrderByDescending(p => p.id)
+                .ToList();
         }
     }
 }

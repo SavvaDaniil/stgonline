@@ -3,6 +3,7 @@ using STG.Data;
 using STG.DTO.Payment;
 using STG.Entities;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -17,9 +18,9 @@ namespace STG.Service
         }
 
 
-        public async Task<Payment> findById(int id_of_payment)
+        public Payment findById(int id_of_payment)
         {
-            return await _dbc.Payments
+            return _dbc.Payments
                 .Where(p => p.id == id_of_payment)
                 .Include(p => p.lesson)
                 .Include(p => p.user)
@@ -28,11 +29,11 @@ namespace STG.Service
                 .Include(p => p.preUserWithAppointment)
                 .Include(p => p.statement)
                 .OrderByDescending(p => p.id)
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
         }
-        public async Task<Payment> findByIdPreUserStatementWithoutUser(int id_of_payment)
+        public Payment findByIdPreUserStatementWithoutUser(int id_of_payment)
         {
-            return await _dbc.Payments
+            return _dbc.Payments
                 .Where(p => p.id == id_of_payment)
                 .Include(p => p.lesson)
                 .Include(p => p.subscription)
@@ -40,11 +41,11 @@ namespace STG.Service
                 .Include(p => p.preUserWithAppointment)
                 .Include(p => p.statement)
                 .OrderByDescending(p => p.id)
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
         }
-        public async Task<Payment> findByTinkoffPaymentId(int tinkoffPaymentId)
+        public Payment findByTinkoffPaymentId(int tinkoffPaymentId)
         {
-            return await _dbc.Payments
+            return _dbc.Payments
                 .Where(p => p.tinkoffPaymentId == tinkoffPaymentId)
                 .Include(p => p.lesson)
                 .Include(p => p.user)
@@ -53,12 +54,12 @@ namespace STG.Service
                 .Include(p => p.preUserWithAppointment)
                 .Include(p => p.statement)
                 .OrderByDescending(p => p.id)
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
         }
 
-        public async Task<Payment> findNotPayed(int id_of_payment)
+        public Payment findNotPayed(int id_of_payment)
         {
-            return await _dbc.Payments
+            return _dbc.Payments
                 .Where(p => p.id == id_of_payment && p.status == 0 && p.dateOfPayed == null)
                 .Include(p => p.lesson)
                 .Include(p => p.user)
@@ -67,11 +68,11 @@ namespace STG.Service
                 .Include(p => p.preUserWithAppointment)
                 .Include(p => p.statement)
                 .OrderBy(p => p.id)
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
         }
-        public async Task<Payment> findPayed(int id_of_payment)
+        public Payment findPayed(int id_of_payment)
         {
-            return await _dbc.Payments
+            return _dbc.Payments
                 .Where(p => p.id == id_of_payment && p.status == 1 && p.dateOfPayed != null)
                 .Include(p => p.lesson)
                 .Include(p => p.user)
@@ -80,11 +81,11 @@ namespace STG.Service
                 .Include(p => p.preUserWithAppointment)
                 .Include(p => p.statement)
                 .OrderBy(p => p.id)
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
         }
-        public async Task<Payment> findPayedForExtend(int id_of_payment)
+        public Payment findPayedForExtend(int id_of_payment)
         {
-            return await _dbc.Payments
+            return _dbc.Payments
                 .Where(
                     p => p.id == id_of_payment
                     && p.status == 1 
@@ -101,12 +102,12 @@ namespace STG.Service
                 .Include(p => p.preUserWithAppointment)
                 .Include(p => p.statement)
                 .OrderBy(p => p.id)
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
         }
 
-        public async Task<Payment> findNotPayedForLesson(User user, int id_of_payment)
+        public Payment findNotPayedForLesson(User user, int id_of_payment)
         {
-            return await _dbc.Payments
+            return _dbc.Payments
                 .Where(p => p.user == user && p.id == id_of_payment && p.status == 0 )
                 .Include(p => p.lesson)
                 .Include(p => p.subscription)
@@ -115,10 +116,10 @@ namespace STG.Service
                 .Include(p => p.statement)
                 .Include(p => p.user)
                 .OrderBy(p => p.id)
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
         }
 
-        public async Task<Payment> add(User user, Lesson lesson, Subscription subscription, Package package, int is_prolongation, bool isAnyBuyedBefore = false)
+        public Payment add(User user, Lesson lesson, Subscription subscription, Package package, bool withChat, int is_prolongation, bool isAnyBuyedBefore = false)
         {
             Payment payment = new Payment();
             payment.user = user;
@@ -138,19 +139,20 @@ namespace STG.Service
             if (package != null)
             {
                 payment.package = package;
-                payment.price = package.price;
+                payment.price = (withChat ? package.priceWithChat : package.price);
+                if (withChat)payment.isWithChat = 1;
             }
 
             payment.isProlongation = is_prolongation;
             payment.dateOfAdd = DateTime.Now;
 
-            await _dbc.Payments.AddAsync(payment);
-            await _dbc.SaveChangesAsync();
+            _dbc.Payments.Add(payment);
+            _dbc.SaveChanges();
 
             return payment;
         }
 
-        public async Task<Payment> add(PreUserWithAppointment preUserWithAppointment, int priceForAppointment, bool isTest = false)
+        public Payment add(PreUserWithAppointment preUserWithAppointment, int priceForAppointment, bool isTest = false)
         {
             Payment payment = new Payment();
             payment.preUserWithAppointment = preUserWithAppointment;
@@ -159,13 +161,13 @@ namespace STG.Service
             payment.dateOfAdd = DateTime.Now;
             payment.isTest = isTest ? 1 : 0;
 
-            await _dbc.Payments.AddAsync(payment);
-            await _dbc.SaveChangesAsync();
+            _dbc.Payments.Add(payment);
+            _dbc.SaveChanges();
 
             return payment;
         }
 
-        public async Task<Payment> add(Statement statement, int priceForAppointment)
+        public Payment add(Statement statement, int priceForAppointment)
         {
             Payment payment = new Payment();
             payment.statement = statement;
@@ -180,23 +182,23 @@ namespace STG.Service
             payment.isProlongation = 0;
             payment.dateOfAdd = DateTime.Now;
 
-            await _dbc.Payments.AddAsync(payment);
-            await _dbc.SaveChangesAsync();
+            _dbc.Payments.Add(payment);
+            _dbc.SaveChanges();
 
             return payment;
         }
 
-        public async Task<bool> makePayedSuccess(Payment payment)
+        public bool makePayedSuccess(Payment payment)
         {
             payment.dateOfPayed = DateTime.Now;
             payment.status = 1;
 
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
 
             return true;
         }
 
-        public async Task<Payment> addForExtended(User user, Subscription subscription, PaymentNewDTO paymentNewDTO)
+        public Payment addForExtended(User user, Subscription subscription, PaymentNewDTO paymentNewDTO)
         {
             Payment newPayment = new Payment();
             newPayment.status = 0;
@@ -210,13 +212,13 @@ namespace STG.Service
             newPayment.id_of_payment_that_extended = paymentNewDTO.payment_that_extended;
             newPayment.dateOfAdd = DateTime.Now;
 
-            await _dbc.Payments.AddAsync(newPayment);
-            await _dbc.SaveChangesAsync();
+            _dbc.Payments.Add(newPayment);
+            _dbc.SaveChanges();
 
             return newPayment;
         }
 
-        public async Task<bool> updateAfterExtended(Payment payment, TinkoffInitResponse tinkoffInitResponse)
+        public bool updateAfterExtended(Payment payment, TinkoffInitResponse tinkoffInitResponse)
         {
             payment.tinkoffPaymentId = tinkoffInitResponse.PaymentId;
             payment.tinkoffPaymentURL = tinkoffInitResponse.PaymentURL;
@@ -224,86 +226,99 @@ namespace STG.Service
 
             payment.status = 1;
             payment.dateOfPayed = DateTime.Now;
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
         }
 
-        public async Task<bool> updateTinkoffData(Payment payment, TinkoffInitResponse tinkoffInitDTO)
+        public bool updateTinkoffData(Payment payment, TinkoffInitResponse tinkoffInitDTO)
         {
             payment.tinkoffPaymentId = tinkoffInitDTO.PaymentId;
             payment.tinkoffPaymentURL = tinkoffInitDTO.PaymentURL;
             payment.tinkoffErrorCode = tinkoffInitDTO.ErrorCode;
             payment.tinkoffRebillID = tinkoffInitDTO.RebillID;
 
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
 
             return true;
         }
 
-        public async Task<bool> setRobokassaStatus(Payment payment)
+        public bool setRobokassaStatus(Payment payment)
         {
             payment.isRobokassa = 1;
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
         }
 
-        public async Task<bool> updateUser(Payment payment, User user)
+        public bool updateUser(Payment payment, User user)
         {
             payment.user = user;
 
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
 
             return true;
         }
 
-        public async Task<bool> canselProlongation(Payment payment)
+        public bool canselProlongation(Payment payment)
         {
             payment.isProlongation = 0;
             payment.tinkoffCanselRecurrent = 1;
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
         }
-        public async Task<bool> updateTinkoffRebuildId(Payment payment, string rebillID)
+        public bool updateTinkoffRebuildId(Payment payment, string rebillID)
         {
             if (payment.isProlongation == 0 || payment.isItProlongation == 1) return false;
 
             payment.tinkoffRebillID = rebillID;
 
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
         }
 
-        public async Task<bool> sendingReceiptStart(Payment payment)
+        public bool sendingReceiptStart(Payment payment)
         {
             payment.isReceiptSend = 1;
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
         }
-        public async Task<bool> sentReceipt(Payment payment)
+        public bool sentReceipt(Payment payment)
         {
             payment.isReceiptSend = 2;
             payment.dateOfSendReseipt = DateTime.Now;
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
         }
 
-        public async Task<bool> setCanselBecauseReceiptError(Payment payment)
+        public bool setCanselBecauseReceiptError(Payment payment)
         {
             payment.isReceiptError = 1;
             payment.dateOfReceiptError = DateTime.Now;
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
 
-            await setCansel(payment);
+            setCansel(payment);
 
             return true;
         }
 
-        public async Task<bool> setCansel(Payment payment)
+        public bool setCansel(Payment payment)
         {
             payment.isCansel = 1;
             payment.dateOfCansel = DateTime.Now;
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
+        }
+
+        public List<Payment> listAllPayedByDates(DateTime dateFrom, DateTime dateTo)
+        {
+            return _dbc.Payments
+                .Include(p => p.user)
+                .Include(p => p.lesson)
+                .Include(p => p.package)
+                .Include(p => p.subscription)
+                .Include(p => p.statement)
+                .Where(p => p.status == 1 && p.dateOfPayed >= dateFrom && p.dateOfPayed <= dateTo)
+                .OrderByDescending(p => p.id)
+                .ToList();
         }
     }
 }

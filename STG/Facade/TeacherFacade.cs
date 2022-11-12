@@ -30,10 +30,10 @@ namespace STG.Facade
 
         private string defaultPosterSrc = "/images/teacher-default.jpg";
 
-        public async Task<TeacherLiteViewModel> get(int id)
+        public TeacherLiteViewModel get(int id)
         {
             TeacherService teacherService = new TeacherService(this._dbc);
-            Teacher teacher = await teacherService.findById(id);
+            Teacher teacher = teacherService.findById(id);
             if (teacher == null) return null;
 
             return new TeacherLiteViewModel(
@@ -56,16 +56,16 @@ namespace STG.Facade
             );
         }
 
-        public async Task<JsonAnswerStatus> getModal(HttpContext httpContext, TeacherIdDTO teacherIdDTO)
+        public JsonAnswerStatus getModal(HttpContext httpContext, TeacherIdDTO teacherIdDTO)
         {
             TeacherService teacherService = new TeacherService(this._dbc);
-            Teacher teacher = await teacherService.findById(teacherIdDTO.id);
+            Teacher teacher = teacherService.findById(teacherIdDTO.id);
             if (teacher == null) return null;
 
             LessonFacade lessonFacade = new LessonFacade(_dbc);
-            List<LessonLiteViewModel> lessonsOfTeacher = await lessonFacade.getAllActiveByFilter(
+            List<LessonLiteViewModel> lessonsOfTeacher = lessonFacade.getAllActiveByFilter(
                 httpContext,
-                null,
+                0,
                 0,
                 teacher.id,
                 null,
@@ -89,10 +89,10 @@ namespace STG.Facade
         }
 
 
-        public async Task<List<TeacherPreviewViewModel>> listAllActive()
+        public List<TeacherPreviewViewModel> listAllActive()
         {
             TeacherService teacherService = new TeacherService(this._dbc);
-            IEnumerable<Teacher> teachers = await teacherService.listAllActive();
+            IEnumerable<Teacher> teachers = teacherService.listAllActive();
 
             List<TeacherPreviewViewModel> teacherLiteViewModels = new List<TeacherPreviewViewModel>();
 
@@ -121,10 +121,10 @@ namespace STG.Facade
             return teacherLiteViewModels;
         }
 
-        public async Task<List<TeacherLiteIndexViewModel>> listAllLiteForIndexActive()
+        public List<TeacherLiteIndexViewModel> listAllLiteForIndexActive()
         {
             TeacherService teacherService = new TeacherService(this._dbc);
-            List<Teacher> teachers = await teacherService.listAllActive();
+            List<Teacher> teachers = teacherService.listAllActive();
 
             List<TeacherLiteIndexViewModel> teacherLiteViewModels = new List<TeacherLiteIndexViewModel>();
 
@@ -166,10 +166,10 @@ namespace STG.Facade
             return teacherLiteViewModels;
         }
 
-        public async Task<List<TeacherCuratorChooseViewModel>> listAllCurator()
+        public List<TeacherCuratorChooseViewModel> listAllCurator()
         {
             TeacherService teacherService = new TeacherService(this._dbc);
-            IEnumerable<Teacher> teachers = await teacherService.listAllActiveCurator();
+            IEnumerable<Teacher> teachers = teacherService.listAllActiveCurator();
             List<TeacherCuratorChooseViewModel> teacherLiteViewModels = new List<TeacherCuratorChooseViewModel>();
 
             string posterSrc;
@@ -201,10 +201,10 @@ namespace STG.Facade
             return teacherLiteViewModels;
         }
 
-        public async Task<ListTeacherCuratorPreviewsViewModel> listAllCuratorForMentoring()
+        public ListTeacherCuratorPreviewsViewModel listAllCuratorForMentoring(bool isOnlyPrivateCourses = true)
         {
             TeacherService teacherService = new TeacherService(this._dbc);
-            IEnumerable<Teacher> teachers = await teacherService.listAllActiveCurator();
+            IEnumerable<Teacher> teachers = (isOnlyPrivateCourses ? teacherService.listAllActiveCurator() : teacherService.listAll());
             List<TeacherCuratorPreviewViewModel> curators = new List<TeacherCuratorPreviewViewModel>();
 
             HomeworkService homeworkService = new HomeworkService(_dbc);
@@ -219,9 +219,9 @@ namespace STG.Facade
                 if (posterSrc == null) posterSrc = defaultPosterSrc;
 
                 //получение количества непрочитанных домашних заданий
-                countUnreadHomeworks = await homeworkService.getCountNotReadedByTeacher(teacher);
+                countUnreadHomeworks = homeworkService.getCountNotReadedByTeacher(teacher);
                 //получение количества непрочитанных сообщений
-                countUnreadPackageChats = await packageChatService.getCountNotReadedByTeacher(teacher);
+                countUnreadPackageChats = packageChatService.getCountNotReadedByTeacher(teacher);
 
                 curators.Add(
                     new TeacherCuratorPreviewViewModel(
@@ -242,7 +242,7 @@ namespace STG.Facade
         }
 
 
-        public async Task<JsonAnswerStatus> update(TeacherDTO teacherDTO)
+        public JsonAnswerStatus update(TeacherDTO teacherDTO)
         {
             if (teacherDTO.isPosterDelete == 1)
             {
@@ -254,14 +254,14 @@ namespace STG.Facade
                 {
                     return new JsonAnswerStatus("error", "wrong_image");
                 }
-                if (!(await uploadPoster(teacherDTO.avatarFile, teacherDTO.id.ToString())))
+                if (!(uploadPoster(teacherDTO.avatarFile, teacherDTO.id.ToString())))
                 {
                     return new JsonAnswerStatus("error", "unknown_error");
                 }
             }
 
             TeacherService teacherService = new TeacherService(this._dbc);
-            await teacherService.save(teacherDTO);
+            teacherService.save(teacherDTO);
 
             return new JsonAnswerStatus("success", null);
         }
@@ -300,7 +300,7 @@ namespace STG.Facade
         }
 
 
-        private async Task<bool> uploadPoster(IFormFile file, string nameOfFile)
+        private bool uploadPoster(IFormFile file, string nameOfFile)
         {
             string path = Directory.GetCurrentDirectory();
             string uploadsForFiles = path + "\\wwwroot\\uploads\\teacher";
@@ -314,7 +314,7 @@ namespace STG.Facade
             string pathwithTmpName = uploadsForFiles + "\\tmp.png";
             using (var fileStream = new FileStream(pathwithTmpName, FileMode.Create))
             {
-                await file.CopyToAsync(fileStream);
+                file.CopyTo(fileStream);
 
                 fileStream.Dispose();
             }
@@ -327,35 +327,14 @@ namespace STG.Facade
             if (File.Exists(pathwithTmpName))File.Delete(pathwithTmpName);
 
 
-            /*
-            using (var stream = File.Open(pathwithfileName, FileMode.Create))
-            {
-                var patternImage = new Bitmap(stream);
-                int newWidth = patternImage.Width;
-                int newHeight = (int)Math.Round((double)(patternImage.Width * 16 / 9));
-                Bitmap bitmapNewImage = this.ResizeImage(patternImage, newWidth, newHeight);
-                bitmapNewImage.Save(stream, ImageFormat.Jpeg);
-                stream.Dispose();
-            }
-            */
-
-            /*
-            Image img = System.Drawing.Image.FromFile(pathwithfileName);
-            var patternImage = new Bitmap(img);
-            int newWidth = patternImage.Width;
-            int newHeight = (int)Math.Round((double)(patternImage.Width * 16 / 9));
-            Bitmap bitmapNewImage = this.ResizeImage(patternImage, newWidth, newHeight);
-            bitmapNewImage.Save(pathwithfileName, ImageFormat.Jpeg);
-            bitmapNewImage.Dispose();
-            */
 
             return true;
         }
 
-        public async Task<bool> changeOrder(TeacherOrderDTO teacherOrderDTO)
+        public bool changeOrder(TeacherOrderDTO teacherOrderDTO)
         {
             TeacherService teacherService = new TeacherService(_dbc);
-            bool answer = await teacherService.changeOrder(teacherOrderDTO);
+            bool answer = teacherService.changeOrder(teacherOrderDTO);
             teacherService = null;
             return answer;
         }

@@ -20,22 +20,22 @@ namespace STG.Service
             this._dbc = dbc;
         }
 
-        public async Task<Video> findById(int id)
+        public Video findById(int id)
         {
-            return await this._dbc.Videos.SingleOrDefaultAsync(p => p.id == id);
+            return this._dbc.Videos.SingleOrDefault(p => p.id == id);
         }
 
-        public async Task<List<Video>> listAll()
+        public List<Video> listAll()
         {
-            return await this._dbc.Videos.OrderByDescending(p => p.id).ToListAsync();
+            return this._dbc.Videos.OrderByDescending(p => p.id).ToList();
         }
 
-        public async Task<IEnumerable<Video>> listAllEnum()
+        public IEnumerable<Video> listAllEnum()
         {
-            return await this._dbc.Videos.OrderByDescending(p => p.id).ToListAsync();
+            return this._dbc.Videos.OrderByDescending(p => p.id).ToList();
         }
 
-        public async Task<Video> add(VideoNewDTO videoNewDTO)
+        public Video add(VideoNewDTO videoNewDTO)
         {
             Video video = new Video();
             video.name = videoNewDTO.name;
@@ -44,35 +44,35 @@ namespace STG.Service
 
             this._dbc.Videos.Add(video);
 
-            await this._dbc.SaveChangesAsync();
+            this._dbc.SaveChanges();
 
             return video;
         }
 
-        public async Task<bool> update(VideoDTO videoDTO)
+        public bool update(VideoDTO videoDTO)
         {
-            Video video = await findById(videoDTO.id);
+            Video video = findById(videoDTO.id);
 
             if (video == null) return false;
 
             video.name = video.name;
 
-            await this._dbc.SaveChangesAsync();
+            this._dbc.SaveChanges();
 
             return true;
         }
 
-        public async Task<bool> delete(int id)
+        public bool delete(int id)
         {
-            Video video = await findById(id);
+            Video video = findById(id);
             this._dbc.Videos.Remove(video);
-            await this._dbc.SaveChangesAsync();
+            this._dbc.SaveChanges();
             return true;
         }
 
-        public async Task<Video> save(VideoDTO videoDTO)
+        public Video save(VideoDTO videoDTO)
         {
-            Video video = await findById(videoDTO.id);
+            Video video = findById(videoDTO.id);
             if (video == null) return null;
 
             video.name = videoDTO.name;
@@ -83,7 +83,7 @@ namespace STG.Service
             video.duration = videoDTO.durationSeconds + videoDTO.durationMinutes * 60 + videoDTO.durationHours * 60 * 60;
 
 
-            await this._dbc.SaveChangesAsync();
+            this._dbc.SaveChanges();
 
             return video;
         }

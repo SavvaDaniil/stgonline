@@ -16,61 +16,61 @@ namespace STG.Service
             this._dbc = dbc;
         }
 
-        public async Task<Extend> findById(int id)
+        public Extend findById(int id)
         {
-            return await _dbc.Extends
+            return _dbc.Extends
                 .Where(p => p.id == id)
                 .Include(p => p.user)
                 .OrderByDescending(p => p.id)
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
         }
 
-        public async Task<IEnumerable<Extend>> listAllNotFinished()
+        public IEnumerable<Extend> listAllNotFinished()
         {
-            return await _dbc.Extends
+            return _dbc.Extends
                 .Where(p => p.status == 0)
                 .Include(p => p.user)
                 .OrderBy(p => p.id)
-                .ToListAsync();
+                .ToList();
         }
 
-        public async Task<IEnumerable<Extend>> listAllNotFinishedByUser(User user)
+        public IEnumerable<Extend> listAllNotFinishedByUser(User user)
         {
-            return await _dbc.Extends
+            return _dbc.Extends
                 .Where(p => p.status == 0 && p.user == user)
                 .Include(p => p.user)
                 .OrderBy(p => p.id)
-                .ToListAsync();
+                .ToList();
         }
 
-        public async Task<Extend> findByIdNotFinished(int id)
+        public Extend findByIdNotFinished(int id)
         {
-            return await _dbc.Extends
+            return _dbc.Extends
                 .Where(p => p.id == id && p.status == 0)
                 .Include(p => p.user)
                 .OrderByDescending(p => p.id)
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
         }
 
-        public async Task<Extend> find(User user, int id_of_purchase_subscription)
+        public Extend find(User user, int id_of_purchase_subscription)
         {
-            return await _dbc.Extends
+            return _dbc.Extends
                 .Where(p => p.id_of_purchase_subscription == id_of_purchase_subscription && p.user == user)
                 .Include(p => p.user)
                 .OrderByDescending(p => p.id)
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
         }
 
-        public async Task<Extend> findNotFinished(User user, int id_of_purchase_subscription)
+        public Extend findNotFinished(User user, int id_of_purchase_subscription)
         {
-            return await _dbc.Extends
+            return _dbc.Extends
                 .Where(p => p.id_of_purchase_subscription == id_of_purchase_subscription && p.user == user && p.status == 0)
                 .Include(p => p.user)
                 .OrderByDescending(p => p.id)
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
         }
 
-        public async Task<Extend> add(User user, int id_of_purchase_subscription)
+        public Extend add(User user, int id_of_purchase_subscription)
         {
             Extend extend = new Extend();
             extend.user = user;
@@ -80,56 +80,56 @@ namespace STG.Service
 
             extend.date_of_add = DateTime.Now;
 
-            await _dbc.Extends.AddAsync(extend);
-            await _dbc.SaveChangesAsync();
+            _dbc.Extends.Add(extend);
+            _dbc.SaveChanges();
 
             return extend;
         }
 
-        public async Task<bool> updateStartThread(int id, DateTime start, DateTime must_be_finish)
+        public bool updateStartThread(int id, DateTime start, DateTime must_be_finish)
         {
-            Extend extend = await findById(id);
+            Extend extend = findById(id);
             if (extend == null) return false;
 
             extend.date_of_thread_start = start;
             extend.date_of_thread_must_be_finished = must_be_finish;
 
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
 
             return true;
         }
 
-        public async Task<bool> updateStartThread(Extend extend, DateTime start, DateTime must_be_finish)
+        public bool updateStartThread(Extend extend, DateTime start, DateTime must_be_finish)
         {
             extend.date_of_thread_start = start;
             extend.date_of_thread_must_be_finished = must_be_finish;
 
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
 
             return true;
         }
 
-        public async Task<bool> updateFinishThread(Extend extend, DateTime finish)
+        public bool updateFinishThread(Extend extend, DateTime finish)
         {
             extend.status = 1;
             extend.date_of_thread_finished = finish;
 
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
 
             return true;
         }
 
-        public async Task<bool> updateResultSuccessfull(Extend extend)
+        public bool updateResultSuccessfull(Extend extend)
         {
             extend.success = 1;
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
             return true;
         }
 
 
-        public async Task<bool> canselExtendsByUser(User user)
+        public bool canselExtendsByUser(User user)
         {
-            IEnumerable<Extend> extends = await listAllNotFinishedByUser(user);
+            IEnumerable<Extend> extends = listAllNotFinishedByUser(user);
             foreach (Extend extend in extends)
             {
                 _dbc.Extends.Remove(extend);
@@ -138,9 +138,9 @@ namespace STG.Service
         }
 
 
-        public async Task<bool> delete(int id)
+        public bool delete(int id)
         {
-            Extend extend = await findById(id);
+            Extend extend = findById(id);
             if (extend == null) return false;
             _dbc.Extends.Remove(extend);
             return true;

@@ -20,36 +20,36 @@ namespace STG.Service
             this._dbc = dbc;
         }
 
-        public async Task<Lesson> findById(int id)
+        public Lesson findById(int id)
         {
-            return await this._dbc.Lessons
+            return this._dbc.Lessons
                 .Include(p => p.level)
                 .Include(p => p.lessonType)
                 .Include(p => p.style)
                 .Include(p => p.teacher)
                 .Include(p => p.video)
-                .FirstOrDefaultAsync(p => p.id == id);
+                .FirstOrDefault(p => p.id == id);
         }
 
-        public async Task<Lesson> findPrevOfById(int id_of_current_lesson, int order_of_current_lesson)
+        public Lesson findPrevOfById(int id_of_current_lesson, int order_of_current_lesson)
         {
-            return await _dbc.Lessons
+            return _dbc.Lessons
                 .Where(p => p.id != id_of_current_lesson)
                 .Where(p => p.orderInList < order_of_current_lesson)
                 .OrderByDescending(p => p.orderInList)
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
         }
-        public async Task<Lesson> findNextOfById(int id_of_current_lesson, int order_of_current_lesson)
+        public Lesson findNextOfById(int id_of_current_lesson, int order_of_current_lesson)
         {
-            return await _dbc.Lessons
+            return _dbc.Lessons
                 .Where(p => p.id != id_of_current_lesson)
                 .Where(p => p.orderInList > order_of_current_lesson)
                 .OrderBy(p => p.orderInList)
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
         }
 
 
-        public async Task<Lesson> add(LessonNewDTO lessonNewDTO)
+        public Lesson add(LessonNewDTO lessonNewDTO)
         {
             Lesson lesson = new Lesson();
             lesson.name = lessonNewDTO.name;
@@ -57,23 +57,23 @@ namespace STG.Service
 
             this._dbc.Lessons.Add(lesson);
 
-            await this._dbc.SaveChangesAsync();
+            this._dbc.SaveChanges();
 
             lesson.orderInList = lesson.id;
-            await this._dbc.SaveChangesAsync();
+            this._dbc.SaveChanges();
 
             return lesson;
         }
 
-        public async Task<IEnumerable<Lesson>> listAll()
+        public IEnumerable<Lesson> listAll()
         {
-            return await this._dbc.Lessons.OrderByDescending(p => p.orderInList).ToListAsync();
+            return this._dbc.Lessons.OrderByDescending(p => p.orderInList).ToList();
         }
-        public async Task<List<Lesson>> listAllActive()
+        public List<Lesson> listAllActive()
         {
-            return await this._dbc.Lessons.Where(p => p.active == 1).ToListAsync();
+            return this._dbc.Lessons.Where(p => p.active == 1).ToList();
         }
-        public async Task<List<Lesson>> listAllActiveByFilter(string name, Style style, int id_of_level = 0, int id_of_teacher = 0, int skip = 0, int isFree = 0, int take = 18)
+        public List<Lesson> listAllActiveByFilter(string name, int id_of_style, int id_of_level = 0, int id_of_teacher = 0, int skip = 0, int isFree = 0, int take = 18)
         {
             if (take < 0) take = 18;
 
@@ -97,12 +97,12 @@ namespace STG.Service
                     " WHERE lesson.active > '0' AND lesson.is_visible ='1' "+ teacherQuery + " {1} " +
                     "GROUP BY lesson.id ORDER BY lesson.order_in_list DESC LIMIT {2}, {3}", id_of_levelStr, id_of_teacherStr, skip, take);
 
-                var lessons = await _dbc.Lessons.FromSql(query)
+                var lessons = _dbc.Lessons.FromSql(query)
                     .Include(p => p.level)
                     .Include(p => p.lessonType)
                     .Include(p => p.style)
                     .Include(p => p.teacher)
-                    .ToListAsync();
+                    .ToList();
 
                 /*
                 System.Diagnostics.Debug.WriteLine("SELECT lesson.* " +
@@ -146,10 +146,10 @@ namespace STG.Service
             if (!string.IsNullOrEmpty(name)) q = q.Where(p => EF.Functions.Like(p.name, name));
             if (isFree == 1) q = q.Where(p => p.isFree == 1);
             
-            if(style != null) q = q.Where(p => p.style == style);
+            //if(id_of_style != 0) q = q.Where(p => p.style.id == id_of_style);
 
             //LevelService levelService = new LevelService(_dbc);
-            //Level level = await levelService.findById(id_of_level);
+            //Level level = levelService.findById(id_of_level);
 
             if (id_of_level != 0)
             {
@@ -165,7 +165,7 @@ namespace STG.Service
                 */
                 /*
                 LevelService levelService = new LevelService(this._dbc);
-                Level level = await levelService.findById(id_of_level);
+                Level level = levelService.findById(id_of_level);
                 if (level != null)
                 {
                     q = q.Where(p => p.level == level);
@@ -182,14 +182,14 @@ namespace STG.Service
                 q = q.Skip(skip).Take(take);
             }
 
-            return await q.ToListAsync();
+            return q.ToList();
         }
 
 
         
-        public async Task<Lesson> save(LessonDTO lessonDTO)
+        public Lesson save(LessonDTO lessonDTO)
         {
-            Lesson lesson = await findById(lessonDTO.id);
+            Lesson lesson = findById(lessonDTO.id);
 
             if (lesson == null) return null;
 
@@ -206,7 +206,7 @@ namespace STG.Service
             if(lessonDTO.idOfLevel != 0)
             {
                 LevelService levelService = new LevelService(_dbc);
-                Level level = await levelService.findById(lessonDTO.idOfLevel);
+                Level level = levelService.findById(lessonDTO.idOfLevel);
                 if (level != null) lesson.level = level;
             } else
             {
@@ -216,7 +216,7 @@ namespace STG.Service
             if(lessonDTO.idOfLessonType != 0)
             {
                 LessonTypeService lessonTypeService = new LessonTypeService(_dbc);
-                LessonType lessonType = await lessonTypeService.findById(lessonDTO.idOfLessonType);
+                LessonType lessonType = lessonTypeService.findById(lessonDTO.idOfLessonType);
                 if (lessonType != null) lesson.lessonType = lessonType;
             }
             else
@@ -226,7 +226,7 @@ namespace STG.Service
             if (lessonDTO.idOfStyle != 0)
             {
                 StyleService styleService = new StyleService(_dbc);
-                Style style = await styleService.findById(lessonDTO.idOfStyle);
+                Style style = styleService.findById(lessonDTO.idOfStyle);
                 if (style != null) lesson.style = style;
             }
             else
@@ -236,7 +236,7 @@ namespace STG.Service
             if (lessonDTO.idOfTeacher != 0)
             {
                 TeacherService teacherService = new TeacherService(_dbc);
-                Teacher teacher = await teacherService.findById(lessonDTO.idOfTeacher);
+                Teacher teacher = teacherService.findById(lessonDTO.idOfTeacher);
                 if (teacher != null) lesson.teacher = teacher;
             }
             else
@@ -246,7 +246,7 @@ namespace STG.Service
             if (lessonDTO.idOfVideo != 0)
             {
                 VideoService videoService = new VideoService(_dbc);
-                Video video = await videoService.findById(lessonDTO.idOfVideo);
+                Video video = videoService.findById(lessonDTO.idOfVideo);
                 if (video != null) lesson.video = video;
             }
             else
@@ -258,33 +258,33 @@ namespace STG.Service
 
 
 
-            await this._dbc.SaveChangesAsync();
+            this._dbc.SaveChanges();
 
             return lesson;
         }
 
 
 
-        public async Task<bool> delete(int id)
+        public bool delete(int id)
         {
-            Lesson lesson = await findById(id);
+            Lesson lesson = findById(id);
             this._dbc.Lessons.Remove(lesson);
-            await this._dbc.SaveChangesAsync();
+            this._dbc.SaveChanges();
             return true;
         }
 
-        public async Task<bool> changeOrder(LessonOrderDTO lessonOrderDTO)
+        public bool changeOrder(LessonOrderDTO lessonOrderDTO)
         {
-            Lesson lessonCurrent = await findById(lessonOrderDTO.id_of_lesson);
+            Lesson lessonCurrent = findById(lessonOrderDTO.id_of_lesson);
 
             Lesson lessonForChangingOrderInList = new Lesson();
             switch (lessonOrderDTO.change_order_to_0_down_1_up)
             {
                 case 0:
-                    lessonForChangingOrderInList = await findPrevOfById(lessonCurrent.id, lessonCurrent.orderInList);
+                    lessonForChangingOrderInList = findPrevOfById(lessonCurrent.id, lessonCurrent.orderInList);
                     break;
                 case 1:
-                    lessonForChangingOrderInList = await findNextOfById(lessonCurrent.id, lessonCurrent.orderInList);
+                    lessonForChangingOrderInList = findNextOfById(lessonCurrent.id, lessonCurrent.orderInList);
                     break;
                 default:
                     break;
@@ -296,7 +296,7 @@ namespace STG.Service
                 lessonCurrent,
                 lessonForChangingOrderInList
             );
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
 
             return true;
         }

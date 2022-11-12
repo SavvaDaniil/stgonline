@@ -100,18 +100,6 @@ namespace STG.Areas.Admin.Controllers
 
             if (videoViewModel == null) return RedirectToAction("Videos");
 
-            /*
-            StyleService styleService = new StyleService(this._dbc);
-            IEnumerable<Style> styles = await styleService.listAll();
-
-            LessonTypeService lessonTypeService = new LessonTypeService(this._dbc);
-            IEnumerable<LessonType> lessonTypes = await lessonTypeService.listAll();
-            */
-
-            //videoViewModel.videoConverterStatusViewModel = await videoFacade.getStatusVideoConverterApi();
-            //videoViewModel.videoApiStatusViewModel = await videoFacade.getStatusOfVideoFromApi(videoViewModel.id, videoViewModel.hashPath);
-
-            //System.Diagnostics.Debug.WriteLine("videoViewModel.videoApiStatusViewModel.status: " + videoViewModel.videoApiStatusViewModel.status);
 
             return View(videoViewModel);
         }

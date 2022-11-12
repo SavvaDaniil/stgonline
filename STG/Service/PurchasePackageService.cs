@@ -16,131 +16,161 @@ namespace STG.Service
             this._dbc = dbc;
         }
 
-        public async Task<PurchasePackage> findById(int id)
+        public PurchasePackage findById(int id)
         {
-            return await _dbc.PurchasePackages
+            return _dbc.PurchasePackages
                 .Include(p => p.package)
                 .Include(p => p.payment)
                 .Include(p => p.user)
-                .Where(p => p.id == id).FirstOrDefaultAsync();
+                .Where(p => p.id == id).FirstOrDefault();
         }
 
-        public async Task<List<PurchasePackage>> listAllByUser(User user)
+        public List<PurchasePackage> listAllByUser(User user)
         {
-            return await _dbc.PurchasePackages
+            return _dbc.PurchasePackages
                 .Include(p => p.package)
                 .Include(p => p.payment)
-                .Where(p => p.user == user && p.active == 1).ToListAsync();
+                .Where(p => p.user == user && p.active == 1).ToList();
+        }
+
+        public List<PurchasePackage> listAllActiveByUser(User user)
+        {
+            return _dbc.PurchasePackages
+                .Include(p => p.package)
+                .Include(p => p.payment)
+                .Where(p => p.user == user && p.active == 1 && (p.dateOfActivation == null || p.dateOfMustBeUsedTo > DateTime.Now.Date))
+                .ToList();
         }
 
 
 
-        public async Task<List<PurchasePackage>> first2Active(User user)
+        public List<PurchasePackage> first2Active(User user)
         {
-            return await _dbc.PurchasePackages
+            return _dbc.PurchasePackages
                 .Where(p => p.user == user && p.active == 1 && (p.dateOfActivation == null || p.dateOfMustBeUsedTo > DateTime.Now.Date))
                 .Include(p => p.user)
                 .Include(p => p.package)
                 .Include(p => p.payment)
                 .OrderBy(p => p.id)
                 .Take(2)
-                .ToListAsync();
+                .ToList();
         }
 
-        public async Task<bool> isAnyActive(User user, Package package)
+        public bool isAnyActive(User user, Package package)
         {
-            return await _dbc.PurchasePackages
+            return _dbc.PurchasePackages
                 .Where(p => p.user == user && p.package == package && p.active == 1 && (p.dateOfActivation == null || p.dateOfMustBeUsedTo > DateTime.Now.Date))
                 .OrderBy(p => p.id)
-                .AnyAsync();
+                .Any();
         }
 
-        public async Task<bool> isAnyActivePurchaseForAnyUser(Package package)
+        public bool isAnyActivePurchaseForAnyUser(Package package)
         {
-            return await _dbc.PurchasePackages
+            return _dbc.PurchasePackages
                 .Where(p => p.package == package && p.active == 1 && (p.dateOfActivation == null || p.dateOfMustBeUsedTo > DateTime.Now.Date))
                 .OrderBy(p => p.id)
-                .AnyAsync();
+                .Any();
         }
 
-        public async Task<PurchasePackage> getFirstActive(User user)
+        public PurchasePackage getFirstActive(User user)
         {
-            return await _dbc.PurchasePackages
+            return _dbc.PurchasePackages
                 .Where(p => p.user == user && p.active == 1 && (p.dateOfActivation == null || p.dateOfMustBeUsedTo > DateTime.Now.Date))
                 .OrderBy(p => p.id)
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
         }
 
-        public async Task<PurchasePackage> getFirstActive(User user, Package package)
+        public PurchasePackage getFirstActive(User user, Package package)
         {
-            return await _dbc.PurchasePackages
+            return _dbc.PurchasePackages
                 .Where(p => p.user == user && p.package == package && p.active == 1 && (p.dateOfActivation == null || p.dateOfMustBeUsedTo > DateTime.Now.Date))
                 .OrderBy(p => p.id)
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
         }
 
-        public async Task<List<PurchasePackage>> listAllActive(User user)
+        public List<PurchasePackage> listAllActive(User user)
         {
-            return await _dbc.PurchasePackages
+            return _dbc.PurchasePackages
                 .Include(p => p.package)
                 .Include(p => p.payment)
                 .Where(p => p.user == user && p.active == 1 && (p.dateOfActivation == null || p.dateOfMustBeUsedTo > DateTime.Now.Date))
                 .OrderBy(p => p.id)
-                .ToListAsync();
+                .ToList();
         }
 
-        public async Task<int> countAllActive(User user)
+        public List<PurchasePackage> listAllActiveWithChat(int teacherId)
         {
-            return await _dbc.PurchasePackages
+            return _dbc.PurchasePackages
+                .Include(p => p.package)
+                .Include(p => p.payment)
+                .Include(p => p.user)
+                .Where(p => p.package.teacher.id == teacherId && p.isWithChat == 1  && p.active == 1 && (p.dateOfActivation == null || p.dateOfMustBeUsedTo > DateTime.Now.Date))
+                .OrderBy(p => p.id)
+                .ToList();
+        }
+
+        public int countAllActive(User user)
+        {
+            return _dbc.PurchasePackages
                 .Include(p => p.package)
                 .Include(p => p.payment)
                 .Where(p => p.user == user && p.active == 1 && (p.dateOfActivation == null || p.dateOfMustBeUsedTo > DateTime.Now.Date))
                 .OrderBy(p => p.id)
-                .CountAsync();
+                .Count();
         }
 
-        public async Task<PurchasePackage> add(Payment payment)
+        public PurchasePackage add(Payment payment)
         {
-            PurchasePackage PurchasePackage = new PurchasePackage();
-            PurchasePackage.user = payment.user;
-            PurchasePackage.package = payment.package;
-            PurchasePackage.payment = payment;
-            PurchasePackage.dateOfAdd = DateTime.Now;
-            PurchasePackage.isPayed = 1;
-            PurchasePackage.active = 1;
-            PurchasePackage.days = payment.package.days;
+            PurchasePackage purchasePackage = new PurchasePackage();
+            purchasePackage.user = payment.user;
+            purchasePackage.package = payment.package;
+            purchasePackage.payment = payment;
+            purchasePackage.dateOfAdd = DateTime.Now;
+            purchasePackage.isPayed = 1;
+            purchasePackage.active = 1;
+            purchasePackage.days = payment.package.days;
+            if (payment.isWithChat == 1) purchasePackage.isWithChat = 1;
 
-            await _dbc.PurchasePackages.AddAsync(PurchasePackage);
-            await _dbc.SaveChangesAsync();
-            PurchasePackage.orderInList = PurchasePackage.id;
-            await _dbc.SaveChangesAsync();
+            _dbc.PurchasePackages.Add(purchasePackage);
+            _dbc.SaveChanges();
+            purchasePackage.orderInList = purchasePackage.id;
+            _dbc.SaveChanges();
 
-            return PurchasePackage;
+            return purchasePackage;
         }
 
-        public async Task activate(PurchasePackage purchasePackage)
+        public void activate(PurchasePackage purchasePackage)
         {
             purchasePackage.dateOfActivation = DateTime.Now.Date;
             if (purchasePackage.days != 0)
             {
                 purchasePackage.dateOfMustBeUsedTo = DateTime.Now.Date.AddDays(purchasePackage.days);
             }
-            await _dbc.SaveChangesAsync();
+            _dbc.SaveChanges();
         }
 
-        public async Task<bool> setCanselByPayment(Payment payment)
+        public bool setCanselByPayment(Payment payment)
         {
-            List<PurchasePackage> purchasePackages = await _dbc.PurchasePackages
+            List<PurchasePackage> purchasePackages = _dbc.PurchasePackages
                 .Where(p => p.payment == payment)
-                .ToListAsync();
+                .ToList();
             foreach (PurchasePackage purchase in purchasePackages)
             {
                 purchase.active = 0;
                 purchase.dateOfActivation = null;
                 purchase.dateOfMustBeUsedTo = null;
-                await _dbc.SaveChangesAsync();
+                _dbc.SaveChanges();
             }
             return true;
+        }
+
+
+        public List<PurchasePackage> listAllPayedByDates(DateTime dateFrom, DateTime dateTo)
+        {
+            return _dbc.PurchasePackages
+                .Where(p => p.isPayed == 1 && p.active == 1 && p.dateOfAdd >= dateFrom && p.dateOfAdd <= dateTo)
+                .OrderByDescending(p => p.id)
+                .ToList();
         }
 
     }
