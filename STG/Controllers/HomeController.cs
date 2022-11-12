@@ -25,7 +25,6 @@ namespace STG.Controllers
     [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     public class HomeController : Controller
     {
-        //IWebHostEnvironment _appEnvironment;
 
         private ApplicationDbContext _dbc;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -42,24 +41,6 @@ namespace STG.Controllers
 
         public IActionResult Index()
         {
-            /*
-            System.Diagnostics.Debug.WriteLine("Роль: " + HttpContext.User.FindFirstValue(ClaimTypes.Role));
-
-            foreach (var claim in User.Claims.ToList())
-            {
-                System.Diagnostics.Debug.WriteLine("Claim: " + claim.Type + " | " + claim.Value);
-            }
-            */
-
-            if (!is_checked_extends)
-            {
-                if (_httpContextAccessor.HttpContext.Request.Host.Value == "stgonline.pro") {
-                    //ExtendFacade extendFacade = new ExtendFacade(_dbc, _serviceScopeFactory);
-                    //await extendFacade.checkExtendsAndLaunch(_httpContextAccessor.HttpContext.Request.Host.Value);
-                }
-
-                is_checked_extends = true;
-            }
 
             TeacherFacade teacherFacade = new TeacherFacade(_dbc);
 
@@ -81,9 +62,6 @@ namespace STG.Controllers
             teacherFacade = null;
 
             ViewData["idMenuActive"] = 1;
-            //Response.Headers[HeaderNames.CacheControl] = "no-cache, no-store, must-revalidate";
-            //Response.Headers[HeaderNames.Expires] = "0";
-            //Response.Headers[HeaderNames.Pragma] = "no-cache";
 
             return View(firstViewModel);
         }
@@ -123,14 +101,6 @@ namespace STG.Controllers
         {
             string path = Directory.GetCurrentDirectory();
             string uploadsForFiles = path + "/wwwroot/uploads";
-            if (!Directory.Exists(uploadsForFiles))
-            {
-                //Directory.CreateDirectory(uploadsForFiles);
-            }
-
-            //List<LessonLiteViewModel> lessons = await LessonFacade.getAllActiveByFilter(_dbc, null, null, null, null, 0);
-            //System.Diagnostics.Debug.WriteLine("lessons = " + lessons);
-            //List<Level> levelList = await LevelService.listAll(this._dbc);
             LevelService levelService = new LevelService(this._dbc);
             ViewData["levelList"] = levelService.listAll();
 
@@ -216,14 +186,6 @@ namespace STG.Controllers
         [Authorize(AuthenticationSchemes = "CookieAuth")]
         public IActionResult Secret()
         {
-            //Console.WriteLine(ClaimsPrincipal.Current.Identities.First().Claims.ToString());
-            //Console.WriteLine(ClaimsPrincipal.Current.FindFirstValue(ClaimTypes.NameIdentifier));
-
-            /*
-            System.Diagnostics.Debug.WriteLine(HttpContext.User.Identity.IsAuthenticated);
-            System.Diagnostics.Debug.WriteLine("+++++++++++++++++++++++++++++++++++++++++++");
-            System.Diagnostics.Debug.WriteLine("+++++++++ NameIdentifier = " + HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
-            */
 
             ViewData["idMenuActive"] = 0;
             return View();
@@ -257,56 +219,6 @@ namespace STG.Controllers
         }
 
 
-        public IActionResult Test()
-        {
-            ViewData["idMenuActive"] = 0;
-            System.Diagnostics.Debug.WriteLine("action test");
-
-            /*
-            StatementObserver statementObserver = new StatementObserver();
-            StatementService statementService = new StatementService(_dbc);
-            Statement statement = await statementService.findById(5);
-
-
-            if (statement != null)
-            {
-                System.Diagnostics.Debug.WriteLine(statement.listOfTeachers);
-                TeacherService teacherService = new TeacherService(_dbc);
-                List<Teacher> curators = await teacherService.listAllByListString(statement.listOfTeachers);
-
-                statementObserver.sendStatementToAdmins(statement, curators);
-            } else
-            {
-                System.Diagnostics.Debug.WriteLine("statement не найден");
-            }
-            */
-            /*
-            AmoCRMFacade amoCRMFacade = new AmoCRMFacade(_dbc);
-            await amoCRMFacade.test();
-            */
-            int start = 0;
-            int end = 0;
-            
-            FindElementsForSum(new List<uint> { 0, 1, 2, 3, 4, 5, 6, 7 }, 11, out start, out end); //start будет равен 5 и end 7;
-            System.Diagnostics.Debug.WriteLine("start: " + start + " | end: " + end + "\n--------------------------------------------");
-            FindElementsForSum(new List<uint> { 4, 5, 6, 7 }, 18, out start, out end); //start будет равен 1 и end 4;
-            System.Diagnostics.Debug.WriteLine("start: " + start + " | end: " + end + "\n--------------------------------------------");
-
-            FindElementsForSum(new List<uint> { 0, 1, 2, 3, 4, 5, 6, 7 }, 88, out start, out end); //start будет равен 0 и end 0;
-            System.Diagnostics.Debug.WriteLine("start: " + start + " | end: " + end + "\n--------------------------------------------");
-            
-
-
-
-            FindElementsForSum(new List<uint> { 0, 5, 88, 100}, 4, out start, out end); ;
-            FindElementsForSum(new List<uint> { 0, 1, 2, 3 }, 1, out start, out end);
-            FindElementsForSum(new List<uint> { 0, 8, 9, 11 }, 11, out start, out end);
-
-
-            return View("Secret");
-        }
-
-
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
@@ -314,46 +226,5 @@ namespace STG.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        private void FindElementsForSum(List<uint> list, ulong sum, out int start, out int end)
-        {
-            start = 0;
-            end = 0;
-            if (sum == 0) return;
-
-            uint innerSum = 0;
-            bool isFinished = false;
-            int j = 0;
-            for (int i = 0; i < list.Count; i++)
-            {
-                if (isFinished) break;
-                innerSum = list[i];
-                if (innerSum > sum) break;
-                j = i + 1;
-
-                while (j < list.Count + 1)
-                {
-
-                    if (innerSum == sum)
-                    {
-                        System.Diagnostics.Debug.WriteLine("Финиш ");
-                        start = i;
-                        end = j;
-                        isFinished = true;
-                        break;
-                    }
-                    if (innerSum > sum) break;
-                    if (j >= list.Count) break;
-                    System.Diagnostics.Debug.WriteLine("i = " + i + "(" + list[i] + ") | j = " + j + "(" + list[j] + ") | текущее innerSum: " + innerSum);
-                    System.Diagnostics.Debug.WriteLine("innerSum " + innerSum + " + list[j] " + list[j] + " = " + (innerSum + list[j]));
-                    innerSum += list[j];
-                    j++;
-                }
-
-                if (i == 0 && innerSum < sum) isFinished = true;
-
-
-            }
-            System.Diagnostics.Debug.WriteLine("Ответ start: " + start + " | end: " + end + "\n---------------------");
-        }
     }
 }
